@@ -19,13 +19,11 @@ Smart Routing   ·   Cost Visibility   ·   Model Agnostic   ·   APEX Native
 > plan are complete: the gateway, Switchyard-based `apex-auto` routing,
 > telemetry/cost estimation, the Oracle/PL-SQL integration layer, the APEX
 > plug-in, a demo application, and a synthetic benchmark harness all exist
-> and are exercised by an automated test suite (99 tests) plus a real
-> clean-install boot. What has **not** happened: no Oracle Database or APEX
-> Builder instance was available while building this project, so
-> `database/`, `apex-plugin/`, and `apex-demo/` are implemented and
-> hand-verified against documented Oracle/APEX APIs but not yet compiled or
-> clicked through in a live workspace — see [Limitations](#limitations) and
-> `HANDOFF.md` before depending on this in production. No cost-reduction,
+> and are exercised by an automated test suite plus live validation on
+> Oracle Database 23ai Free and APEX 26.1. The database objects compile and
+> pass their smoke test, the PL/SQL package completes a gateway round trip,
+> and the exported plug-in and four-page demo app were reimported and tested
+> in clean application IDs. No cost-reduction,
 > quality-preservation, or performance claim appears anywhere in this
 > repository unless it is backed by a real, committed benchmark run.
 
@@ -185,9 +183,8 @@ end;
 Both the plug-in and the package are optional conveniences on top of the
 native `APEX_AI` path above, not a second way to reach a model provider —
 see [`apex-plugin/README.md`](apex-plugin/README.md) and
-[`database/README.md`](database/README.md) for installation, and note the
-"not yet run against a live APEX Builder/database" caveat in
-[Limitations](#limitations).
+[`database/README.md`](database/README.md) for installation and the exact
+versions used for live validation.
 
 ## Routing modes
 
@@ -274,13 +271,13 @@ by an automated test, not just a claim, per that file).
 
 ## Limitations
 
-- **Not validated against a live Oracle Database or APEX workspace.** No
-  Oracle/APEX instance was available while building this project.
-  `database/`, `apex-plugin/`, and `apex-demo/` are implemented and
-  hand-verified against documented Oracle/APEX APIs, but running
-  `database/install.sql`, building the plug-in in Builder, and clicking
-  through the demo app's four pages have not happened here — see each
-  module's own README and `HANDOFF.md` before production use.
+- **The live validation used local mock model providers.** Oracle Database
+  23ai Free, APEX 26.1, the PL/SQL integration, the exported Dynamic Action
+  plug-in, and all four demo pages were exercised end to end. Fixed
+  efficient/capable routing passed; `apex-auto` produced the expected
+  controlled provider-unavailable error because the Switchyard sidecar was
+  not running during this validation. No real-provider quality or cost
+  claim follows from this test.
 - NeMo Switchyard is, by NVIDIA's own description, experimental / pre-alpha
   and not recommended for production use. This project uses it anyway,
   pinned to a specific commit (`deploy/switchyard/README.md`), and is
@@ -310,9 +307,9 @@ steps for each.
 - **0.1** (this release) — OpenAI-compatible gateway, Switchyard
   `llm_classifier` routing, efficient/capable/auto tiers, telemetry,
   estimated costs, native `APEX_AI` docs, `APEX_AI_ROUTER` PL/SQL package,
-  APEX Dynamic Action plug-in, demo application design, benchmark harness.
-- **0.2** — Live Oracle/APEX validation of `database/`, `apex-plugin/`, and
-  `apex-demo/`; streaming; more provider adapters; route-level budgets;
+  validated APEX Dynamic Action plug-in, exported demo application,
+  benchmark harness.
+- **0.2** — Streaming; more provider adapters; route-level budgets;
   Switchyard backend-selection telemetry.
 - **0.3** — Stage/escalation/composite routing, workspace policies,
   configurable model pools, OpenTelemetry.

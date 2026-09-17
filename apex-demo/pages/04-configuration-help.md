@@ -4,6 +4,10 @@ Spec section 20: a static-ish reference page for whoever is setting up
 this application, showing configuration facts — explicitly **no secret
 values**.
 
+> The validated `f1207.sql` export loads these same read-only endpoints
+> through allowlisted APEX Ajax Callback processes. The REST Data Source
+> mappings below remain a declarative alternative.
+
 ## Sections and sources
 
 | Section | Source | Notes |

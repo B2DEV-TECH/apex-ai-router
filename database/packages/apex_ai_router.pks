@@ -21,12 +21,9 @@ create or replace package apex_ai_router authid definer as
     apex-capable virtual models -- callers never need to know that
     naming convention.
 
-    Untested against a live Oracle/APEX instance in this repository as of
-    this writing (see database/README.md); the JSON and HTTP APIs used
-    (JSON_OBJECT_T / JSON_ARRAY_T, APEX_WEB_SERVICE.MAKE_REST_REQUEST with
-    p_credential_static_id and g_request_headers) are real, documented
-    Oracle/APEX APIs, hand-verified against their published signatures,
-    but the package has not been compiled or run end to end here.
+    Compiled and exercised end to end on Oracle Database 23ai Free with
+    APEX 26.1. The live validation used the project's local mock gateway;
+    see database/README.md for scope and production guidance.
 */
 
     c_route_auto      constant varchar2(10) := 'AUTO';

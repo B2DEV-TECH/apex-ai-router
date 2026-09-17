@@ -9,20 +9,11 @@ metrics, a Request History report, and a Configuration Help page. It is a
 are what an application actually integrating AI calls should use; this app
 exists to make the gateway's own behavior visible and explorable.
 
-> **Status:** every page's design (items, processes, Dynamic Actions, REST
-> Data Sources, exact source fields) is fully specified below and backed by
-> a real, hand-verified support package (`sql/demo_playground_pkg.pks/
-> .pkb`) and client script (`static/playground.js`). No live Oracle/APEX
-> instance was available while building this project, so **no APEX
-> application export (`f<app_id>.sql`) exists in this repository** — that
-> file can only be produced by actually building these pages in APEX
-> Builder and using Application Builder's own Export, the same reasoning
-> already applied to `apex-plugin/dist/` (see `apex-plugin/dist/README.md`
-> and `HANDOFF.md`). Building the four pages from the docs in `pages/`
-> should be straightforward and fast for someone with APEX Builder access
-> — most of the design work (data contracts, field names, wording) is
-> already done and verified against the gateway's actual source code, not
-> guessed.
+> **Status:** built and exported from APEX 26.1 as `f1207.sql`, then
+> reimported under a different application ID and exercised in a headless
+> browser. Playground, the three Dynamic Action plug-in configurations,
+> Dashboard, Request History, and Configuration Help passed against the
+> local gateway and mock model providers with no browser console errors.
 
 ## Why a support package instead of reusing `APEX_AI_ROUTER`
 
@@ -57,21 +48,24 @@ arbitrary production page.
      rejects an inference key on any `/admin/*` route by design
      (`gateway/src/apex_ai_router/api/admin.py`), so this must not be the
      same value as the inference credential.
-4. Build the four pages per `pages/01-playground.md` ..
-   `pages/04-configuration-help.md`, including the REST Data Sources
-   listed in pages 2-4 (`AIR_METRICS_SUMMARY`, `AIR_METRICS_MODELS`,
-   `AIR_METRICS_DAILY`, `AIR_ROUTES`, `AIR_REQUESTS`, `AIR_HEALTH`,
-   `AIR_READY`).
-5. Upload `static/playground.js` as a static application file and
-   reference it from Page 1's JavaScript File URLs.
+4. Compile `apex-plugin/sql/install_plugin_package.sql` in the parsing
+   schema.
+5. Import `f1207.sql` in APEX Builder, choosing the target application ID
+   and parsing schema. The export already contains the plug-in metadata,
+   its JavaScript file, the four pages, navigation, and `playground.js`.
+
+The committed app uses APEX Ajax Callback processes for the read-only
+gateway views. `apex_ai_router_demo.ajax_proxy` keeps both credentials on
+the server and restricts requests to the seven documented health, route,
+metrics, and history paths.
 
 ## Pages
 
 | Page | Doc | Summary |
 |---|---|---|
 | 1 — Playground | [`pages/01-playground.md`](pages/01-playground.md) | Send a prompt, see the response plus per-request routing/cost detail. |
-| 2 — Dashboard | [`pages/02-dashboard.md`](pages/02-dashboard.md) | Aggregate cards + charts over the admin metrics API. |
-| 3 — Request History | [`pages/03-request-history.md`](pages/03-request-history.md) | Interactive Report over `/admin/requests` — never prompt/response content. |
+| 2 — Dashboard | [`pages/02-dashboard.md`](pages/02-dashboard.md) | Aggregate cards and tables over the admin metrics API. |
+| 3 — Request History | [`pages/03-request-history.md`](pages/03-request-history.md) | Read-only table over `/admin/requests` — never prompt/response content. |
 | 4 — Configuration Help | [`pages/04-configuration-help.md`](pages/04-configuration-help.md) | Gateway endpoint, resolved model ids, `APEX_AI` setup link, health status — no secret values. |
 
 ## Cost-wording constraint (applies to every page)
@@ -96,10 +90,12 @@ suggested gateway-side fix.
 | `sql/demo_playground_pkg.pks` / `.pkb` | Support package for Page 1: `run_playground()` (called from SQL/PL-SQL directly) and `ajax_run()` (the page's Ajax Callback entry point). |
 | `sql/install_demo.sql` | Compiles the support package and seeds `ADMIN_CREDENTIAL_STATIC_ID`. |
 | `static/playground.js` | Page 1 client script. |
+| `f1207.sql` | Sanitized APEX 26.1 application export, verified by reimport under another application ID. |
 | `pages/*.md` | Page-by-page build instructions (items, processes, Dynamic Actions, REST Data Sources). |
 
 ## Manual QA
 
-See each page doc's own checklist. None of them have been run against a
-live Oracle/APEX instance in this repository — same caveat as
-`database/` and `apex-plugin/`, see `HANDOFF.md`.
+See each page doc's own checklist. The exported implementation passed the
+live APEX 26.1 browser flow documented in `docs/smoke-test.md`; the fixed
+routes used mock providers, and the Auto route intentionally exercised a
+controlled failure because Switchyard was not running.

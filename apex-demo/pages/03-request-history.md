@@ -1,12 +1,16 @@
 # Page 3 — Request History
 
-Spec section 20: an Interactive Report over the gateway's own request log,
+Spec section 20: a read-only view over the gateway's own request log,
 explicitly never showing prompt or response content — which the admin API
 enforces at the source anyway (`TelemetryStore.list_requests()` never
 selects `prompt_content`/`response_content`, regardless of whether
 dev-only content logging is enabled; see `gateway/src/apex_ai_router/
 telemetry/store.py`), so this page cannot leak that content even by
 mistake.
+
+> The validated `f1207.sql` export uses an HTML table populated by an
+> allowlisted APEX Ajax Callback. The REST Data Source and Interactive
+> Report design below remains a declarative alternative with native paging.
 
 ## REST Data Source
 

@@ -16,11 +16,9 @@ create or replace package body apex_ai_router_demo as
             raise_application_error(-20060, 'apex-demo: AIR_CONFIG is missing key: ' || p_key);
     end f_config;
 
-    -- Confidence note (see HANDOFF.md): apex_web_service.g_headers as a
-    -- name/value collection populated after make_rest_request() is
-    -- documented Oracle APEX API surface, used with high confidence. Not
-    -- independently re-verified against a live instance while building
-    -- this, same caveat as every other APEX_WEB_SERVICE call in this repo.
+    -- apex_web_service.g_headers is read after make_rest_request() to
+    -- correlate the gateway request ID. This path was exercised on APEX
+    -- 26.1 against the local gateway.
     function f_response_header(p_name in varchar2) return varchar2 is
     begin
         for i in 1 .. apex_web_service.g_headers.count loop
@@ -168,6 +166,98 @@ create or replace package body apex_ai_router_demo as
             apex_json.write('error', sqlerrm);
             apex_json.close_object;
     end ajax_run;
+
+    procedure ajax_proxy(
+        p_path  in varchar2,
+        p_admin in boolean default true
+    ) is
+        v_response clob;
+        v_offset   pls_integer := 1;
+        v_chunk    varchar2(32000);
+    begin
+        if p_path not in (
+            '/admin/metrics/summary',
+            '/admin/metrics/models',
+            '/admin/metrics/daily',
+            '/admin/routes',
+            '/health',
+            '/ready'
+        ) and not regexp_like(
+            p_path,
+            '^/admin/requests\?limit=100&offset=[0-9]+$'
+        ) then
+            raise_application_error(-20061, 'Unsupported demo proxy path.');
+        end if;
+
+        apex_web_service.g_request_headers.delete;
+        if p_admin then
+            v_response := apex_web_service.make_rest_request(
+                p_url                  => f_gateway_root || p_path,
+                p_http_method          => 'GET',
+                p_credential_static_id => f_config('ADMIN_CREDENTIAL_STATIC_ID'),
+                p_transfer_timeout     => to_number(f_config('HTTP_TIMEOUT_SECONDS'))
+            );
+        else
+            v_response := apex_web_service.make_rest_request(
+                p_url              => f_gateway_root || p_path,
+                p_http_method      => 'GET',
+                p_transfer_timeout => to_number(f_config('HTTP_TIMEOUT_SECONDS'))
+            );
+        end if;
+
+        if apex_web_service.g_status_code != 200 then
+            raise_application_error(
+                -20062,
+                'Gateway returned HTTP ' || apex_web_service.g_status_code
+            );
+        end if;
+
+        while v_offset <= dbms_lob.getlength(v_response) loop
+            v_chunk := dbms_lob.substr(v_response, 32000, v_offset);
+            sys.htp.prn(v_chunk);
+            v_offset := v_offset + length(v_chunk);
+        end loop;
+    exception
+        when others then
+            apex_json.open_object;
+            apex_json.write('success', false);
+            apex_json.write('error', 'Gateway data is temporarily unavailable.');
+            apex_json.close_object;
+    end ajax_proxy;
+
+    procedure ajax_requests is
+        v_offset number;
+    begin
+        v_offset := to_number(nvl(apex_application.g_x01, '0'));
+        if v_offset < 0 or v_offset > 1000000 or v_offset != trunc(v_offset) then
+            raise_application_error(-20063, 'Invalid request-history offset.');
+        end if;
+
+        ajax_proxy(
+            '/admin/requests?limit=100&offset=' ||
+            to_char(v_offset, 'FM9999990', 'NLS_NUMERIC_CHARACTERS=''.,''')
+        );
+    exception
+        when others then
+            apex_json.open_object;
+            apex_json.write('success', false);
+            apex_json.write('error', 'Request history is temporarily unavailable.');
+            apex_json.close_object;
+    end ajax_requests;
+
+    procedure ajax_config is
+    begin
+        apex_json.open_object;
+        apex_json.write('success', true);
+        apex_json.write('gateway_base_url', f_config('GATEWAY_BASE_URL'));
+        apex_json.close_object;
+    exception
+        when others then
+            apex_json.open_object;
+            apex_json.write('success', false);
+            apex_json.write('error', 'Gateway configuration is temporarily unavailable.');
+            apex_json.close_object;
+    end ajax_config;
 
 end apex_ai_router_demo;
 /

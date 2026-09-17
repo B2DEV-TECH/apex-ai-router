@@ -5,13 +5,11 @@ prefix `AIR_`) that let PL/SQL and APEX applications call the APEX AI Router
 gateway (Phases 1-4, under `gateway/`) without ever handling the gateway's
 API key directly.
 
-> **Status:** implemented and hand-verified against documented Oracle/APEX
-> APIs, but **not yet compiled or run against a live Oracle Database or APEX
-> workspace in this repository.** No Oracle instance was available in the
-> environment this was built in. Before relying on this in production, run
-> `install.sql` and `tests/smoke_test.sql` against a real instance (Oracle
-> Database 19c+ / APEX 22.2+ recommended -- see "Compatibility notes"
-> below) and record the actual tested versions here.
+> **Status:** compiled and exercised on Oracle Database 23ai Free with APEX
+> 26.1. `install.sql`, `tests/smoke_test.sql`, and
+> `tests/manual_gateway_test.sql` passed against the local mock gateway.
+> The live test used disposable credentials and mock model providers; repeat
+> it in the target environment before production deployment.
 
 ## Objects
 
@@ -133,26 +131,23 @@ return null in that context, which is a valid, non-secret log value.
 
 ## Compatibility notes
 
-This was written against the documented behavior of `JSON_OBJECT_T`/
+This was validated against the behavior of `JSON_OBJECT_T`/
 `JSON_ARRAY_T` (native since Oracle Database 12.2) and
 `APEX_WEB_SERVICE.MAKE_REST_REQUEST` with `p_credential_static_id` (Web
-Credentials, available since APEX 20.1). It has not been compiled against a
-specific Oracle Database/APEX version in this repository -- **verify the
-exact fields and behavior against your installed APEX version** before
-relying on this in production, per the project spec's own guidance not to
-assume Builder UI details without checking them live. See
-`docs/apex-ai-setup.md` for the native `APEX_AI` integration path, which has
-the same caveat.
+Credentials, available since APEX 20.1) on Oracle Database 23ai Free and
+APEX 26.1. Verify the behavior on the target Oracle/APEX version before a
+production rollout. See `docs/apex-ai-setup.md` for the native `APEX_AI`
+integration path.
 
 ## Tests
 
 - `tests/smoke_test.sql` -- no network calls, no gateway required. Checks
   object validity, required `AIR_CONFIG` keys, and that an unknown route
   raises `e_unknown_route` (route mapping happens before any HTTP call, so
-  this is verifiable offline). Not yet run against a live database.
+  this is verifiable offline). Passed on Oracle Database 23ai Free.
 - `tests/manual_gateway_test.sql` -- exercises `generate()` against a real,
   reachable gateway. Requires a configured `AIR_CONFIG` + Web Credential and
   network access from the database host; prints its result for manual
   inspection rather than asserting on it, since the response text depends
-  on whichever model is actually configured behind the gateway. Not part of
-  any automated check.
+  on whichever model is actually configured behind the gateway. Passed
+  against the local mock gateway; it remains outside the automated suite.

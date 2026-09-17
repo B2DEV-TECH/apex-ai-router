@@ -43,9 +43,9 @@ hard-coding a specific provider model.
 
 > **Read this before following the steps below.** The exact screen name,
 > field labels, and navigation path for configuring a Generative AI Service
-> have changed across APEX releases, and this guide was written without
-> access to a live current-version APEX Builder to confirm them against
-> (see `HANDOFF.md`). The steps below describe the **conceptual** flow the
+> have changed across APEX releases. The plug-in and demo were validated in
+> APEX 26.1, but the native Generative AI Service screen itself was not part
+> of that validation. The steps below describe the **conceptual** flow the
 > spec requires (spec section 17); confirm the literal screen/field names
 > against your own installed APEX version's Builder and documentation
 > before following them verbatim. Do not assume a name below is exactly

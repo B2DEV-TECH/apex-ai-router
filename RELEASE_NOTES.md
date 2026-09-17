@@ -31,30 +31,32 @@ particular vendor.
   tables, usage views, and an `APEX_AI_ROUTER` PL/SQL package
   (`generate()`/`chat()`) for calling the gateway from page processes.
 - **APEX plug-in** (`apex-plugin/`): an "APEX AI Router - Generate" Dynamic
-  Action for low-code usage.
-- **Demo application design** (`apex-demo/`): a 4-page reference app
-  (Playground, Dashboard, Request History, Configuration Help).
+  Action for low-code usage, including an APEX 26.1 Builder export that was
+  reimported into a clean application.
+- **Demo application** (`apex-demo/`): an exported 4-page reference app
+  (Playground, Dashboard, Request History, Configuration Help), validated
+  in a browser and reimported under a different application ID.
 - **Benchmark harness** (`benchmark/`): 34 synthetic, Oracle/APEX-flavored
   tasks across 14 categories, comparing fixed-efficient, fixed-capable, and
   `apex-auto` on cost, latency, and deterministic (plus optional
   LLM-judge) scoring. `benchmark/results/mock-example/` is a committed
   example run against the local mock upstream.
-- 99 automated tests (unit, contract, integration), `ruff` and `mypy` clean,
+- 98 automated tests passing and one optional integration test skipped,
+  `ruff` and `mypy` clean,
   a GitHub Actions CI pipeline (lint, type check, unit + integration tests,
   informational `pip-audit`).
 
-## What this release honestly does **not** include
+## Live validation and remaining limits
 
-No Oracle Database or APEX Builder instance was available while building
-this project. As a direct result:
+The Oracle and APEX surfaces were validated on Oracle Database 23ai Free
+and APEX 26.1. The database smoke test and manual PL/SQL gateway round trip
+passed. The plug-in export and `apex-demo/f1207.sql` were each reimported;
+the demo's Playground, Dynamic Action modes, Dashboard, Request History,
+and Configuration Help pages passed a browser flow without console errors.
 
-- `database/install.sql` has not been run against a live Oracle Database.
-- The plug-in has not been built in a live APEX Builder — there is
-  deliberately no `apex-ai-router-plugin.sql` export in this release (see
-  `apex-plugin/dist/README.md`); building it is the first item in
-  `HANDOFF.md`.
-- The demo application has not been imported into a live APEX workspace —
-  there is no `f<app_id>.sql` export.
+- The live validation used local mock model providers. Fixed Efficient and
+  Capable routes succeeded. Auto routing produced the expected controlled
+  error because the Switchyard sidecar was not running.
 - No benchmark has been run against a real model provider. Every cost or
   quality number in this repository comes from the mock-mode example run
   and is explicitly labeled as such — there is no cost-reduction or
@@ -77,5 +79,6 @@ started.
 
 Built by `scripts/build_release_artifacts.py`:
 `apex-ai-router-database.zip`, `docker-compose.yml`, `example.env`,
-`benchmark-report.md` (the mock-mode example run). No `.sql` plug-in export
-is attached, for the reason above.
+`benchmark-report.md` (the mock-mode example run). The repository also
+contains the verified plug-in export under `apex-plugin/dist/` and the demo
+application export at `apex-demo/f1207.sql`.
