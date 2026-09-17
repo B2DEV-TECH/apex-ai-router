@@ -127,6 +127,44 @@ Dynamic Action plug-in's `javascript_function` callback should be confirmed
 against the APEX Plug-In Developer's Guide for the reader's installed
 version. See `apex-plugin/README.md` and `HANDOFF.md`.
 
+- Demo APEX application (spec section 20, `apex-demo/`): a reference app
+  with four pages, fully specified in `apex-demo/pages/*.md` --
+  **Playground** (send a prompt, see the response plus selected
+  tier/model, latency, tokens, and estimated cost/baseline/savings for
+  that exact request), **Dashboard** (cards + charts over the gateway's
+  admin metrics API), **Request History** (an Interactive Report over
+  `/admin/requests`, never showing prompt/response content), and
+  **Configuration Help** (gateway endpoint, resolved model ids, `APEX_AI`
+  setup link, health status -- no secret values).
+- `apex_ai_router_demo` PL/SQL support package
+  (`apex-demo/sql/demo_playground_pkg.pks/.pkb`): `run_playground()` makes
+  two direct gateway HTTP calls (a chat completion with the inference
+  credential, then an `/admin/requests` lookup with a separate read-only
+  admin credential, matched by the gateway's `X-Request-Id` header) rather
+  than going through `apex_ai_router.generate()`, because that package
+  intentionally returns only response text. This is an explicit,
+  documented demo-only trade-off (the app holds a read-only admin
+  credential server-side) -- see `apex-demo/README.md` and `HANDOFF.md`.
+- `apex-demo/static/playground.js`: Page 1's client script, talking only
+  to the page's own Ajax Callback, never to the gateway directly from the
+  browser.
+- `apex-demo/sql/install_demo.sql`: installs the support package and
+  idempotently seeds the demo-only `ADMIN_CREDENTIAL_STATIC_ID` config key
+  without touching `database/install.sql`'s own seed rows.
+
+**Caveat:** as with Phases 5-6, none of `apex-demo/` has been built or run
+against a live Oracle/APEX instance in this repository. Additionally, this
+phase surfaced two real, previously-undocumented gaps rather than papering
+over them: (1) the gateway's internal `request_id` (`X-Request-Id` header)
+and the OpenAI-shaped chat-completion response's own `id` field are two
+unrelated identifiers -- `AIR_REQUEST_LOG.gateway_response_id` (Phase 5)
+therefore cannot actually be correlated against `/admin/requests` by that
+field, only by `X-Request-Id`, which is what `apex_ai_router_demo` uses;
+(2) `/admin/metrics/summary` has no latency aggregate field, so the
+Dashboard's "Average Latency" card can only be an explicitly-labeled
+approximation over the most recent requests, not a true all-time average.
+Both are recorded in `HANDOFF.md`.
+
 ### Fixed
 
 - `load_routing_config`'s `${VAR}` substitution no longer uses
