@@ -41,3 +41,10 @@ jobs:
 
       - name: Integration tests (mock providers only, no live credentials)
         run: uv run pytest tests/integration
+
+      - name: Dependency vulnerability scan
+        # Informational (spec section 39: "where practical") -- reports known
+        # CVEs in resolved dependencies without blocking the pipeline on a
+        # third-party advisory the project cannot immediately act on.
+        continue-on-error: true
+        run: uvx pip-audit --local

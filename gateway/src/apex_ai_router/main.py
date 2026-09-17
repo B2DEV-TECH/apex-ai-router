@@ -6,7 +6,7 @@ from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from apex_ai_router.api import admin, health, models, openai_chat
-from apex_ai_router.config import get_settings
+from apex_ai_router.config import RoutingConfigError, get_settings
 from apex_ai_router.domain.errors import GatewayError
 from apex_ai_router.logging import configure_logging
 
@@ -61,6 +61,27 @@ def create_app() -> FastAPI:
         return JSONResponse(
             status_code=exc.http_status,
             content=_error_body(exc.code, exc.message, _request_id(request)),
+        )
+
+    @app.exception_handler(RoutingConfigError)
+    async def handle_routing_config_error(
+        request: Request, exc: RoutingConfigError
+    ) -> JSONResponse:
+        # `RoutingConfigError` (raised by `config.py` for a missing/invalid
+        # routing.yaml or pricing.yaml, e.g. an unresolved `${VAR}`
+        # placeholder) is a plain Exception, not a GatewayError -- it is
+        # raised straight out of `get_routing_config`/`get_pricing_config`,
+        # which several endpoints (models, chat completions, admin routes)
+        # call with no local try/except. Without this handler it fell
+        # through to FastAPI's default handling as an unsanitized 500 with
+        # a raw traceback, violating the "errors are sanitized" requirement.
+        # This one handler covers every call site, present and future, and
+        # also catches `PricingConfigError` (a subclass). The message is
+        # safe to expose: it only ever names a config file path or an
+        # environment variable, the same detail `/ready` already reports.
+        return JSONResponse(
+            status_code=500,
+            content=_error_body("routing_failed", str(exc), _request_id(request)),
         )
 
     @app.exception_handler(RequestValidationError)

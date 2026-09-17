@@ -266,3 +266,21 @@ where no equivalent telemetry field currently exists. See
   ~200ms. Fixed with a bounded per-process background drain thread
   (`collections.deque(maxlen=500)`); verified by a clean re-run with no
   timeouts.
+- `RoutingConfigError` (and its subclass `PricingConfigError`), raised by
+  `config.py` when `routing.yaml`/`pricing.yaml` fails to load or has an
+  unresolved `${VAR}` placeholder, is a plain `Exception`, not a
+  `GatewayError` -- it used to escape `GET /v1/models`,
+  `POST /v1/chat/completions` (both the routing-config and pricing-config
+  lookups), and `GET /admin/routes` completely uncaught, producing
+  FastAPI's default unsanitized 500 (a raw stack trace) instead of the
+  spec-required `{"error": {"code","message","request_id"}}` shape --
+  a real violation of the "errors are sanitized" definition-of-done bullet,
+  found via a live clean-install smoke test (`curl`ing a booted server),
+  not by reading the code or by the existing test suite, which had no
+  coverage of this scenario. Fixed with one global
+  `@app.exception_handler(RoutingConfigError)` in `main.py`, mapped to the
+  `routing_failed` error code, covering every current and future call
+  site rather than patching each one individually. Verified both by a new
+  `tests/contract/test_routing_config_error_sanitization.py` covering all
+  three endpoints and by re-running the exact `curl` sequence that
+  originally surfaced the crash.
