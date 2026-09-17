@@ -66,7 +66,12 @@ def test_apex_auto_routes_through_real_switchyard_server(
         ),
         encoding="utf-8",
     )
-    settings = Settings(_env_file=None, api_keys="test-key", routing_config=str(routing_path))
+    settings = Settings(
+        _env_file=None,
+        api_keys="test-key",
+        routing_config=str(routing_path),
+        telemetry_db_path=str(tmp_path / "telemetry.db"),
+    )
     app.dependency_overrides[get_settings] = lambda: settings
 
     try:

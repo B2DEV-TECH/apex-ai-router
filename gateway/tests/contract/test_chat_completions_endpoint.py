@@ -32,7 +32,12 @@ def _override(tmp_path, override_settings) -> None:
     routing_path = tmp_path / "routing.yaml"
     routing_path.write_text(_ROUTING_YAML, encoding="utf-8")
     override_settings(
-        Settings(_env_file=None, routing_config=str(routing_path), api_keys="test-key")
+        Settings(
+            _env_file=None,
+            routing_config=str(routing_path),
+            api_keys="test-key",
+            telemetry_db_path=str(tmp_path / "telemetry.db"),
+        )
     )
 
 

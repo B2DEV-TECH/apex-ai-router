@@ -5,7 +5,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from apex_ai_router.api import health, models, openai_chat
+from apex_ai_router.api import admin, health, models, openai_chat
 from apex_ai_router.config import get_settings
 from apex_ai_router.domain.errors import GatewayError
 from apex_ai_router.logging import configure_logging
@@ -94,6 +94,7 @@ def create_app() -> FastAPI:
     app.include_router(health.router)
     app.include_router(models.router)
     app.include_router(openai_chat.router)
+    app.include_router(admin.router)
     return app
 
 

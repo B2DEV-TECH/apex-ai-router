@@ -17,6 +17,8 @@ from dotenv import load_dotenv
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from apex_ai_router.domain.model_target import RoutingConfig
+from apex_ai_router.domain.pricing import PricingConfig
+from apex_ai_router.telemetry.store import TelemetryStore
 
 # Best-effort: populates os.environ from `.env` so `${VAR}` substitution in
 # routing.yaml resolves the same way `Settings` resolves its own fields. A
@@ -42,6 +44,10 @@ class Settings(BaseSettings):
     routing_config: str = "config/routing.yaml"
     max_request_body_bytes: int = 1_000_000
 
+    pricing_config: str = "config/pricing.yaml"
+    telemetry_db_path: str = "data/telemetry.db"
+    telemetry_log_content: bool = False
+
     @property
     def api_key_list(self) -> list[str]:
         return [key.strip() for key in self.api_keys.split(",") if key.strip()]
@@ -53,6 +59,10 @@ def get_settings() -> Settings:
 
 
 class RoutingConfigError(Exception):
+    pass
+
+
+class PricingConfigError(RoutingConfigError):
     pass
 
 
@@ -105,3 +115,34 @@ def _load_routing_config_cached(path: str) -> RoutingConfig:
 
 def get_routing_config(settings: Settings) -> RoutingConfig:
     return _load_routing_config_cached(settings.routing_config)
+
+
+def load_pricing_config(path: str | Path) -> PricingConfig:
+    file_path = Path(path)
+    if not file_path.is_file():
+        raise PricingConfigError(f"Pricing config file not found: {file_path}")
+
+    data = yaml.safe_load(file_path.read_text(encoding="utf-8")) or {}
+    return PricingConfig.model_validate(data)
+
+
+@lru_cache
+def _load_pricing_config_cached(path: str) -> PricingConfig:
+    return load_pricing_config(path)
+
+
+def get_pricing_config(settings: Settings) -> PricingConfig:
+    return _load_pricing_config_cached(settings.pricing_config)
+
+
+@lru_cache
+def _get_telemetry_store_cached(db_path: str) -> TelemetryStore:
+    return TelemetryStore(db_path)
+
+
+def get_telemetry_store(settings: Settings) -> TelemetryStore:
+    """One `TelemetryStore` (and its one open SQLite connection) per distinct
+    `telemetry_db_path` for the life of the process — tests each use their
+    own `tmp_path`-derived path precisely so they don't share a cached
+    instance and pollute each other's rows."""
+    return _get_telemetry_store_cached(settings.telemetry_db_path)

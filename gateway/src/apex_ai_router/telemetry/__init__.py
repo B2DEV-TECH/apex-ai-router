@@ -1,1 +1,2 @@
-# Telemetry store, cost estimation. Not implemented yet — see spec Phase 4.
+# Telemetry store (store.py), row shape (models.py), cost estimation
+# (cost.py) — spec Phase 4.

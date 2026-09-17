@@ -28,7 +28,12 @@ targets:
 def test_chat_completion_round_trip_through_real_mock_server(tmp_path, mock_upstream):
     routing_path = tmp_path / "routing.yaml"
     routing_path.write_text(_ROUTING_TEMPLATE.format(base_url=mock_upstream), encoding="utf-8")
-    settings = Settings(_env_file=None, api_keys="test-key", routing_config=str(routing_path))
+    settings = Settings(
+        _env_file=None,
+        api_keys="test-key",
+        routing_config=str(routing_path),
+        telemetry_db_path=str(tmp_path / "telemetry.db"),
+    )
     app.dependency_overrides[get_settings] = lambda: settings
 
     try:

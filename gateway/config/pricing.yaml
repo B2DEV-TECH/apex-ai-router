@@ -1,0 +1,28 @@
+# Model pricing (spec section 12). Keyed by model id (TargetConfig.model),
+# not by target or route name — pricing is a property of the model.
+#
+# The mock-*-v1 entries below are genuinely accurate: the local mock model
+# servers (apex_ai_router/mocks/) never charge anything, so $0 is a real
+# price, not a placeholder. It is NOT safe to copy this pattern for a real
+# commercial model — this project never hard-codes fabricated prices, so no
+# entry for a real model ships here. Add one yourself, sourced from your own
+# provider's current price sheet, when you point EFFICIENT_MODEL_ID /
+# CAPABLE_MODEL_ID / JUDGE_MODEL_ID at something real. A model with no entry
+# (or none effective yet) has unknown pricing: every cost field the gateway
+# reports for it is `null`, never `0`.
+
+pricing:
+  mock-efficient-v1:
+    effective_date: 2026-01-01
+    input_per_million: 0.00
+    output_per_million: 0.00
+
+  mock-capable-v1:
+    effective_date: 2026-01-01
+    input_per_million: 0.00
+    output_per_million: 0.00
+
+  mock-judge-v1:
+    effective_date: 2026-01-01
+    input_per_million: 0.00
+    output_per_million: 0.00

@@ -34,6 +34,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Real end-to-end integration test running the actual compiled
   `switchyard-server` binary against the mock upstream (skips automatically
   if the binary hasn't been built locally; see `deploy/switchyard/README.md`).
+- Telemetry and cost estimation (spec sections 12-15): every
+  `POST /v1/chat/completions` request is timed (routing duration, provider
+  duration, total duration), its token usage and routing metadata are
+  recorded, and its cost is estimated from `config/pricing.yaml` via a
+  small cost engine (`telemetry/cost.py`) that returns an explicit
+  "unknown" result (never a fabricated zero) for any model with no pricing
+  entry. `apex-auto` requests additionally get an approximate
+  capable-model baseline comparison (estimated savings and savings
+  percent), computed against the route's `capable_target` using the same
+  observed token counts — a documented approximation, not an independent
+  estimate of what the capable model would actually have produced.
+- `TelemetryStore` (`telemetry/store.py`): a single-file SQLite store with
+  a minimal `PRAGMA user_version` migration mechanism, storing
+  `ai_request`, `ai_model_pricing`, and `ai_route_config_snapshot`.
+  Prompt/response content is only persisted when the operator explicitly
+  opts in (`APEX_AI_ROUTER_TELEMETRY_LOG_CONTENT=true`); it is off by
+  default and, regardless of the setting, is never selected by any admin
+  API query.
+- Read-only admin API (`GET /admin/metrics/summary`, `/admin/metrics/models`,
+  `/admin/metrics/daily`, `/admin/requests`, `/admin/routes`), authenticated
+  by a separate `APEX_AI_ROUTER_ADMIN_API_KEY` that is entirely independent
+  of the inference API key(s) — an inference key can never authenticate an
+  admin request.
+- New settings: `APEX_AI_ROUTER_PRICING_CONFIG`,
+  `APEX_AI_ROUTER_TELEMETRY_DB_PATH`, `APEX_AI_ROUTER_TELEMETRY_LOG_CONTENT`,
+  `APEX_AI_ROUTER_ADMIN_API_KEY` (documented in `.env.example`).
+- Unit and integration tests for the cost engine, the telemetry store, and
+  the admin API, including an end-to-end test that makes a real chat
+  completion request and confirms it is both recorded and visible through
+  the admin API.
 
 ### Fixed
 
