@@ -14,31 +14,70 @@ rediscover the reasoning from scratch.
 Priority order below is: things that block calling this "validated" at
 all, then real design/architecture gaps, then smaller polish items.
 
-## 1. Nothing here has touched a live Oracle Database or APEX Builder
+## 1. Top priority for whoever picks this up: actually build the APEX UI — this is very likely unblockable now, not a permanent gap
 
-The single biggest gap. Everything in `database/`, `apex-plugin/`, and
-`apex-demo/` was written against documented Oracle/APEX behavior
-(`JSON_OBJECT_T`/`JSON_ARRAY_T` since 12.2, `APEX_WEB_SERVICE`, Web
+The single biggest gap left in this project. Everything in `database/`,
+`apex-plugin/`, and `apex-demo/` was written against documented Oracle/APEX
+behavior (`JSON_OBJECT_T`/`JSON_ARRAY_T` since 12.2, `APEX_WEB_SERVICE`, Web
 Credentials since APEX 20.1, Dynamic Action plug-in APIs) and reviewed
-carefully, but **none of it has been run**:
+carefully, but **none of it has been run**, purely because no live
+Oracle/APEX instance was reachable from the shell used to write the code —
+not because Geraldo lacks access to one.
 
-- `database/install.sql` has never been executed against a real Oracle
-  instance. Run it in a disposable schema first, then `database/tests/
-  smoke_test.sql` and `manual_gateway_test.sql` (the latter needs a real
-  Web Credential pointed at a running gateway).
-- The plug-in (`apex-plugin/src/apex_ai_router_da.pks/.pkb`,
-  `apex-plugin/static/apex_ai_router_generate.js`) has never been built in
-  APEX Builder, so there is no `apex-ai-router-plugin.sql` export — see
-  `apex-plugin/dist/README.md`. Build it, run through
-  `apex-plugin/README.md`'s manual QA checklist (it lists specific
-  scenarios, all currently unchecked), export it, and commit the export.
-- `apex-demo/` has no `f<app_id>.sql` because it was never imported into a
-  workspace. Build it from `apex-demo/README.md`'s page specs, run it
-  against a real gateway, and export it.
+**Do this first, before treating "no Oracle instance" as a blocker:** ask
+Geraldo for access to a local Oracle Database + APEX 26.1 dev/test
+environment. He maintains one on his own machine (Docker-based) and has
+already used it successfully, this same month, to install schema objects,
+build a plug-in and a multi-page application in APEX Builder, and export
+both — a proven, repeatable workflow, not a one-off. Ask him specifically
+for:
 
-Recommended order: database objects first (nothing else works without
-them), then the plug-in (depends on the database package or direct gateway
-calls — see #6), then the demo app (exercises both).
+- A **new, dedicated** workspace/schema for this project — he consistently
+  provisions one fresh, isolated workspace per project rather than reusing
+  one, so request the same treatment rather than asking to reuse whatever
+  he already has open.
+- Connection details and a throwaway schema password, given to you
+  out-of-band (chat), never as a file. **Do not commit any password,
+  workspace ID, container name, port, or schema name from that
+  conversation into this repo** — it's public
+  (`github.com/B2DEV-TECH/apex-ai-router`). Every credential mentioned in
+  `database/README.md` / `apex-plugin/README.md` / `apex-demo/README.md`
+  is a placeholder by design; keep it that way, and keep any real
+  values Geraldo gives you confined to your own local `.env`/Web
+  Credential setup, never in a commit.
+
+With that access, the actual work is exactly what was already planned —
+now genuinely executable instead of theoretical, in this order (nothing
+downstream works without the step before it):
+
+1. `database/install.sql` in the fresh schema, then `database/tests/
+   smoke_test.sql` (self-contained) and `manual_gateway_test.sql` (needs a
+   real Web Credential pointed at a running gateway — bring the gateway up
+   locally first via `docs/smoke-test.md` Part A; its `/docs` Swagger UI is
+   also the fastest way to sanity-check the API shape before wiring APEX to
+   it).
+2. Build the plug-in per `apex-plugin/README.md`'s "Building the plug-in in
+   APEX Builder" section (attributes table included), run its manual QA
+   checklist, then **export it and commit `apex-plugin/dist/*.sql`** — see
+   `apex-plugin/dist/README.md`.
+3. Build the actual demo **UI** — the part most worth having click-through
+   proof of — from `apex-demo/README.md` and its four page docs
+   (`pages/01-playground.md` .. `pages/04-configuration-help.md`):
+   Playground, Dashboard, Request History, Configuration Help. Field names,
+   REST Data Source shapes, and wording are already fully specified and
+   verified against the gateway's real source code, so this should be
+   closer to data entry in Builder than design work. Click through all four
+   pages against the real gateway, then **export the finished app
+   (`f<app_id>.sql`) and commit it under `apex-demo/`** — this file has
+   never existed in this repo, and is the single most convincing proof this
+   project works end-to-end, more than any test count or mock benchmark.
+
+Once built, update this item, `README.md`'s Limitations section,
+`RELEASE_NOTES.md`, and `docs/smoke-test.md`'s Part B sign-off to record
+what you actually validated (and what you had to change to get working —
+that diff is exactly the kind of gap `docs/smoke-test.md` asks you to
+close). Don't leave the exports un-exported once built — a plug-in or app
+that only exists inside one Builder session isn't done.
 
 ## 2. Switchyard telemetry can't see past its own boundary
 
