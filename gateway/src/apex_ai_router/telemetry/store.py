@@ -66,6 +66,11 @@ _MIGRATIONS: list[str] = [
         routing_yaml TEXT NOT NULL
     );
     """,
+    # Migration 2: retry count (spec section 24 -- "Include retry count in
+    # telemetry"), not part of the original schema.
+    """
+    ALTER TABLE ai_request ADD COLUMN retry_count INTEGER;
+    """,
 ]
 
 
@@ -114,14 +119,16 @@ class TelemetryStore:
                 provider_duration_ms, total_duration_ms, input_tokens,
                 output_tokens, total_tokens, estimated_cost,
                 estimated_baseline_cost, estimated_savings, success,
-                http_status, error_code, prompt_content, response_content
+                http_status, error_code, retry_count, prompt_content,
+                response_content
             ) VALUES (
                 :request_id, :timestamp, :route, :policy, :selected_target,
                 :selected_provider, :selected_model, :routing_duration_ms,
                 :provider_duration_ms, :total_duration_ms, :input_tokens,
                 :output_tokens, :total_tokens, :estimated_cost,
                 :estimated_baseline_cost, :estimated_savings, :success,
-                :http_status, :error_code, :prompt_content, :response_content
+                :http_status, :error_code, :retry_count, :prompt_content,
+                :response_content
             )
             """,
             {
@@ -144,6 +151,7 @@ class TelemetryStore:
                 "success": 1 if telemetry.success else 0,
                 "http_status": telemetry.http_status,
                 "error_code": telemetry.error_code,
+                "retry_count": telemetry.retry_count,
                 "prompt_content": prompt_content,
                 "response_content": response_content,
             },
@@ -283,7 +291,7 @@ class TelemetryStore:
                 provider_duration_ms, total_duration_ms, input_tokens,
                 output_tokens, total_tokens, estimated_cost,
                 estimated_baseline_cost, estimated_savings, success,
-                http_status, error_code
+                http_status, error_code, retry_count
             FROM ai_request
             ORDER BY id DESC
             LIMIT :limit OFFSET :offset

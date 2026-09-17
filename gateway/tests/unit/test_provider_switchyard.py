@@ -36,7 +36,7 @@ async def test_success_returns_parsed_json():
 
     result = await provider.chat_completion(_REQUEST, _TARGET)
 
-    assert result["id"] == "chatcmpl-1"
+    assert result.body["id"] == "chatcmpl-1"
 
 
 async def test_forwards_route_id_as_model():
@@ -112,7 +112,8 @@ async def test_retries_once_on_transport_error_then_succeeds(monkeypatch):
     result = await provider.chat_completion(_REQUEST, _TARGET)
 
     assert calls["n"] == 2
-    assert result["id"] == "chatcmpl-1"
+    assert result.body["id"] == "chatcmpl-1"
+    assert result.retry_count == 1
 
 
 async def test_exhausts_single_retry_on_persistent_transport_error(monkeypatch):
@@ -130,6 +131,25 @@ async def test_exhausts_single_retry_on_persistent_transport_error(monkeypatch):
 
     assert calls["n"] == 2  # initial attempt + 1 retry (lighter than the OpenAI adapter)
     assert exc_info.value.code == "provider_unavailable"
+    assert exc_info.value.retry_count == 1
+
+
+async def test_timeout_exhausts_single_retry_then_raises_provider_timeout(monkeypatch):
+    monkeypatch.setattr(provider_module.asyncio, "sleep", AsyncMock())
+    calls = {"n": 0}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        calls["n"] += 1
+        raise httpx.ReadTimeout("timed out", request=request)
+
+    provider = SwitchyardProvider(transport=httpx.MockTransport(handler))
+
+    with pytest.raises(ProviderError) as exc_info:
+        await provider.chat_completion(_REQUEST, _TARGET)
+
+    assert calls["n"] == 2  # initial attempt + 1 retry
+    assert exc_info.value.code == "provider_timeout"
+    assert exc_info.value.retry_count == 1
 
 
 async def test_missing_base_url_raises_provider_unavailable():

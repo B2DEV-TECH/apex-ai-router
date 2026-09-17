@@ -36,7 +36,7 @@ async def test_success_returns_parsed_json():
 
     result = await provider.chat_completion(_REQUEST, _TARGET)
 
-    assert result["id"] == "chatcmpl-1"
+    assert result.body["id"] == "chatcmpl-1"
 
 
 async def test_retries_on_503_then_succeeds(monkeypatch):
@@ -54,7 +54,8 @@ async def test_retries_on_503_then_succeeds(monkeypatch):
     result = await provider.chat_completion(_REQUEST, _TARGET)
 
     assert calls["n"] == 2
-    assert result["id"] == "chatcmpl-1"
+    assert result.body["id"] == "chatcmpl-1"
+    assert result.retry_count == 1
 
 
 async def test_exhausts_retries_on_persistent_503(monkeypatch):
@@ -72,6 +73,43 @@ async def test_exhausts_retries_on_persistent_503(monkeypatch):
 
     assert calls["n"] == 3  # initial attempt + 2 retries
     assert exc_info.value.code == "provider_error"
+    assert exc_info.value.retry_count == 2
+
+
+async def test_timeout_retries_then_raises_provider_timeout(monkeypatch):
+    monkeypatch.setattr(provider_module.asyncio, "sleep", AsyncMock())
+    calls = {"n": 0}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        calls["n"] += 1
+        raise httpx.ReadTimeout("timed out", request=request)
+
+    provider = OpenAICompatibleProvider(transport=httpx.MockTransport(handler))
+
+    with pytest.raises(ProviderError) as exc_info:
+        await provider.chat_completion(_REQUEST, _TARGET)
+
+    assert calls["n"] == 3  # initial attempt + 2 retries, all timing out
+    assert exc_info.value.code == "provider_timeout"
+    assert exc_info.value.retry_count == 2
+
+
+async def test_timeout_then_success_reports_retry_count(monkeypatch):
+    monkeypatch.setattr(provider_module.asyncio, "sleep", AsyncMock())
+    calls = {"n": 0}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        calls["n"] += 1
+        if calls["n"] < 2:
+            raise httpx.ConnectTimeout("timed out", request=request)
+        return httpx.Response(200, json=_success_body())
+
+    provider = OpenAICompatibleProvider(transport=httpx.MockTransport(handler))
+
+    result = await provider.chat_completion(_REQUEST, _TARGET)
+
+    assert calls["n"] == 2
+    assert result.retry_count == 1
 
 
 async def test_rate_limited_raises_provider_unavailable(monkeypatch):

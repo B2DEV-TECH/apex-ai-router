@@ -27,3 +27,6 @@ class RequestTelemetry:
     success: bool
     http_status: int
     error_code: str | None
+    # Retries actually performed against the upstream provider (spec section
+    # 24). None when no provider call was attempted (e.g. routing_failed).
+    retry_count: int | None = None

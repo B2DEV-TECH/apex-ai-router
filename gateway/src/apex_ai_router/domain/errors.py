@@ -21,13 +21,24 @@ _DEFAULT_HTTP_STATUS: dict[str, int] = {
 
 
 class GatewayError(Exception):
-    def __init__(self, code: str, message: str, *, http_status: int | None = None):
+    def __init__(
+        self,
+        code: str,
+        message: str,
+        *,
+        http_status: int | None = None,
+        retry_count: int | None = None,
+    ):
         super().__init__(message)
         self.code = code
         self.message = message
         self.http_status = (
             http_status if http_status is not None else _DEFAULT_HTTP_STATUS.get(code, 500)
         )
+        # Retries actually performed before giving up (spec section 24).
+        # None for errors raised outside a retry loop (e.g. routing_failed);
+        # 0+ for a `ProviderError` raised after exhausting the retry budget.
+        self.retry_count = retry_count
 
 
 class RoutingError(GatewayError):

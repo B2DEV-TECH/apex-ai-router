@@ -29,6 +29,7 @@ import httpx
 from apex_ai_router.domain.errors import ProviderError
 from apex_ai_router.domain.model_target import TargetConfig
 from apex_ai_router.domain.request import ChatCompletionRequest
+from apex_ai_router.providers.base import ProviderResult
 
 _MAX_RETRIES = 1
 _BACKOFF_SECONDS = 0.5
@@ -44,11 +45,14 @@ class SwitchyardProvider:
         self._timeout_seconds = timeout_seconds
         self._transport = transport
 
-    async def chat_completion(self, request: ChatCompletionRequest, target: TargetConfig) -> dict:
+    async def chat_completion(
+        self, request: ChatCompletionRequest, target: TargetConfig
+    ) -> ProviderResult:
         if not target.base_url:
             raise ProviderError(
                 "provider_unavailable",
                 f"No base_url configured for switchyard target '{target.model}'.",
+                retry_count=0,
             )
 
         payload = request.model_dump(mode="json", exclude={"model", "stream"}, exclude_none=True)
@@ -69,7 +73,9 @@ class SwitchyardProvider:
                     )
                 except httpx.TimeoutException as exc:
                     last_error = ProviderError(
-                        "provider_timeout", "The switchyard-server sidecar timed out."
+                        "provider_timeout",
+                        "The switchyard-server sidecar timed out.",
+                        retry_count=attempt,
                     )
                     if attempt < _MAX_RETRIES:
                         await asyncio.sleep(_BACKOFF_SECONDS * (attempt + 1))
@@ -79,6 +85,7 @@ class SwitchyardProvider:
                     last_error = ProviderError(
                         "provider_unavailable",
                         "The switchyard-server sidecar is unreachable.",
+                        retry_count=attempt,
                     )
                     if attempt < _MAX_RETRIES:
                         await asyncio.sleep(_BACKOFF_SECONDS * (attempt + 1))
@@ -87,25 +94,30 @@ class SwitchyardProvider:
 
                 if response.status_code == 200:
                     try:
-                        return response.json()
+                        return ProviderResult(body=response.json(), retry_count=attempt)
                     except ValueError as exc:
                         raise ProviderError(
                             "provider_error",
                             "switchyard-server returned an invalid response.",
+                            retry_count=attempt,
                         ) from exc
 
                 if response.status_code == 504:
                     raise ProviderError(
-                        "provider_timeout", "switchyard-server timed out routing the request."
+                        "provider_timeout",
+                        "switchyard-server timed out routing the request.",
+                        retry_count=attempt,
                     )
                 if response.status_code in (429, 503):
                     raise ProviderError(
                         "provider_unavailable",
                         "switchyard-server is temporarily unable to route the request.",
+                        retry_count=attempt,
                     )
                 raise ProviderError(
                     "provider_error",
                     f"switchyard-server returned HTTP {response.status_code}.",
+                    retry_count=attempt,
                 )
 
         raise last_error or ProviderError(

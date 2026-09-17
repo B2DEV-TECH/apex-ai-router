@@ -14,6 +14,7 @@ import httpx
 from apex_ai_router.domain.errors import ProviderError
 from apex_ai_router.domain.model_target import TargetConfig
 from apex_ai_router.domain.request import ChatCompletionRequest
+from apex_ai_router.providers.base import ProviderResult
 
 _RETRYABLE_STATUS_CODES = {429, 502, 503, 504}
 _MAX_RETRIES = 2
@@ -30,11 +31,14 @@ class OpenAICompatibleProvider:
         self._timeout_seconds = timeout_seconds
         self._transport = transport
 
-    async def chat_completion(self, request: ChatCompletionRequest, target: TargetConfig) -> dict:
+    async def chat_completion(
+        self, request: ChatCompletionRequest, target: TargetConfig
+    ) -> ProviderResult:
         if not target.base_url:
             raise ProviderError(
                 "provider_unavailable",
                 f"No base_url configured for target model '{target.model}'.",
+                retry_count=0,
             )
 
         api_key = os.environ.get(target.api_key_env, "") if target.api_key_env else ""
@@ -58,7 +62,9 @@ class OpenAICompatibleProvider:
                     )
                 except httpx.TimeoutException as exc:
                     last_error = ProviderError(
-                        "provider_timeout", "The upstream model provider timed out."
+                        "provider_timeout",
+                        "The upstream model provider timed out.",
+                        retry_count=attempt,
                     )
                     if attempt < _MAX_RETRIES:
                         await asyncio.sleep(_BACKOFF_SECONDS * (attempt + 1))
@@ -68,6 +74,7 @@ class OpenAICompatibleProvider:
                     last_error = ProviderError(
                         "provider_unavailable",
                         "The upstream model provider is unreachable.",
+                        retry_count=attempt,
                     )
                     if attempt < _MAX_RETRIES:
                         await asyncio.sleep(_BACKOFF_SECONDS * (attempt + 1))
@@ -76,11 +83,12 @@ class OpenAICompatibleProvider:
 
                 if response.status_code == 200:
                     try:
-                        return response.json()
+                        return ProviderResult(body=response.json(), retry_count=attempt)
                     except ValueError as exc:
                         raise ProviderError(
                             "provider_error",
                             "The upstream model provider returned an invalid response.",
+                            retry_count=attempt,
                         ) from exc
 
                 if response.status_code in _RETRYABLE_STATUS_CODES and attempt < _MAX_RETRIES:
@@ -91,14 +99,18 @@ class OpenAICompatibleProvider:
                     raise ProviderError(
                         "provider_unavailable",
                         "The upstream model provider is rate limiting requests.",
+                        retry_count=attempt,
                     )
                 if 500 <= response.status_code < 600:
                     raise ProviderError(
-                        "provider_error", "The upstream model provider returned an error."
+                        "provider_error",
+                        "The upstream model provider returned an error.",
+                        retry_count=attempt,
                     )
                 raise ProviderError(
                     "provider_error",
                     f"The upstream model provider returned HTTP {response.status_code}.",
+                    retry_count=attempt,
                 )
 
         raise last_error or ProviderError(

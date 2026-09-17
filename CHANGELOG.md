@@ -210,6 +210,43 @@ server's own echoed response text (`response_content` contains the exact
 where no equivalent telemetry field currently exists. See
 `benchmark/README.md` and `HANDOFF.md` for the suggested fix.
 
+- Hardening (spec sections 22-24, 60, Phase 9): a genuine, previously
+  undocumented spec-compliance gap was found and fixed -- section 24
+  requires "Include retry count in telemetry," but no `retry_count` field
+  existed anywhere in the pipeline despite the retry/timeout/backoff logic
+  itself already being correct in both provider adapters. Fixed end to
+  end: `providers/base.py` gained a `ProviderResult(body, retry_count)`
+  return type (replacing a bare `dict`) so retry information travels from
+  the HTTP retry loop to the API layer without a second return channel;
+  `GatewayError` gained a `retry_count` attribute so the failure path
+  reports it too; `RequestTelemetry.retry_count` and a new
+  `telemetry/store.py` migration (`ALTER TABLE ai_request ADD COLUMN
+  retry_count`) persist it; it is automatically exposed by
+  `GET /admin/requests` (no schema-filtering code to change there). New
+  regression tests cover both providers' retry-count reporting, including
+  two previously-missing timeout-exception tests that had no coverage for
+  either adapter before this phase.
+- `tests/integration/test_hardening.py`: two hardening claims that were
+  previously only asserted in docstrings/`SECURITY.md`, now empirically
+  tested rather than just documented -- (1) concurrency: 20 truly
+  concurrent requests fired within a single asyncio event loop via
+  `httpx.ASGITransport` (unlike the thread-based `TestClient` used
+  elsewhere) each get exactly one, correctly-matched telemetry row,
+  validating `telemetry/store.py`'s single-connection design under this
+  project's single-event-loop execution model; (2) log leakage: a request
+  carrying a marked secret API key and prompt is confirmed to never
+  produce a formatted JSON log line containing either, on both the
+  success and the authentication-failure path.
+- `SECURITY.md` updated to match: the "Secrets in Git or logs" row no
+  longer claims an active log-redaction mechanism that doesn't exist --
+  the accurate description is that the one logging call site in the
+  request path never includes secrets or content in the first place, now
+  backed by the test above rather than only asserted. Added a "Telemetry
+  data integrity under concurrent requests" row documenting the
+  single-connection concurrency model as an explicit, tested, single-
+  process design choice (not built for multi-process horizontal scaling
+  against one SQLite file -- see `HANDOFF.md`).
+
 ### Fixed
 
 - `load_routing_config`'s `${VAR}` substitution no longer uses

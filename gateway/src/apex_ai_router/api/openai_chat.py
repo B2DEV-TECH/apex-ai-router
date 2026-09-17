@@ -55,6 +55,7 @@ async def create_chat_completion(
     selected_model: str | None = None
     routing_duration_ms: float | None = None
     provider_duration_ms: float | None = None
+    retry_count: int | None = None
 
     try:
         if body.stream:
@@ -76,15 +77,17 @@ async def create_chat_completion(
 
         provider = get_provider(resolved.config)
         provider_started = time.perf_counter()
-        raw_response = await provider.chat_completion(body, resolved.config)
+        provider_result = await provider.chat_completion(body, resolved.config)
         provider_duration_ms = _elapsed_ms(provider_started)
+        retry_count = provider_result.retry_count
 
         try:
-            parsed = ChatCompletionResponse.model_validate(raw_response)
+            parsed = ChatCompletionResponse.model_validate(provider_result.body)
         except ValidationError as exc:
             raise GatewayError(
                 "provider_error",
                 "The upstream model provider returned an unexpected response shape.",
+                retry_count=retry_count,
             ) from exc
     except GatewayError as exc:
         telemetry_store.record_request(
@@ -107,6 +110,7 @@ async def create_chat_completion(
                 success=False,
                 http_status=exc.http_status,
                 error_code=exc.code,
+                retry_count=getattr(exc, "retry_count", None),
             ),
             timestamp=datetime.now(UTC).isoformat(),
         )
@@ -156,6 +160,7 @@ async def create_chat_completion(
             success=True,
             http_status=200,
             error_code=None,
+            retry_count=retry_count,
         ),
         timestamp=datetime.now(UTC).isoformat(),
         prompt_content=_prompt_content_if_enabled(settings, body),
