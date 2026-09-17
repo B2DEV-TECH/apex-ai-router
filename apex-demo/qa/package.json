@@ -1,0 +1,16 @@
+{
+  "name": "apex-ai-router-demo-qa",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Headless browser QA of the APEX AI Router demo application (see docs/live-validation-walkthrough.md).",
+  "type": "module",
+  "scripts": {
+    "qa": "node browser_qa.mjs"
+  },
+  "devDependencies": {
+    "playwright-core": "1.55.0"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

@@ -154,6 +154,60 @@ def test_models_breakdown_groups_by_selected_model(tmp_path):
     assert models == {"mock-efficient-v1", "mock-capable-v1"}
 
 
+def test_upstream_model_round_trips_and_defaults_to_none(tmp_path):
+    store = TelemetryStore(str(tmp_path / "telemetry.db"))
+    store.record_request(
+        _telemetry(request_id="a", route="apex-auto", selected_model="apex-auto",
+                   upstream_model="mock-efficient-v1"),
+        timestamp="2026-01-01T00:00:00+00:00",
+    )
+    store.record_request(_telemetry(request_id="b"), timestamp="2026-01-01T00:01:00+00:00")
+
+    rows = {row["request_id"]: row for row in store.list_requests()}
+
+    assert rows["a"]["selected_model"] == "apex-auto"
+    assert rows["a"]["upstream_model"] == "mock-efficient-v1"
+    assert rows["b"]["upstream_model"] is None
+
+
+def test_backends_breakdown_groups_by_route_and_upstream_model(tmp_path):
+    store = TelemetryStore(str(tmp_path / "telemetry.db"))
+    auto = dict(route="apex-auto", selected_target="switchyard", selected_model="apex-auto")
+    store.record_request(
+        _telemetry(request_id="a", upstream_model="mock-efficient-v1", **auto),
+        timestamp="2026-01-01T00:00:00+00:00",
+    )
+    store.record_request(
+        _telemetry(request_id="b", upstream_model="mock-efficient-v1", **auto),
+        timestamp="2026-01-01T00:01:00+00:00",
+    )
+    store.record_request(
+        _telemetry(request_id="c", upstream_model="mock-capable-v1", **auto),
+        timestamp="2026-01-01T00:02:00+00:00",
+    )
+    store.record_request(
+        _telemetry(request_id="d", upstream_model=None, success=False, http_status=502,
+                   error_code="provider_unavailable", **auto),
+        timestamp="2026-01-01T00:03:00+00:00",
+    )
+    store.record_request(
+        _telemetry(request_id="e", upstream_model="mock-efficient-v1"),
+        timestamp="2026-01-01T00:04:00+00:00",
+    )
+
+    breakdown = store.backends_breakdown()
+
+    by_key = {(row["route"], row["upstream_model"]): row for row in breakdown}
+    assert by_key[("apex-auto", "mock-efficient-v1")]["requests"] == 2
+    assert by_key[("apex-auto", "mock-capable-v1")]["requests"] == 1
+    assert by_key[("apex-auto", None)]["requests"] == 1
+    assert by_key[("apex-auto", None)]["success_rate"] == 0.0
+    assert by_key[("apex-efficient", "mock-efficient-v1")]["requests"] == 1
+    # Ordered by route, then most-requested backend first.
+    assert [row["route"] for row in breakdown] == ["apex-auto"] * 3 + ["apex-efficient"]
+    assert breakdown[0]["upstream_model"] == "mock-efficient-v1"
+
+
 def test_daily_groups_by_calendar_day(tmp_path):
     store = TelemetryStore(str(tmp_path / "telemetry.db"))
     store.record_request(_telemetry(request_id="a"), timestamp="2026-01-01T10:00:00+00:00")

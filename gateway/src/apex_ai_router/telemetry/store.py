@@ -71,6 +71,14 @@ _MIGRATIONS: list[str] = [
     """
     ALTER TABLE ai_request ADD COLUMN retry_count INTEGER;
     """,
+    # Migration 3: the model id reported by the upstream response. This is
+    # how `apex-auto` rows expose which backend the Switchyard sidecar chose
+    # (HANDOFF.md section 2) -- `selected_model` stays the configured
+    # virtual target so existing breakdowns keep their meaning.
+    """
+    ALTER TABLE ai_request ADD COLUMN upstream_model TEXT;
+    CREATE INDEX idx_ai_request_upstream_model ON ai_request(upstream_model);
+    """,
 ]
 
 
@@ -119,16 +127,16 @@ class TelemetryStore:
                 provider_duration_ms, total_duration_ms, input_tokens,
                 output_tokens, total_tokens, estimated_cost,
                 estimated_baseline_cost, estimated_savings, success,
-                http_status, error_code, retry_count, prompt_content,
-                response_content
+                http_status, error_code, retry_count, upstream_model,
+                prompt_content, response_content
             ) VALUES (
                 :request_id, :timestamp, :route, :policy, :selected_target,
                 :selected_provider, :selected_model, :routing_duration_ms,
                 :provider_duration_ms, :total_duration_ms, :input_tokens,
                 :output_tokens, :total_tokens, :estimated_cost,
                 :estimated_baseline_cost, :estimated_savings, :success,
-                :http_status, :error_code, :retry_count, :prompt_content,
-                :response_content
+                :http_status, :error_code, :retry_count, :upstream_model,
+                :prompt_content, :response_content
             )
             """,
             {
@@ -152,6 +160,7 @@ class TelemetryStore:
                 "http_status": telemetry.http_status,
                 "error_code": telemetry.error_code,
                 "retry_count": telemetry.retry_count,
+                "upstream_model": telemetry.upstream_model,
                 "prompt_content": prompt_content,
                 "response_content": response_content,
             },
@@ -248,6 +257,45 @@ class TelemetryStore:
             for row in rows
         ]
 
+    def backends_breakdown(
+        self, *, since: str | None = None, until: str | None = None
+    ) -> list[dict[str, Any]]:
+        """Requests grouped by route and by the model the upstream response
+        reported. For `apex-auto` this is the efficient-vs-capable split the
+        Switchyard sidecar actually produced; `upstream_model` is NULL for
+        failed requests and for providers that omit the field."""
+        where_sql, params = _timestamp_filter(since, until)
+        rows = self._conn.execute(
+            f"""
+            SELECT
+                route,
+                upstream_model,
+                COUNT(*) AS requests,
+                SUM(success) AS successes,
+                SUM(input_tokens) AS input_tokens,
+                SUM(output_tokens) AS output_tokens,
+                SUM(estimated_cost) AS estimated_cost
+            FROM ai_request
+            {where_sql}
+            GROUP BY route, upstream_model
+            ORDER BY route ASC, requests DESC
+            """,
+            params,
+        ).fetchall()
+
+        return [
+            {
+                "route": row["route"],
+                "upstream_model": row["upstream_model"],
+                "requests": row["requests"],
+                "success_rate": (row["successes"] / row["requests"]) if row["requests"] else None,
+                "input_tokens": row["input_tokens"],
+                "output_tokens": row["output_tokens"],
+                "estimated_cost": row["estimated_cost"],
+            }
+            for row in rows
+        ]
+
     def daily(self, *, since: str | None = None, until: str | None = None) -> list[dict[str, Any]]:
         where_sql, params = _timestamp_filter(since, until)
         rows = self._conn.execute(
@@ -291,7 +339,7 @@ class TelemetryStore:
                 provider_duration_ms, total_duration_ms, input_tokens,
                 output_tokens, total_tokens, estimated_cost,
                 estimated_baseline_cost, estimated_savings, success,
-                http_status, error_code, retry_count
+                http_status, error_code, retry_count, upstream_model
             FROM ai_request
             ORDER BY id DESC
             LIMIT :limit OFFSET :offset

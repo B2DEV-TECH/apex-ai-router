@@ -23,8 +23,12 @@ Browser
 > **Status:** built, exported, and exercised in APEX 26.1 on Oracle Database
 > 23ai Free. The distributable SQL under `dist/` was reimported into a clean
 > application and exposed all eight attributes. Live browser checks covered
-> Page Item/Efficient, JavaScript Expression/Capable, Result and Error Page
-> Items, the processing indicator, and controlled Auto-route failure.
+> Static Text/Auto (routed by the NeMo Switchyard sidecar), Page
+> Item/Efficient, JavaScript Expression/Capable, Result and Error Page
+> Items, the processing indicator on/off, the `apexairouter:success` /
+> `apexairouter:error` events, and the controlled error path. The client
+> script also has a Node regression test (`tests/`), run in isolation from
+> APEX. See `docs/live-validation-walkthrough.md` for the full record.
 
 ## Files
 
@@ -35,6 +39,7 @@ Browser
 | `sql/install_plugin_package.sql` | Compiles `src/` in your schema. Run before creating the plug-in in Builder. |
 | `examples/dynamic_action_example.md` | Declarative usage examples -- no PL/SQL or JS to write. |
 | `dist/dynamic_action_plugin_air_dynamic_action_generate.sql` | Sanitized APEX 26.1 Builder export, ready to import after compiling the callback package. |
+| `tests/apex_ai_router_generate.test.mjs` | Node regression test for the client script (`node --test "apex-plugin/tests/*.test.mjs"` or `make test-plugin`; Node 22+, nothing to install). |
 
 ## Building the plug-in in APEX Builder
 
@@ -115,4 +120,33 @@ APEX 26.1 and the local mock gateway on 2026-09-17:
       surfaces a clean
       `{"success":false,"error":"..."}` response (never a raw HTML error
       page or an uncaught JS exception), and the Error Page Item (if
-      configured) is populated.
+      configured) is populated. (Exercised earlier the same day with the
+      Switchyard sidecar deliberately stopped.)
+- [x] **Auto route through NeMo Switchyard**: with the sidecar running, the
+      Static Text/Auto configuration (a three-word prompt) was answered by
+      the efficient backend, and the gateway's telemetry recorded that
+      backend in `upstream_model` — see
+      `docs/live-validation-walkthrough.md`.
+- [x] **Custom events**: in the headless browser run, the three configured
+      Dynamic Actions fired `apexairouter:success` three times and
+      `apexairouter:error` zero times, and the processing indicator was
+      shown only for the two actions with attribute 07 = `Y`.
+
+## Automated test (no APEX needed)
+
+`tests/apex_ai_router_generate.test.mjs` loads `static/apex_ai_router_generate.js`
+into an isolated Node `vm` context with small fakes for the four APEX
+JavaScript APIs it uses (`apex.item`, `apex.server.plugin`,
+`apex.util.showSpinner`, `apex.event.trigger`) and calls it the way the
+Dynamic Action framework does — with the action context as `this` and no
+arguments. It covers: Ajax identifier forwarding and the `x01`..`x04`
+payload, the explicit-context call style, the three prompt sources, the
+`AUTO` default and temperature-as-string, spinner on/off, and the
+result/error item plus event behaviour for success, application error and
+transport error.
+
+```sh
+node --test "apex-plugin/tests/*.test.mjs"   # or: make test-plugin
+```
+
+Ten tests, all passing on Node 22.16 on 2026-09-17.

@@ -30,3 +30,10 @@ class RequestTelemetry:
     # Retries actually performed against the upstream provider (spec section
     # 24). None when no provider call was attempted (e.g. routing_failed).
     retry_count: int | None = None
+    # The model id the upstream response itself reported (`model` field of
+    # the chat completion). For fixed routes this normally equals
+    # `selected_model`; for `apex-auto` it is the only place the gateway can
+    # see which backend the Switchyard sidecar actually picked, since
+    # `selected_model` is the virtual route target (see HANDOFF.md section 2).
+    # None on failures and for providers that omit the field.
+    upstream_model: str | None = None

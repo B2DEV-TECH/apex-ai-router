@@ -87,6 +87,10 @@ class CallRecord:
     # never recomputed independently).
     selected_target: str | None = None
     selected_model: str | None = None
+    # Model id the upstream response reported. For `apex-auto` this is the
+    # backend the switchyard-server sidecar actually called; for a fixed
+    # route it equals `selected_model`. None when the call failed.
+    upstream_model: str | None = None
     input_tokens: int | None = None
     output_tokens: int | None = None
     routing_duration_ms: float | None = None
@@ -456,6 +460,7 @@ def _reconcile(record: CallRecord, admin_rows: dict[str, dict]) -> None:
         return
     record.selected_target = row.get("selected_target")
     record.selected_model = row.get("selected_model")
+    record.upstream_model = row.get("upstream_model")
     record.input_tokens = row.get("input_tokens")
     record.output_tokens = row.get("output_tokens")
     record.routing_duration_ms = row.get("routing_duration_ms")

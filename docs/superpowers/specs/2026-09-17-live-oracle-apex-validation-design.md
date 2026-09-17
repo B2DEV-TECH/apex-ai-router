@@ -17,7 +17,7 @@ The validation must prove the complete request path:
 APEX page or PL/SQL
   -> APEX Web Credential
   -> APEX_AI_ROUTER package or plug-in callback
-  -> gateway on localhost:8081
+  -> gateway on localhost:<GATEWAY_PORT>
   -> mock efficient/capable provider
   -> gateway telemetry
   -> Oracle/APEX response
@@ -28,13 +28,13 @@ APEX page or PL/SQL
 Create a dedicated test environment in the existing `FREEPDB1` pluggable
 database:
 
-- Database schema: `AIR_DEV`
+- Database schema: `<SCHEMA>`
 - APEX workspace: `APEX_AI_ROUTER`
-- APEX developer administrator: `AIR_ADMIN`
+- APEX developer administrator: `<APEX_ADMIN>`
 - APEX/ORDS URL: `http://localhost:8080/ords/`
-- Gateway host URL: `http://localhost:8081`
+- Gateway host URL: `http://localhost:<GATEWAY_PORT>`
 - Gateway API base URL stored in `AIR_CONFIG`:
-  `http://localhost:8081/v1`
+  `http://localhost:<GATEWAY_PORT>/v1`
 
 The schema and APEX account use newly generated, distinct passwords. Passwords,
 API keys, workspace IDs, local container names, and machine-specific connection
@@ -63,7 +63,7 @@ Builder would make database provisioning and verification harder to reproduce.
 ## Port and Gateway Configuration
 
 ORDS already owns host port 8080. The gateway container therefore publishes its
-internal port 8080 on host port 8081. This mapping is supplied through a local
+internal port 8080 on host port <GATEWAY_PORT>. This mapping is supplied through a local
 Compose override or equivalent invocation that is not committed unless a
 general, documented port override is needed by the project.
 
@@ -81,7 +81,7 @@ credential, package, plug-in, and response path before Switchyard is introduced.
 
 ## Database Validation
 
-Run `database/install.sql` as `AIR_DEV`. Then run
+Run `database/install.sql` as `<SCHEMA>`. Then run
 `database/tests/smoke_test.sql` and require all of the following:
 
 - `APEX_AI_ROUTER`, `AIR_MODEL_USAGE_V`, and `AIR_DAILY_USAGE_V` are valid.
@@ -136,7 +136,7 @@ Build the four documented pages without redesigning their contracts or wording:
 
 Use the page documents under `apex-demo/pages/` as the component-level source of
 truth. Upload `apex-demo/static/playground.js` as an application static file.
-Create the documented REST Data Sources against the gateway on port 8081.
+Create the documented REST Data Sources against the gateway on port <GATEWAY_PORT>.
 
 Each page's manual checklist must pass. Cost labels remain "Estimated cost",
 "Estimated capable-model baseline", and "Estimated savings". The application
@@ -173,8 +173,8 @@ Before claiming completion:
   container because the pre-existing local virtual environment points to a
   removed interpreter.
 - Run Ruff and mypy using the locked dependencies.
-- Complete gateway smoke-test Part A on host port 8081.
-- Complete smoke-test Part B against `AIR_DEV` and `APEX_AI_ROUTER`.
+- Complete gateway smoke-test Part A on host port <GATEWAY_PORT>.
+- Complete smoke-test Part B against `<SCHEMA>` and `APEX_AI_ROUTER`.
 - Verify the database, plug-in, and application exports install cleanly.
 - Review the Git diff for secrets and machine-specific identifiers.
 

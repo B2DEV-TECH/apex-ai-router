@@ -10,11 +10,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Live Oracle Database 23ai Free and APEX 26.1 validation for the database
-  install, PL/SQL gateway call, Dynamic Action plug-in, and four-page demo.
+  install, PL/SQL gateway call, Dynamic Action plug-in, and four-page demo,
+  with the NeMo Switchyard sidecar running: `apex-auto` routed short
+  prompts to the efficient backend and long prompts to the capable backend
+  end to end, from an APEX page. Written up step by step in
+  `docs/live-validation-walkthrough.md`, with screenshots under
+  `docs/images/`.
+- `upstream_model` telemetry column: the model id the upstream (for
+  `apex-auto`, the Switchyard sidecar) reports in its response, so the
+  backend that actually answered an Auto request is visible from the
+  gateway. Exposed in `/admin/requests` and a new
+  `GET /admin/metrics/backends` (counts per route and backend). The
+  benchmark report reads it for its "backend actually called" line.
+- Deterministic mock judge: the mock model server classifies prompts of
+  `MOCK_JUDGE_WORD_LIMIT` words or fewer (default 40) as supported by the
+  efficient model and longer ones as not, so mock-mode Auto routing is
+  predictable and testable.
+- `scripts/run_switchyard_local.sh` / `.ps1`: render, validate (`--dry-run`)
+  and run `switchyard-server` against the mock model ports with a routing
+  log; documented in `deploy/switchyard/README.md`.
+- Demo application rebuilt for validation (`apex-demo/f1213.sql`): native
+  Interactive Report for Request History, four native JET charts on the
+  Dashboard (both as `json_table` over the gateway JSON), a decision card
+  on the Playground showing route/target/upstream model per request, a
+  KPI for Auto requests answered by the efficient model, and a
+  Configuration Help page that lists the gateway's routes and targets.
+- `scripts/sanitize_apex_export.py`: repeatable neutralization of the
+  workspace id, owner schema and exporter name in an APEX export; refuses
+  non-exports and already-sanitized files.
+- `apex-demo/qa/browser_qa.mjs`: the Playwright browser QA behind the
+  screenshots and the validation record (credentials from the environment
+  only).
+- `apex-plugin/tests/apex_ai_router_generate.test.mjs` (`make test-plugin`):
+  Node regression test for the plug-in's client script.
 - Reimport-tested APEX exports:
   `apex-plugin/dist/dynamic_action_plugin_air_dynamic_action_generate.sql`
-  and `apex-demo/f1207.sql`. Environment-specific workspace, schema, and
+  and `apex-demo/f1213.sql`. Environment-specific workspace, schema, and
   instance defaults are neutralized in both artifacts.
+
+### Changed
+
+- `apex-demo/f1207.sql` (the first validated export, made before the
+  Switchyard run and the final review fixes) was removed in favour of
+  `f1213.sql`.
 
 ### Fixed
 

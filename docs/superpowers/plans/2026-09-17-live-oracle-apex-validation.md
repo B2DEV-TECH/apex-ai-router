@@ -4,7 +4,7 @@
 
 **Goal:** Validate APEX AI Router end to end on the local Oracle 23ai/APEX 26.1 environment and commit tested APEX plug-in and demo-application exports.
 
-**Architecture:** Provision an isolated `AIR_DEV` schema and `APEX_AI_ROUTER` workspace in `FREEPDB1`, run the existing gateway against local mock providers on host port 8081, then exercise database, plug-in, and four-page demo flows through APEX. Keep credentials and machine-specific overrides in ignored `.tools`/`.env` files; commit only source fixes, APEX-generated exports, and evidence-backed documentation.
+**Architecture:** Provision an isolated `<SCHEMA>` schema and `APEX_AI_ROUTER` workspace in `FREEPDB1`, run the existing gateway against local mock providers on host port <GATEWAY_PORT>, then exercise database, plug-in, and four-page demo flows through APEX. Keep credentials and machine-specific overrides in ignored `.tools`/`.env` files; commit only source fixes, APEX-generated exports, and evidence-backed documentation.
 
 **Tech Stack:** Oracle Database 23ai Free, Oracle APEX 26.1, ORDS, SQL*Plus, FastAPI/Python 3.12, Docker Compose, APEX Builder, JavaScript, PL/SQL.
 
@@ -12,9 +12,9 @@
 
 ## Global Constraints
 
-- Database schema: `AIR_DEV`; APEX workspace: `APEX_AI_ROUTER`; APEX developer: `AIR_ADMIN`.
-- ORDS remains on `http://localhost:8080/ords/`; the gateway uses `http://localhost:8081`.
-- The gateway API base stored in `AIR_CONFIG` is `http://localhost:8081/v1`.
+- Database schema: `<SCHEMA>`; APEX workspace: `APEX_AI_ROUTER`; APEX developer: `<APEX_ADMIN>`.
+- ORDS remains on `http://localhost:8080/ords/`; the gateway uses `http://localhost:<GATEWAY_PORT>`.
+- The gateway API base stored in `AIR_CONFIG` is `http://localhost:<GATEWAY_PORT>/v1`.
 - Schema, APEX, SYS, inference, and admin credentials must never enter Git or committed logs.
 - Prompt and response content telemetry remains disabled.
 - Cost wording must use “Estimated cost,” “Estimated capable-model baseline,” and “Estimated savings.”
@@ -32,7 +32,7 @@
 
 **Interfaces:**
 - Consumes: Docker Desktop 29.4.0 and the checked-in `gateway/uv.lock`.
-- Produces: a passing Python 3.12 baseline and a mock gateway reachable at `http://localhost:8081`.
+- Produces: a passing Python 3.12 baseline and a mock gateway reachable at `http://localhost:<GATEWAY_PORT>`.
 
 - [ ] **Step 1: Create the ignored Compose port override**
 
@@ -42,7 +42,7 @@ Create `.tools/docker-compose.override.yml` with:
 services:
   gateway:
     ports: !override
-      - "8081:8080"
+      - "<GATEWAY_PORT>:8080"
 ```
 
 - [ ] **Step 2: Create the ignored local environment**
@@ -110,7 +110,7 @@ Expected: both files are ignored and neither is staged. This task changes no tra
 
 **Interfaces:**
 - Consumes: SYS access to `localhost:1521/FREEPDB1`, APEX 26.1 APIs.
-- Produces: schema `AIR_DEV`, workspace `APEX_AI_ROUTER`, administrator `AIR_ADMIN`.
+- Produces: schema `<SCHEMA>`, workspace `APEX_AI_ROUTER`, administrator `<APEX_ADMIN>`.
 
 - [ ] **Step 1: Create a secret-prompting provisioning script**
 
@@ -119,16 +119,16 @@ Create `.tools/provision_apex.sql`:
 ```sql
 whenever sqlerror exit sql.sqlcode rollback
 set define on verify off serveroutput on
-accept air_schema_password char prompt 'New AIR_DEV database password: ' hide
-accept air_admin_password char prompt 'New AIR_ADMIN APEX password: ' hide
+accept air_schema_password char prompt 'New <SCHEMA> database password: ' hide
+accept air_admin_password char prompt 'New <APEX_ADMIN> APEX password: ' hide
 
 declare
     l_count number;
 begin
-    select count(*) into l_count from dba_users where username = 'AIR_DEV';
+    select count(*) into l_count from dba_users where username = '<SCHEMA>';
     if l_count = 0 then
         execute immediate
-            'create user AIR_DEV identified by "' ||
+            'create user <SCHEMA> identified by "' ||
             replace('&air_schema_password', '"', '""') ||
             '" default tablespace USERS temporary tablespace TEMP quota unlimited on USERS';
     end if;
@@ -136,7 +136,7 @@ end;
 /
 
 grant create session, create table, create view, create sequence,
-      create procedure, create trigger to AIR_DEV;
+      create procedure, create trigger to <SCHEMA>;
 
 declare
     l_count number;
@@ -147,7 +147,7 @@ begin
     if l_count = 0 then
         apex_instance_admin.add_workspace(
             p_workspace      => 'APEX_AI_ROUTER',
-            p_primary_schema => 'AIR_DEV'
+            p_primary_schema => '<SCHEMA>'
         );
     end if;
 end;
@@ -165,15 +165,15 @@ begin
     select count(*) into l_count
       from apex_workspace_apex_users
      where workspace_name = 'APEX_AI_ROUTER'
-       and user_name = 'AIR_ADMIN';
+       and user_name = '<APEX_ADMIN>';
 
     if l_count = 0 then
         apex_util.create_user(
-            p_user_name                    => 'AIR_ADMIN',
+            p_user_name                    => '<APEX_ADMIN>',
             p_email_address                => 'air-admin@localhost.invalid',
             p_web_password                 => '&air_admin_password',
             p_developer_privs              => 'ADMIN:CREATE:DATA_LOADER:EDIT:HELP:MONITOR:SQL',
-            p_default_schema               => 'AIR_DEV',
+            p_default_schema               => '<SCHEMA>',
             p_allow_app_building_yn        => 'Y',
             p_allow_sql_workshop_yn        => 'Y',
             p_change_password_on_first_use => 'N'
@@ -199,7 +199,7 @@ Run as SYS:
 ```sql
 select username, account_status, default_tablespace
   from dba_users
- where username = 'AIR_DEV';
+ where username = '<SCHEMA>';
 
 select workspace_name, schema
   from apex_workspace_schemas
@@ -208,14 +208,14 @@ select workspace_name, schema
 select workspace_name, user_name, is_admin, is_application_developer
   from apex_workspace_apex_users
  where workspace_name = 'APEX_AI_ROUTER'
-   and user_name = 'AIR_ADMIN';
+   and user_name = '<APEX_ADMIN>';
 ```
 
-Expected: `AIR_DEV` is open, `APEX_AI_ROUTER` maps only to `AIR_DEV`, and `AIR_ADMIN` is both administrator and application developer.
+Expected: `<SCHEMA>` is open, `APEX_AI_ROUTER` maps only to `<SCHEMA>`, and `<APEX_ADMIN>` is both administrator and application developer.
 
 - [ ] **Step 4: Verify Builder login**
 
-Open `http://localhost:8080/ords/`, sign in with workspace `APEX_AI_ROUTER` and user `AIR_ADMIN`, and confirm that App Builder and SQL Workshop are visible. This task changes only the disposable database/APEX instance and ignored files, so it requires no Git commit.
+Open `http://localhost:8080/ords/`, sign in with workspace `APEX_AI_ROUTER` and user `<APEX_ADMIN>`, and confirm that App Builder and SQL Workshop are visible. This task changes only the disposable database/APEX instance and ignored files, so it requires no Git commit.
 
 ---
 
@@ -228,12 +228,12 @@ Open `http://localhost:8080/ords/`, sign in with workspace `APEX_AI_ROUTER` and 
 - Test only if a live defect is found: `database/tests/`
 
 **Interfaces:**
-- Consumes: `AIR_DEV` schema and APEX packages supplied by APEX 26.1.
+- Consumes: `<SCHEMA>` schema and APEX packages supplied by APEX 26.1.
 - Produces: valid `AIR_*` tables/views and `APEX_AI_ROUTER` package objects.
 
 - [ ] **Step 1: Install from the checked-in script**
 
-Start SQL*Plus as `AIR_DEV` connected to `FREEPDB1`, change the working directory to `database`, and run:
+Start SQL*Plus as `<SCHEMA>` connected to `FREEPDB1`, change the working directory to `database`, and run:
 
 ```sql
 @install.sql
@@ -280,7 +280,7 @@ If a source change is required, add the smallest SQL regression reproducing the 
 
 ---
 
-### Task 4: Start and verify the mock gateway on port 8081
+### Task 4: Start and verify the mock gateway on port <GATEWAY_PORT>
 
 **Files:**
 - Consume, ignored: `.env`
@@ -309,9 +309,9 @@ Expected: gateway, efficient mock, and capable mock containers are healthy/runni
 Run:
 
 ```powershell
-Invoke-RestMethod http://localhost:8081/health
-Invoke-RestMethod http://localhost:8081/ready
-Invoke-RestMethod http://localhost:8081/v1/models `
+Invoke-RestMethod http://localhost:<GATEWAY_PORT>/health
+Invoke-RestMethod http://localhost:<GATEWAY_PORT>/ready
+Invoke-RestMethod http://localhost:<GATEWAY_PORT>/v1/models `
   -Headers @{ Authorization = 'Bearer air-local-inference-20260917' }
 ```
 
@@ -343,7 +343,7 @@ Call `/admin/metrics/summary` and `/admin/requests` with `Bearer air-local-admin
 - Execute: `database/tests/manual_gateway_test.sql`
 
 **Interfaces:**
-- Consumes: gateway on `localhost:8081`, workspace `APEX_AI_ROUTER`.
+- Consumes: gateway on `localhost:<GATEWAY_PORT>`, workspace `APEX_AI_ROUTER`.
 - Produces: inference credential `AIR_GATEWAY_CREDENTIAL`, admin credential `AIR_GATEWAY_ADMIN_CREDENTIAL`, and a successful live PL/SQL call.
 
 - [ ] **Step 1: Grant the local outbound-network ACE**
@@ -354,11 +354,11 @@ Run as SYS:
 begin
     dbms_network_acl_admin.append_host_ace(
         host       => 'localhost',
-        lower_port => 8081,
-        upper_port => 8081,
+        lower_port => <GATEWAY_PORT>,
+        upper_port => <GATEWAY_PORT>,
         ace        => xs$ace_type(
             privilege_list => xs$name_list('connect'),
-            principal_name => 'AIR_DEV',
+            principal_name => '<SCHEMA>',
             principal_type => xs_acl.ptype_db
         )
     );
@@ -366,7 +366,7 @@ begin
         host => 'localhost',
         ace  => xs$ace_type(
             privilege_list => xs$name_list('resolve'),
-            principal_name => 'AIR_DEV',
+            principal_name => '<SCHEMA>',
             principal_type => xs_acl.ptype_db
         )
     );
@@ -418,15 +418,15 @@ end;
 /
 ```
 
-Run it as `AIR_DEV`, supplying the two values from Task 1 at the hidden prompts.
+Run it as `<SCHEMA>`, supplying the two values from Task 1 at the hidden prompts.
 
 - [ ] **Step 3: Point `AIR_CONFIG` to the local gateway**
 
-Run as `AIR_DEV`:
+Run as `<SCHEMA>`:
 
 ```sql
 update air_config
-   set config_value = 'http://localhost:8081/v1'
+   set config_value = 'http://localhost:<GATEWAY_PORT>/v1'
  where config_key = 'GATEWAY_BASE_URL';
 commit;
 ```
@@ -461,7 +461,7 @@ Confirm the inference credential cannot read `/admin/requests`, the admin creden
 
 - [ ] **Step 1: Compile the plug-in package**
 
-Run as `AIR_DEV`:
+Run as `<SCHEMA>`:
 
 ```sql
 @apex-plugin/sql/install_plugin_package.sql
@@ -539,7 +539,7 @@ Only include source files if live validation required a fix.
 
 - [ ] **Step 1: Install and validate the demo support package**
 
-Run as `AIR_DEV`:
+Run as `<SCHEMA>`:
 
 ```sql
 @apex-demo/sql/install_demo.sql
@@ -576,7 +576,7 @@ Create:
 - `AIR_HEALTH` → `/health`, no credential
 - `AIR_READY` → `/ready`, no credential
 
-Use base URL `http://localhost:8081`, admin credential
+Use base URL `http://localhost:<GATEWAY_PORT>`, admin credential
 `AIR_GATEWAY_ADMIN_CREDENTIAL` where required, and the exact response fields in
 the page documents. Test each operation in Shared Components before using it.
 
@@ -650,8 +650,8 @@ Repeat Task 1 Step 3. Expected: pytest, Ruff, and mypy all pass on the final tre
 
 - [ ] **Step 2: Rerun both smoke-test parts**
 
-Repeat every applicable command/check in `docs/smoke-test.md` Part A on port 8081
-and Part B against `AIR_DEV`. Record pass/fail facts without recording secrets,
+Repeat every applicable command/check in `docs/smoke-test.md` Part A on port <GATEWAY_PORT>
+and Part B against `<SCHEMA>`. Record pass/fail facts without recording secrets,
 workspace IDs, schema passwords, or container IDs.
 
 - [ ] **Step 3: Scan the repository for leaked local values**

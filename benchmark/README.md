@@ -140,46 +140,42 @@ where routing/timing/cost detail (`selected_target`, `selected_model`,
 `routing_duration_ms`, `estimated_cost`, etc.) gets attached to each call
 record for scoring and reporting.
 
-## An important limitation: telemetry can't see past the Switchyard boundary
+## Which backend did `apex-auto` actually call? (`upstream_model`)
 
 For a **fixed** route, `selected_target`/`selected_model` in
 `/admin/requests` are exactly what you'd expect (`"efficient"`/
 `"capable"`, `"mock-efficient-v1"`/`"mock-capable-v1"`, etc.). For the
 **`apex-auto`** (`llm_classifier`) route, in every mode -- mock or real --
-both fields are fixed literals, not the backend Switchyard actually
-picked:
+both fields are fixed literals that describe the gateway-level target, not
+the backend Switchyard picked behind it:
 
 - `selected_target` is always `"switchyard"` -- the name of the
   gateway-level HTTP target it called (`routing/service.py`:
   `resolve_switchyard_route` always returns a `ResolvedTarget` named after
   the switchyard target itself).
-- `selected_model` is always `"apex-auto"` -- `api/openai_chat.py` sets
-  `selected_model = resolved.config.model`, and for a switchyard-routed
-  call `resolved.config` is the *switchyard* target's own `TargetConfig`,
-  whose `model` field is the fixed virtual model name `"apex-auto"` in
-  `gateway/config/routing.yaml`.
+- `selected_model` is always `"apex-auto"` -- the switchyard target's own
+  `model` field in `gateway/config/routing.yaml`.
 
-In other words: **the gateway's own admin API currently has no way to
-tell you which concrete backend model `apex-auto` actually selected for a
-given request.** That decision is made entirely inside the
-`switchyard-server` sidecar and never reported back across the HTTP
-boundary. This surfaced empirically while building this harness, not from
-reading a spec -- see `HANDOFF.md` for the suggested fix (the gateway
-would need to inspect Switchyard's response, e.g. an `X-Switchyard-Target`
-response header or the upstream response's own `model` field, and record
-it as a distinct telemetry column).
+The backend the sidecar actually called is recorded in a separate
+telemetry column, **`upstream_model`**: the gateway takes it from the
+upstream response's own `model` field, which `switchyard-server` passes
+through unchanged from the backend it forwarded to (proved end-to-end in
+`gateway/tests/integration/test_switchyard_auto_routing.py`, which drives
+the real compiled sidecar). `runner.py` reconciles that column into each
+call record, and the report's **"backend actually called"** line for the
+Auto mode is its distribution. `GET /admin/metrics/backends` exposes the
+same per-route split for dashboards.
 
-In `--mode mock` only, this harness recovers the *real* choice with a
-diagnostic that doesn't generalize to `--mode real`: the mock upstream
-(`mocks/mock_model_server.py`) echoes whatever `model` string was actually
-in the request it received back into its response content
-(`"[mock:TIER:MODEL] response to: ..."`). Parsing that string out of
-`response_text` for Auto-mode calls shows which backend Switchyard
-actually forwarded to -- reported as the report's **"observed backend,
-mock-mode diagnostic"** line, distinct from the gateway-telemetry line
-above it. A real model's response text won't echo an internal routing
-decision like this, so this diagnostic is mock-only by construction, not
-just by current usage.
+In `--mode mock`, the report also prints a second, independent reading of
+the same decision as a cross-check: the mock upstream
+(`mocks/mock_model_server.py`) echoes whatever `model` string was in the
+request it received into its response content
+(`"[mock:TIER:MODEL] response to: ..."`), and the report parses that out of
+`response_text` -- the **"observed backend, mock-mode cross-check"** line.
+It must agree with the `upstream_model` line. A real model's response text
+won't echo an internal routing decision like this, so the cross-check is
+mock-only by construction; `upstream_model` is the reading that generalizes
+to `--mode real`.
 
 ## Known limitations of a `--mode mock` run
 
@@ -190,14 +186,15 @@ repeating here:
    mock upstream returns a fixed, prompt-content-independent string for
    every request, so deterministic scores mostly reflect the mock's canned
    text, not what a real model would produce.
-2. **`apex-auto` will show ~100% routing to the capable target.**
-   Switchyard's `llm_classifier` routing fails open to the capable target
-   on an invalid/unparseable classifier verdict, and the mock's canned
-   response is never a valid one -- confirmed empirically (see the
-   "observed backend" diagnostic above), not just asserted. This is
-   correct behavior of the real routing logic under a mock upstream, not a
-   bug, but it means a mock run cannot demonstrate real auto-routing
-   distribution or cost savings.
+2. **`apex-auto` routing follows a word-count heuristic, not a judge
+   model's opinion.** The mock server recognises Switchyard's classifier
+   call and answers with a schema-valid verdict derived from prompt length
+   (at most `MOCK_JUDGE_WORD_LIMIT` words, default 40, is "supported" and
+   routes to the efficient target; longer is "unsupported" and routes to
+   the capable target). The real `llm_classifier` policy in the sidecar
+   genuinely runs and genuinely splits traffic, but the split reflects
+   prompt length, not task difficulty, so a mock run cannot demonstrate a
+   meaningful auto-routing distribution or cost savings.
 3. **`$0.00` costs are the mock models' genuinely accurate price, not a
    placeholder.** `gateway/config/pricing.yaml` prices
    `mock-efficient-v1`/`mock-capable-v1`/`mock-judge-v1` at `$0.00`
@@ -219,6 +216,13 @@ than presented as a real benchmark result.
 written sample. It exists so a reader can see the exact shape of a report,
 including every limitation above in context, without having to build and
 run the harness first.
+
+> **Note:** `results/mock-example/` was produced before the mock server
+> gained its word-count classifier heuristic and before the gateway
+> recorded `upstream_model`, so its `apex-auto` rows all show the
+> fail-open capable backend and its report has no `upstream_model` line.
+> A fresh `--mode mock` run shows the split described above. The example
+> is kept unchanged because it is a real, unedited harness output.
 
 ## Files
 

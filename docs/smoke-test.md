@@ -93,9 +93,10 @@ swapped or identical, routing is broken.
 ### A5. `apex-auto` (optional — requires the Switchyard sidecar)
 
 Only run this if you've built `switchyard-server` per
-`deploy/switchyard/README.md` and rendered its config
-(`scripts/render_switchyard_config.py`) and started it, with
-`SWITCHYARD_BASE_URL` in `.env` pointing at it.
+`deploy/switchyard/README.md` and started it — `scripts/run_switchyard_local.sh`
+(or `.ps1`) renders the config and runs it against the mock ports — with
+`SWITCHYARD_BASE_URL` in `.env` pointing at it
+(`http://host.docker.internal:4000` when the gateway runs under Docker).
 
 ```sh
 curl -s http://localhost:8080/v1/chat/completions \
@@ -103,9 +104,12 @@ curl -s http://localhost:8080/v1/chat/completions \
   -d '{"model":"apex-auto","messages":[{"role":"user","content":"hello"}]}'
 ```
 
-**Expect:** a successful chat completion (either tier's mock response is
-fine — see `HANDOFF.md` §2 for why you can't tell which tier from the
-gateway's own telemetry).
+**Expect:** a successful chat completion whose content starts with
+`[mock:efficient:mock-efficient-v1]` — the mock judge classifies prompts of
+40 words or fewer as efficient. Repeat with a prompt longer than 40 words
+and expect `[mock:capable:mock-capable-v1]`. The same split shows up in A6
+as `upstream_model`, and in the sidecar's routing log
+(`.tools/switchyard/routing.jsonl` with the helper scripts).
 
 ### A6. Admin/telemetry surface
 
@@ -114,13 +118,18 @@ curl -s http://localhost:8080/admin/metrics/summary \
   -H "Authorization: Bearer smoke-test-admin-key"
 curl -s http://localhost:8080/admin/requests \
   -H "Authorization: Bearer smoke-test-admin-key"
+curl -s http://localhost:8080/admin/metrics/backends \
+  -H "Authorization: Bearer smoke-test-admin-key"
 curl -s http://localhost:8080/admin/routes \
   -H "Authorization: Bearer smoke-test-admin-key"
 ```
 
 **Expect:** `/admin/metrics/summary` and `/admin/requests` reflect the
 requests made in A4/A5 (non-zero counts, estimated costs — `$0.00` is
-correct for the mock models, see `gateway/config/pricing.yaml`).
+correct for the mock models, see `gateway/config/pricing.yaml`). Each
+`/admin/requests` entry carries `upstream_model` (`mock-efficient-v1` /
+`mock-capable-v1`; for A5 that is the backend Switchyard chose), and
+`/admin/metrics/backends` counts requests per route and backend.
 `/admin/routes` echoes back the resolved `routing.yaml`.
 
 **Also check that an inference key cannot read admin data:**
@@ -152,8 +161,9 @@ cd gateway && uv run pytest && uv run ruff check . && uv run mypy src
 cd .. && make benchmark-mock
 ```
 
-**Expect:** all tests pass (99 at the time of the 0.1.0 release), lint and
-type checks clean, and a benchmark report written under
+**Expect:** all tests pass (99 at the time of the 0.1.0 release, 106 on
+2026-09-17 after the `upstream_model` work), lint and type checks clean,
+and a benchmark report written under
 `benchmark/results/` (compare its shape to the committed
 `benchmark/results/mock-example/report.md`).
 
@@ -198,16 +208,20 @@ then run `apex-plugin/README.md`'s manual QA checklist. The committed APEX
 
 ### B4. Demo application
 
-Import `apex-demo/f1207.sql` after installing the database, plug-in, and
+Import `apex-demo/f1213.sql` after installing the database, plug-in, and
 demo support packages. Click through Playground, Dashboard, Request
-History, and Configuration Help against the gateway. The committed export
-was reimported under another application ID and passed this flow against
-the local mock providers.
+History, and Configuration Help against the gateway — expected results per
+page, and the automated version of this click-through, are in
+`live-validation-walkthrough.md`. The committed export was reimported under
+another application ID and passed that flow against the local mock
+providers and the Switchyard sidecar.
 
 ## Sign-off
 
 The 2026-09-17 sign-off covered Part A and B1-B4 on Oracle Database 23ai
-Free / APEX 26.1 with local mock providers. Efficient and Capable routes
-passed. Auto produced a controlled provider-unavailable error because the
-Switchyard sidecar was not running. Repeat the checklist with the target
-Oracle/APEX versions and real providers before production deployment.
+Free / APEX 26.1 with local mock providers and the NeMo Switchyard sidecar
+running. Efficient, Capable and Auto routes passed; for Auto, short prompts
+were answered by the efficient backend and long prompts by the capable
+backend, as recorded in `upstream_model` and in the sidecar's routing log.
+Repeat the checklist with the target Oracle/APEX versions and real
+providers before production deployment.

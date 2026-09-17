@@ -57,9 +57,22 @@ def test_successful_chat_completion_is_recorded_and_visible_via_admin_api(
         row = requests[0]
         assert row["route"] == "apex-efficient"
         assert row["selected_model"] == "mock-efficient-v1"
+        # The mock echoes the requested model id back, so for a fixed route
+        # the upstream-reported model equals the configured one.
+        assert row["upstream_model"] == "mock-efficient-v1"
         assert row["success"] is True
         assert row["http_status"] == 200
         assert row["total_tokens"] > 0
+
+        backends_response = client.get(
+            "/admin/metrics/backends", headers={"Authorization": "Bearer admin-key"}
+        )
+        assert backends_response.status_code == 200
+        backends = backends_response.json()["backends"]
+        assert len(backends) == 1
+        assert backends[0]["route"] == "apex-efficient"
+        assert backends[0]["upstream_model"] == "mock-efficient-v1"
+        assert backends[0]["requests"] == 1
         # The admin API must never expose prompt/response content, regardless
         # of the (default-off) content-logging setting.
         assert "prompt_content" not in row
