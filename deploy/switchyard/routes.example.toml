@@ -1,0 +1,46 @@
+# Example switchyard-server deployment file for apex-ai-router's apex-auto
+# route. This is a hand-written, illustrative reference — the file actually
+# used at runtime is generated from gateway/config/routing.yaml by
+# scripts/render_switchyard_config.py (see deploy/switchyard/README.md) and
+# is gitignored because it embeds real target model ids and base URLs.
+#
+# Schema reference (pinned Switchyard commit 1759dfdff95ed2718f6dd2afef6541654bbd0116):
+# https://github.com/NVIDIA-NeMo/Switchyard/blob/1759dfdff95ed2718f6dd2afef6541654bbd0116/docs/reference/toml_schema.md
+
+schema_version = 1
+
+[llm_clients.efficient]
+format = "openai_chat"
+base_url = "https://api.example.com/v1"
+api_key_env = "EFFICIENT_MODEL_API_KEY"
+
+[llm_clients.capable]
+format = "openai_chat"
+base_url = "https://api.example.com/v1"
+api_key_env = "CAPABLE_MODEL_API_KEY"
+
+[llm_clients.judge]
+format = "openai_chat"
+base_url = "https://api.example.com/v1"
+api_key_env = "JUDGE_MODEL_API_KEY"
+
+[targets.efficient]
+id = "some-small-fast-model"
+llm_client = "efficient"
+
+[targets.capable]
+id = "some-frontier-model"
+llm_client = "capable"
+
+[targets.judge]
+id = "some-small-fast-model"
+llm_client = "judge"
+
+[routes.apex-auto]
+id = "apex-auto"
+type = "llm_classifier"
+mode = "capability"
+classifier_target = "judge"
+strong_target = "capable"
+weak_target = "efficient"
+base_threshold = 0.5

@@ -11,8 +11,11 @@ def _config(**overrides) -> RoutingConfig:
             "apex-efficient": {"strategy": "fixed", "target": "efficient"},
             "apex-auto": {
                 "strategy": "llm_classifier",
+                "switchyard_target": "switchyard",
                 "efficient_target": "efficient",
                 "capable_target": "capable",
+                "judge_target": "judge",
+                "threshold": 0.5,
             },
         },
         "targets": {
@@ -25,6 +28,16 @@ def _config(**overrides) -> RoutingConfig:
                 "provider": "openai_compatible",
                 "model": "mock-capable",
                 "base_url": "http://example.test",
+            },
+            "judge": {
+                "provider": "openai_compatible",
+                "model": "mock-judge",
+                "base_url": "http://example.test",
+            },
+            "switchyard": {
+                "provider": "switchyard",
+                "model": "apex-auto",
+                "base_url": "http://localhost:4000",
             },
         },
     }
@@ -51,14 +64,52 @@ def test_unknown_model_raises_route_not_found():
     assert exc_info.value.code == "route_not_found"
 
 
-def test_llm_classifier_raises_routing_failed_until_phase_3():
+def test_llm_classifier_resolves_to_switchyard_target():
     service = RoutingService(_config())
+
+    resolved = service.resolve("apex-auto")
+
+    assert resolved.name == "switchyard"
+    assert resolved.policy == "llm_classifier"
+    assert resolved.config.provider == "switchyard"
+    assert resolved.config.model == "apex-auto"
+
+
+def test_llm_classifier_without_switchyard_target_raises_routing_failed():
+    config = _config(
+        routes={
+            "apex-auto": {
+                "strategy": "llm_classifier",
+                "efficient_target": "efficient",
+                "capable_target": "capable",
+            }
+        }
+    )
+    service = RoutingService(config)
 
     with pytest.raises(RoutingError) as exc_info:
         service.resolve("apex-auto")
 
     assert exc_info.value.code == "routing_failed"
-    assert "apex-efficient" in exc_info.value.message
+    assert "switchyard_target" in exc_info.value.message
+
+
+def test_llm_classifier_with_wrong_provider_target_raises_routing_failed():
+    config = _config(
+        routes={
+            "apex-auto": {
+                "strategy": "llm_classifier",
+                "switchyard_target": "efficient",
+            }
+        }
+    )
+    service = RoutingService(config)
+
+    with pytest.raises(RoutingError) as exc_info:
+        service.resolve("apex-auto")
+
+    assert exc_info.value.code == "routing_failed"
+    assert "must use provider 'switchyard'" in exc_info.value.message
 
 
 def test_fixed_route_with_missing_target_raises_routing_failed():

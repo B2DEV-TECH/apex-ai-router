@@ -13,7 +13,7 @@ from pydantic import BaseModel, ConfigDict
 class TargetConfig(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    provider: Literal["openai_compatible"]
+    provider: Literal["openai_compatible", "switchyard"]
     model: str
     base_url: str | None = None
     api_key_env: str | None = None
@@ -28,7 +28,13 @@ class RouteConfig(BaseModel):
     # strategy: fixed
     target: str | None = None
 
-    # strategy: llm_classifier (Phase 3 / Switchyard, not implemented yet)
+    # strategy: llm_classifier (Phase 3, backed by a switchyard-server sidecar).
+    # `efficient_target`/`capable_target`/`judge_target`/`threshold` describe the
+    # policy and are also used to render `deploy/switchyard/routes.generated.toml`
+    # (see `routing/switchyard_config.py`). `switchyard_target` names the entry in
+    # `targets:` (provider `switchyard`) that the gateway itself calls over HTTP —
+    # the actual efficient/capable decision happens inside switchyard-server.
+    switchyard_target: str | None = None
     efficient_target: str | None = None
     capable_target: str | None = None
     judge_target: str | None = None

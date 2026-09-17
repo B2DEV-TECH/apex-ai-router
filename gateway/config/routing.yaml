@@ -1,14 +1,17 @@
 # Non-secret routing policy (spec section 8). Safe to commit: targets only
 # reference credentials by environment variable name, never inline values.
 #
-# apex-auto uses the `llm_classifier` strategy, which is real
-# Switchyard-backed routing and is not implemented until Phase 3 — calling
-# it today returns a clear `routing_failed` error rather than faking a
-# routing decision.
+# apex-auto uses the `llm_classifier` strategy: the gateway forwards the
+# request to a switchyard-server sidecar (see deploy/switchyard/), which
+# performs the actual efficient/capable classification against the
+# `efficient_target`/`capable_target`/`judge_target`/`threshold` below
+# (rendered into that sidecar's routes.toml by
+# `apex_ai_router.routing.switchyard_config.render_routes_toml`).
 
 routes:
   apex-auto:
     strategy: llm_classifier
+    switchyard_target: switchyard
     efficient_target: efficient
     capable_target: capable
     judge_target: judge
@@ -40,3 +43,8 @@ targets:
     model: ${JUDGE_MODEL_ID}
     base_url: ${JUDGE_MODEL_BASE_URL}
     api_key_env: JUDGE_MODEL_API_KEY
+
+  switchyard:
+    provider: switchyard
+    model: apex-auto
+    base_url: ${SWITCHYARD_BASE_URL}

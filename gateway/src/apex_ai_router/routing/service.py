@@ -1,16 +1,18 @@
 """Resolves a virtual model id (the OpenAI-compatible `model` field) into a
 concrete provider target (spec sections 8, 11).
 
-Only the `fixed` strategy (`apex-efficient` / `apex-capable`) is
-implemented. `llm_classifier` (`apex-auto`) is real Switchyard-backed
-routing and lands in Phase 3 (see `routing/switchyard_adapter.py` once it
-exists) — it is intentionally rejected here rather than faked.
+`fixed` (`apex-efficient` / `apex-capable`) resolves directly to a single
+target. `llm_classifier` (`apex-auto`) resolves to a `switchyard` target
+whose provider adapter forwards the request to a `switchyard-server`
+sidecar, which performs the actual efficient/capable decision (see
+`routing/switchyard_router.py` and `routing/switchyard_config.py`).
 """
 
 from apex_ai_router.domain.errors import RoutingError
 from apex_ai_router.domain.model_target import ResolvedTarget, RoutingConfig
 from apex_ai_router.routing.fixed_router import resolve_fixed_route
 from apex_ai_router.routing.policies import RouteStrategy
+from apex_ai_router.routing.switchyard_router import resolve_switchyard_route
 
 
 class RoutingService:
@@ -26,11 +28,6 @@ class RoutingService:
             return resolve_fixed_route(virtual_model, route, self._config)
 
         if route.strategy == RouteStrategy.LLM_CLASSIFIER:
-            raise RoutingError(
-                "routing_failed",
-                f"Automatic routing for '{virtual_model}' is not available yet in this "
-                "deployment; use a fixed model such as apex-efficient or apex-capable "
-                "until Switchyard integration lands (see docs/routing.md).",
-            )
+            return resolve_switchyard_route(virtual_model, route, self._config)
 
         raise RoutingError("routing_failed", f"Unsupported routing strategy '{route.strategy}'.")

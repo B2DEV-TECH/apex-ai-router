@@ -110,7 +110,12 @@ def test_unknown_model_returns_route_not_found(tmp_path, override_settings):
     assert response.json()["error"]["code"] == "route_not_found"
 
 
-def test_apex_auto_returns_routing_failed_until_phase_3(tmp_path, override_settings):
+def test_apex_auto_without_switchyard_target_returns_routing_failed(tmp_path, override_settings):
+    # This fixture's apex-auto route intentionally omits `switchyard_target`
+    # (a real, if misconfigured, operator mistake) so this test stays a pure
+    # validation-layer check with no network call to a switchyard sidecar —
+    # see tests/integration/test_switchyard_auto_routing.py for the real,
+    # fully-wired end-to-end path through an actual switchyard-server.
     _override(tmp_path, override_settings)
 
     response = client.post(

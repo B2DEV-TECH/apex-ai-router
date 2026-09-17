@@ -8,6 +8,7 @@ is safe to commit.
 """
 
 import os
+import re
 from functools import lru_cache
 from pathlib import Path
 
@@ -55,22 +56,44 @@ class RoutingConfigError(Exception):
     pass
 
 
+_ENV_VAR_PATTERN = re.compile(r"\$\{([A-Za-z_][A-Za-z0-9_]*)\}")
+
+
+def _expand_env_vars(text: str) -> str:
+    """Substitutes `${VAR}` placeholders from `os.environ`, leaving unset
+    ones untouched so the unresolved-placeholder check below can report them.
+
+    Deliberately NOT `os.path.expandvars`: on Windows, `ntpath.expandvars`
+    treats a bare `'` as "no expansion until the next `'`" (POSIX shell
+    quoting semantics), and a single unmatched apostrophe anywhere earlier in
+    the file — entirely plausible in a YAML comment or string value — would
+    silently disable substitution for the rest of the document.
+    """
+
+    def _substitute(match: re.Match[str]) -> str:
+        return os.environ.get(match.group(1), match.group(0))
+
+    return _ENV_VAR_PATTERN.sub(_substitute, text)
+
+
 def load_routing_config(path: str | Path) -> RoutingConfig:
     file_path = Path(path)
     if not file_path.is_file():
         raise RoutingConfigError(f"Routing config file not found: {file_path}")
 
-    expanded = os.path.expandvars(file_path.read_text(encoding="utf-8"))
+    expanded = _expand_env_vars(file_path.read_text(encoding="utf-8"))
     data = yaml.safe_load(expanded) or {}
     config = RoutingConfig.model_validate(data)
 
     for name, target in config.targets.items():
-        if "${" in target.model:
-            raise RoutingConfigError(
-                f"Target '{name}' has an unresolved placeholder in 'model': "
-                f"{target.model!r}. Set the referenced environment variable "
-                "(see .env.example)."
-            )
+        for field in ("model", "base_url"):
+            value = getattr(target, field)
+            if isinstance(value, str) and "${" in value:
+                raise RoutingConfigError(
+                    f"Target '{name}' has an unresolved placeholder in '{field}': "
+                    f"{value!r}. Set the referenced environment variable "
+                    "(see .env.example)."
+                )
 
     return config
 
