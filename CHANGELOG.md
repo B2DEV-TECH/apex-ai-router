@@ -101,6 +101,32 @@ hand-verified against documented Oracle/APEX APIs
 (`JSON_OBJECT_T`/`JSON_ARRAY_T`, `APEX_WEB_SERVICE.MAKE_REST_REQUEST` with
 `p_credential_static_id`). See `database/README.md` and `HANDOFF.md`.
 
+- APEX Dynamic Action plug-in, "APEX AI Router - Generate" (spec sections
+  18-19, `apex-plugin/`): `apex_ai_router_da.render()`/`.ajax()` PL/SQL
+  callbacks and a client-side script
+  (`static/apex_ai_router_generate.js`) implementing the
+  browser → APEX Ajax callback → gateway flow — the browser never calls a
+  model provider directly. Declarative attributes (Prompt Source Type/Value,
+  Route, Result Page Item, Temperature, Session ID Page Item, Show
+  Processing Indicator, Error Page Item) match the spec's attribute list;
+  no JavaScript is required for basic usage (see
+  `apex-plugin/examples/dynamic_action_example.md`). Errors are always
+  returned as a controlled `{"success":false,"error":"..."}` JSON body
+  instead of an uncaught exception, and success/error are also exposed as
+  custom jQuery events (`apexairouter:success`/`apexairouter:error`) for
+  declarative chaining.
+
+**Caveat:** the plug-in has not been built or exported from a live APEX
+Builder in this repository — no Oracle/APEX instance was available. Its
+PL/SQL and JS source is written against the stable, documented APEX plug-in
+framework, but `apex-plugin/dist/` has no machine-generated export SQL yet
+(APEX's plug-in export format embeds internal sequence IDs and encoded file
+content that only APEX Builder's own Export can produce correctly — see
+`apex-plugin/dist/README.md`), and the exact client-side contract for a
+Dynamic Action plug-in's `javascript_function` callback should be confirmed
+against the APEX Plug-In Developer's Guide for the reader's installed
+version. See `apex-plugin/README.md` and `HANDOFF.md`.
+
 ### Fixed
 
 - `load_routing_config`'s `${VAR}` substitution no longer uses
