@@ -9,11 +9,14 @@ metrics, a Request History report, and a Configuration Help page. It is a
 are what an application actually integrating AI calls should use; this app
 exists to make the gateway's own behavior visible and explorable.
 
-> **Status:** built and exported from APEX 26.1 as `f1207.sql`, then
+> **Status:** built and exported from APEX 26.1 as `f1213.sql`, then
 > reimported under a different application ID and exercised in a headless
-> browser. Playground, the three Dynamic Action plug-in configurations,
-> Dashboard, Request History, and Configuration Help passed against the
-> local gateway and mock model providers with no browser console errors.
+> browser (`qa/browser_qa.mjs`). Playground — including `apex-auto` through
+> a running NeMo Switchyard sidecar — the three Dynamic Action plug-in
+> configurations, Dashboard, Request History, and Configuration Help passed
+> against the local gateway and mock model providers with no browser
+> console errors. Step-by-step, with screenshots:
+> `docs/live-validation-walkthrough.md`.
 
 ## Why a support package instead of reusing `APEX_AI_ROUTER`
 
@@ -50,22 +53,36 @@ arbitrary production page.
      same value as the inference credential.
 4. Compile `apex-plugin/sql/install_plugin_package.sql` in the parsing
    schema.
-5. Import `f1207.sql` in APEX Builder, choosing the target application ID
-   and parsing schema. The export already contains the plug-in metadata,
-   its JavaScript file, the four pages, navigation, and `playground.js`.
+5. Import `f1213.sql` in APEX Builder, choosing the target application ID
+   and parsing schema (or with `apex_application_install`, see
+   `docs/live-validation-walkthrough.md`). The export already contains the
+   plug-in metadata, its JavaScript file, the four pages, navigation, and
+   `playground.js`.
 
-The committed app uses APEX Ajax Callback processes for the read-only
-gateway views. `apex_ai_router_demo.ajax_proxy` keeps both credentials on
-the server and restricts requests to the seven documented health, route,
-metrics, and history paths.
+How the committed app reaches the gateway, all of it server-side:
+
+- **Playground** calls `apex_ai_router_demo.ajax_run` from an Ajax Callback
+  process (`PLAYGROUND_RUN`); it runs the inference call and then fetches
+  that request's telemetry row to fill the decision card (route, target,
+  upstream model, tier, latency, tokens, estimated cost, request id).
+- **Dashboard** and **Request History** are native APEX components over
+  the admin API: the KPI tiles come from `render_kpis`, and the four JET
+  charts and the Interactive Report are SQL `json_table` queries over
+  `apex_ai_router_demo.gateway_json('/admin/metrics/...')` /
+  `gateway_json('/admin/requests?...')`. `gateway_json` holds the admin
+  credential and only accepts the documented read-only paths.
+- **Configuration Help** uses `ajax_config` for the routes/targets tables
+  and the health pills, plus allowlisted `ajax_proxy` callbacks for
+  `/health`, `/ready` and `/admin/routes`. `ajax_proxy` only accepts the
+  documented read-only paths and keeps both credentials on the server.
 
 ## Pages
 
 | Page | Doc | Summary |
 |---|---|---|
-| 1 — Playground | [`pages/01-playground.md`](pages/01-playground.md) | Send a prompt, see the response plus per-request routing/cost detail. |
-| 2 — Dashboard | [`pages/02-dashboard.md`](pages/02-dashboard.md) | Aggregate cards and tables over the admin metrics API. |
-| 3 — Request History | [`pages/03-request-history.md`](pages/03-request-history.md) | Read-only table over `/admin/requests` — never prompt/response content. |
+| 1 — Playground | [`pages/01-playground.md`](pages/01-playground.md) | Send a prompt, see the response plus per-request routing/cost detail, including which backend answered an Auto request. |
+| 2 — Dashboard | [`pages/02-dashboard.md`](pages/02-dashboard.md) | KPI tiles, four JET charts and a backends table over the admin metrics API. |
+| 3 — Request History | [`pages/03-request-history.md`](pages/03-request-history.md) | Interactive Report over `/admin/requests` with a backend badge — never prompt/response content. |
 | 4 — Configuration Help | [`pages/04-configuration-help.md`](pages/04-configuration-help.md) | Gateway endpoint, resolved model ids, `APEX_AI` setup link, health status — no secret values. |
 
 ## Cost-wording constraint (applies to every page)
@@ -90,12 +107,20 @@ suggested gateway-side fix.
 | `sql/demo_playground_pkg.pks` / `.pkb` | Support package for Page 1: `run_playground()` (called from SQL/PL-SQL directly) and `ajax_run()` (the page's Ajax Callback entry point). |
 | `sql/install_demo.sql` | Compiles the support package and seeds `ADMIN_CREDENTIAL_STATIC_ID`. |
 | `static/playground.js` | Page 1 client script. |
-| `f1207.sql` | Sanitized APEX 26.1 application export, verified by reimport under another application ID. |
-| `pages/*.md` | Page-by-page build instructions (items, processes, Dynamic Actions, REST Data Sources). |
+| `f1213.sql` | Sanitized APEX 26.1 application export (`scripts/sanitize_apex_export.py`), verified by reimport under another application ID. |
+| `qa/browser_qa.mjs`, `qa/package.json` | Headless-browser QA of the imported app (Playwright + the installed Chrome); produces the screenshots in `docs/images/`. Credentials come from environment variables only. |
+| `pages/*.md` | Page-by-page build notes: what the exported app contains, plus the original REST Data Source design as an alternative. |
 
-## Manual QA
+## Manual and automated QA
 
-See each page doc's own checklist. The exported implementation passed the
-live APEX 26.1 browser flow documented in `docs/smoke-test.md`; the fixed
-routes used mock providers, and the Auto route intentionally exercised a
-controlled failure because Switchyard was not running.
+See each page doc's own checklist (all items passed on 2026-09-17). The
+exported implementation passed the live APEX 26.1 browser flow three times
+on the built application and once more after reimport, with the mock
+providers and the NeMo Switchyard sidecar running: Auto routed a short
+prompt to the efficient backend and a long one to the capable backend.
+`qa/browser_qa.mjs` is the automated version:
+
+```sh
+cd apex-demo/qa && npm install
+APEX_USER=<workspace user> APEX_PASSWORD=<password> APP_ID=<app id> node browser_qa.mjs
+```

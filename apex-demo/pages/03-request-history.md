@@ -8,9 +8,16 @@ dev-only content logging is enabled; see `gateway/src/apex_ai_router/
 telemetry/store.py`), so this page cannot leak that content even by
 mistake.
 
-> The validated `f1207.sql` export uses an HTML table populated by an
-> allowlisted APEX Ajax Callback. The REST Data Source and Interactive
-> Report design below remains a declarative alternative with native paging.
+> **What the exported app (`f1213.sql`) actually does.** A native
+> Interactive Report whose source is
+> `json_table(apex_ai_router_demo.gateway_json('/admin/requests?limit=500&offset=0'), '$.requests[*]' ...)`
+> — so filtering, sorting, highlighting and download are the standard IR
+> features, and the admin credential never leaves the database. Columns:
+> timestamp, route, target, **backend** (`upstream_model`, rendered as a
+> tier-coloured badge, `efficient` / `capable`), latency, tokens, estimated
+> cost / baseline / savings, status and request id. The REST Data Source
+> design below is the original plan and remains a declarative alternative
+> with native paging past 500 rows.
 
 ## REST Data Source
 
@@ -25,8 +32,12 @@ request_id, timestamp, route, policy, selected_target, selected_provider,
 selected_model, routing_duration_ms, provider_duration_ms,
 total_duration_ms, input_tokens, output_tokens, total_tokens,
 estimated_cost, estimated_baseline_cost, estimated_savings, success,
-http_status, error_code
+http_status, error_code, retry_count, upstream_model
 ```
+
+`upstream_model` is the model id the upstream reported in its response —
+for `apex-auto` that is the backend Switchyard chose, which is what makes
+the Backend column possible.
 
 ## Interactive Report columns (spec-required set, mapped to source fields)
 
@@ -56,13 +67,19 @@ spec's list doesn't name it explicitly, since it disambiguates
   separate, APEX-side log with its own retention and is out of scope for
   this page; see `database/README.md`).
 
-## Manual QA (requires a live gateway + APEX instance — not run in this repository)
+## QA (run 2026-09-17 against the exported app, live gateway, mock providers and the Switchyard sidecar — `apex-demo/qa/browser_qa.mjs`)
 
-- [ ] Report loads and paginates correctly past the admin API's 500-row
-      page cap (Interactive Report's own pagination should issue
-      additional `offset`-based REST Data Source calls transparently).
-- [ ] A failed request (e.g. an unknown route sent directly to
-      `/v1/chat/completions`) appears with a red Status badge and a
-      populated `error_code`.
-- [ ] No column, filter, or export option on this page ever exposes
-      prompt/response text.
+- [x] Report loads with every row carrying a Backend badge and both tiers
+      present (last run: 38 rows, 25 `efficient`, 13 `capable`), with no
+      gateway error region.
+- [x] The most recent rows match the Playground decision cards of the same
+      session, request id for request id.
+- [ ] Pagination past the admin API's 500-row cap: **not exercised** — the
+      exported IR reads one page of up to 500 rows (`limit=500&offset=0`);
+      the telemetry store never exceeded that during the validation.
+- [ ] A failed request with a red Status badge and populated `error_code`:
+      **not exercised** in the automated run (all requests succeeded with
+      the sidecar up).
+- [x] No column, filter, or export option exposes prompt/response text —
+      the IR's only source is `/admin/requests`, whose `list_requests()`
+      never selects content.

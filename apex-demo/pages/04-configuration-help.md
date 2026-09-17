@@ -4,9 +4,17 @@ Spec section 20: a static-ish reference page for whoever is setting up
 this application, showing configuration facts — explicitly **no secret
 values**.
 
-> The validated `f1207.sql` export loads these same read-only endpoints
-> through allowlisted APEX Ajax Callback processes. The REST Data Source
-> mappings below remain a declarative alternative.
+> **What the exported app (`f1213.sql`) actually does.** The gateway base
+> URL comes straight from `AIR_CONFIG`; the health/readiness pills, the
+> routes table (`apex-auto` / `llm_classifier`, `apex-efficient`,
+> `apex-capable`) and the resolved-targets table (efficient, capable,
+> judge, switchyard) are filled by Ajax Callbacks —
+> `apex_ai_router_demo.ajax_config`, plus allowlisted `ajax_proxy` calls for
+> `/health`, `/ready` and `/admin/routes` — all server-side, so the admin
+> credential never reaches the browser. A step list links to
+> `docs/live-validation-walkthrough.md`, `docs/apex-ai-setup.md` and
+> `deploy/switchyard/README.md`. The REST Data Source mappings below
+> remain a declarative alternative.
 
 ## Sections and sources
 
@@ -27,13 +35,17 @@ values**.
   must not attempt to work around that.
 - No API keys, no `Authorization` header values, anywhere on this page.
 
-## Manual QA (requires a live gateway + APEX instance — not run in this repository)
+## QA (run 2026-09-17 against the exported app, live gateway, mock providers and the Switchyard sidecar — `apex-demo/qa/browser_qa.mjs`)
 
-- [ ] Page renders the real configured gateway URL and resolved model ids,
-      with no placeholder text left over from `CHANGE-ME.example.com`
-      defaults (a sign install.sql's placeholders were never edited).
-- [ ] Stopping the gateway process and reloading the page shows `/health`
-      or `/ready` as failing, with a human-readable reason, not a raw
-      connection-error stack trace.
-- [ ] No credential value, API key, or `Authorization` header text appears
-      anywhere on this page under any condition, including error states.
+- [x] Page renders the real configured gateway URL, the three routes with
+      their policies and the resolved targets including `switchyard`, with
+      `ok` / `ready` pills and an empty error area — no
+      `CHANGE-ME.example.com` placeholder.
+- [ ] Stopping the gateway and reloading: **not exercised** in the
+      automated run. `ajax_config` returns `apex_ai_router_demo.last_gateway_error`
+      text for that case, but it was not triggered during the validation.
+- [x] No credential value, API key, or `Authorization` header text on the
+      page: the page's only sources are `AIR_CONFIG.GATEWAY_BASE_URL`,
+      `/admin/routes` (which carries `api_key_env` names, never values),
+      `/health` and `/ready`; the Web Credentials are referenced by static
+      id inside the package and never read back.

@@ -117,13 +117,26 @@ async def create_chat_completion(
         raise
 
     usage = parsed.usage
+    # What the upstream says answered. For `apex-auto` the configured
+    # `selected_model` is the virtual route target; the sidecar passes the
+    # real backend's model id through in the response, and that is the only
+    # place the gateway can see the efficient/capable decision.
+    upstream_model = parsed.model or None
     estimated_cost = None
     estimated_baseline_cost = None
     estimated_savings = None
     if usage is not None and selected_model is not None:
         pricing = get_pricing_config(settings)
+        # Price the model that actually answered when pricing.yaml knows it;
+        # otherwise fall back to the configured model id (providers often
+        # report a dated variant of the configured id).
+        priced_model = (
+            upstream_model
+            if upstream_model is not None and upstream_model in pricing.pricing
+            else selected_model
+        )
         actual_cost = estimate_cost(
-            selected_model, usage.prompt_tokens, usage.completion_tokens, pricing
+            priced_model, usage.prompt_tokens, usage.completion_tokens, pricing
         )
         estimated_cost = actual_cost.total_cost
 
@@ -161,6 +174,7 @@ async def create_chat_completion(
             http_status=200,
             error_code=None,
             retry_count=retry_count,
+            upstream_model=upstream_model,
         ),
         timestamp=datetime.now(UTC).isoformat(),
         prompt_content=_prompt_content_if_enabled(settings, body),
@@ -175,6 +189,7 @@ async def create_chat_completion(
             "selected_target": resolved.name,
             "provider": resolved.config.provider,
             "model": resolved.config.model,
+            "upstream_model": upstream_model,
         },
     )
     return parsed.model_dump(mode="json")

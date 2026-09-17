@@ -23,9 +23,13 @@ Smart Routing   ·   Cost Visibility   ·   Model Agnostic   ·   APEX Native
 > Oracle Database 23ai Free and APEX 26.1. The database objects compile and
 > pass their smoke test, the PL/SQL package completes a gateway round trip,
 > and the exported plug-in and four-page demo app were reimported and tested
-> in clean application IDs. No cost-reduction,
-> quality-preservation, or performance claim appears anywhere in this
-> repository unless it is backed by a real, committed benchmark run.
+> in clean application IDs — including `apex-auto` through a **running NeMo
+> Switchyard sidecar**, with the backend it picked recorded in the gateway's
+> telemetry and cross-checked against the sidecar's own routing log
+> ([`docs/live-validation-walkthrough.md`](docs/live-validation-walkthrough.md)).
+> No cost-reduction, quality-preservation, or performance claim appears
+> anywhere in this repository unless it is backed by a real, committed
+> benchmark run.
 
 The router is deliberately **vendor-neutral**: it never hard-codes which
 provider or model is "the cheap one" or "the smart one." Operators configure
@@ -95,7 +99,8 @@ apex-ai-router/
 ├── apex-demo/      Reference APEX application (playground, dashboard, request history)
 ├── benchmark/      Synthetic, Oracle/APEX-flavored benchmark harness (fixed vs. apex-auto)
 ├── deploy/         Switchyard sidecar build/run instructions
-├── docs/           Setup guides
+├── docs/           Setup guides, smoke test, live validation walkthrough (+ screenshots)
+├── scripts/        Helpers: render/run the Switchyard sidecar locally, sanitize APEX exports
 └── .github/        CI workflows
 ```
 
@@ -129,11 +134,14 @@ curl -X POST http://localhost:8080/v1/chat/completions \
 ```
 
 Common tasks are also wrapped in the `Makefile` (`make install`, `make
-test`, `make test-integration`, `make run`, `make docker-up`, `make
-benchmark-mock`) — see it for the exact commands each target runs. Before
-trusting any deployment, walk through
+test`, `make test-integration`, `make test-plugin`, `make run`, `make
+docker-up`, `make benchmark-mock`) — see it for the exact commands each
+target runs. Before trusting any deployment, walk through
 [`docs/smoke-test.md`](docs/smoke-test.md) — a copy/paste `curl` checklist,
-including the checks that have and haven't actually been run before.
+including the checks that have and haven't actually been run before. To
+see the whole thing working — mocks, the Switchyard sidecar, Oracle, APEX
+and the demo app, page by page —
+follow [`docs/live-validation-walkthrough.md`](docs/live-validation-walkthrough.md).
 
 ## Native `APEX_AI` integration
 
@@ -226,9 +234,13 @@ commit and how to render its config from `routing.yaml`.
 ## Telemetry
 
 By default, the gateway does not store prompt or response content — only
-request metadata (route, selected target/provider/model, token counts,
-latency, estimated cost, retry count), written to a local SQLite store
-(`gateway/src/apex_ai_router/telemetry/`). A dev-only opt-in
+request metadata (route, selected target/provider/model, the upstream
+model that actually answered, token counts, latency, estimated cost, retry
+count), written to a local SQLite store
+(`gateway/src/apex_ai_router/telemetry/`). For `apex-auto` the
+`upstream_model` column is the backend NeMo Switchyard reports having
+called, so the efficient/capable split of Auto traffic is observable from
+the gateway alone. A dev-only opt-in
 (`APEX_AI_ROUTER_TELEMETRY_LOG_CONTENT=true`) additionally persists
 prompt/response content for local debugging; the `/admin/*` API never
 returns it either way. See [`SECURITY.md`](SECURITY.md) for exactly what is
@@ -236,9 +248,9 @@ and isn't logged, and `database/README.md` for the separate, non-overlapping
 `AIR_REQUEST_LOG` (APEX application/page/session context only).
 
 Read access is via a distinct admin API key
-(`/admin/metrics/summary`, `/admin/metrics/models`, `/admin/metrics/daily`,
-`/admin/requests`, `/admin/routes`) — an inference key cannot read
-telemetry, by design.
+(`/admin/metrics/summary`, `/admin/metrics/models`,
+`/admin/metrics/backends`, `/admin/metrics/daily`, `/admin/requests`,
+`/admin/routes`) — an inference key cannot read telemetry, by design.
 
 ## Benchmark
 
@@ -257,8 +269,9 @@ local mock upstream — useful to see the report's shape, but explicitly
 **not** representative of real model quality or real cost savings (the mock
 always returns a fixed string at $0.00; see
 [`benchmark/README.md`](benchmark/README.md) for the four specific reasons
-why, and its documented gap in observing which backend `apex-auto` actually
-picked). No `apex-auto` cost-savings number is published anywhere in this
+why, and for how the report tells which backend `apex-auto` actually
+called from the `upstream_model` telemetry). No `apex-auto` cost-savings
+number is published anywhere in this
 repository — running `make benchmark-real` against your own providers is
 the only way to get one that means anything for your workload.
 
@@ -273,20 +286,22 @@ by an automated test, not just a claim, per that file).
 
 - **The live validation used local mock model providers.** Oracle Database
   23ai Free, APEX 26.1, the PL/SQL integration, the exported Dynamic Action
-  plug-in, and all four demo pages were exercised end to end. Fixed
-  efficient/capable routing passed; `apex-auto` produced the expected
-  controlled provider-unavailable error because the Switchyard sidecar was
-  not running during this validation. No real-provider quality or cost
-  claim follows from this test.
+  plug-in, and all four demo pages were exercised end to end, with the NeMo
+  Switchyard sidecar running: fixed efficient/capable routing passed and
+  `apex-auto` sent short prompts to the efficient backend and long ones to
+  the capable backend, as the mock judge's documented word-count rule
+  dictates. The models echo the prompt and cost $0.00, so no real-provider
+  quality or cost claim follows from this test.
 - NeMo Switchyard is, by NVIDIA's own description, experimental / pre-alpha
   and not recommended for production use. This project uses it anyway,
   pinned to a specific commit (`deploy/switchyard/README.md`), and is
   explicit about that trade-off rather than hiding it.
-- The gateway's own telemetry cannot see which concrete model `apex-auto`
-  picked for a given request past the Switchyard boundary — it only knows
-  it called the `switchyard` HTTP target. See
-  [`benchmark/README.md`](benchmark/README.md#an-important-limitation-telemetry-cant-see-past-the-switchyard-boundary)
-  and `HANDOFF.md` for the suggested fix.
+- For `apex-auto`, the gateway knows which backend answered only because
+  Switchyard reports it in the `model` field of its response, which the
+  gateway stores as `upstream_model`. It does not see the classifier's
+  score, threshold, or the judge call; the sidecar's routing log is the
+  place for that. See
+  [`benchmark/README.md`](benchmark/README.md#which-backend-did-apex-auto-actually-call-upstream_model).
 - No cost-reduction, quality-preservation, or "production ready" claim is
   made anywhere in this repository unless backed by a benchmark run
   recorded in `benchmark/results/` against real providers.
@@ -308,9 +323,10 @@ steps for each.
   `llm_classifier` routing, efficient/capable/auto tiers, telemetry,
   estimated costs, native `APEX_AI` docs, `APEX_AI_ROUTER` PL/SQL package,
   validated APEX Dynamic Action plug-in, exported demo application,
-  benchmark harness.
-- **0.2** — Streaming; more provider adapters; route-level budgets;
-  Switchyard backend-selection telemetry.
+  benchmark harness. Landed after 0.1.0 (see `CHANGELOG.md`, Unreleased):
+  Switchyard backend-selection telemetry (`upstream_model`,
+  `/admin/metrics/backends`) and the live Switchyard validation.
+- **0.2** — Streaming; more provider adapters; route-level budgets.
 - **0.3** — Stage/escalation/composite routing, workspace policies,
   configurable model pools, OpenTelemetry.
 - **Future** — PII/data-masking integration, semantic caching, enterprise

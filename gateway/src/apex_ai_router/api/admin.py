@@ -35,6 +35,19 @@ async def metrics_models(
     return {"models": store.models_breakdown(since=since, until=until)}
 
 
+@router.get("/metrics/backends")
+async def metrics_backends(
+    since: str | None = Query(default=None),
+    until: str | None = Query(default=None),
+    settings: Settings = Depends(get_settings),
+) -> dict:
+    """Per-route split by the model the upstream actually reported -- for
+    `apex-auto`, the efficient/capable decision made by the Switchyard
+    sidecar (see HANDOFF.md section 2)."""
+    store: TelemetryStore = get_telemetry_store(settings)
+    return {"backends": store.backends_breakdown(since=since, until=until)}
+
+
 @router.get("/metrics/daily")
 async def metrics_daily(
     since: str | None = Query(default=None),

@@ -50,13 +50,17 @@ particular vendor.
 
 The Oracle and APEX surfaces were validated on Oracle Database 23ai Free
 and APEX 26.1. The database smoke test and manual PL/SQL gateway round trip
-passed. The plug-in export and `apex-demo/f1207.sql` were each reimported;
-the demo's Playground, Dynamic Action modes, Dashboard, Request History,
-and Configuration Help pages passed a browser flow without console errors.
+passed. The plug-in export and the demo application export
+(`apex-demo/f1213.sql`, post-0.1.0) were each reimported; the demo's
+Playground, Dynamic Action modes, Dashboard, Request History, and
+Configuration Help pages passed a browser flow without console errors.
+The full record, with screenshots, is `docs/live-validation-walkthrough.md`.
 
 - The live validation used local mock model providers. Fixed Efficient and
-  Capable routes succeeded. Auto routing produced the expected controlled
-  error because the Switchyard sidecar was not running.
+  Capable routes succeeded. Auto routing ran through a live NeMo Switchyard
+  sidecar (post-0.1.0): short prompts reached the efficient backend and
+  long prompts the capable backend, and the backend that answered is
+  recorded in the gateway's `upstream_model` telemetry.
 - No benchmark has been run against a real model provider. Every cost or
   quality number in this repository comes from the mock-mode example run
   and is explicitly labeled as such — there is no cost-reduction or
@@ -81,4 +85,4 @@ Built by `scripts/build_release_artifacts.py`:
 `apex-ai-router-database.zip`, `docker-compose.yml`, `example.env`,
 `benchmark-report.md` (the mock-mode example run). The repository also
 contains the verified plug-in export under `apex-plugin/dist/` and the demo
-application export at `apex-demo/f1207.sql`.
+application export at `apex-demo/f1213.sql`.

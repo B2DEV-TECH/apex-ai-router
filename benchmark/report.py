@@ -46,31 +46,27 @@ provider. Read every number in this report with these limitations in mind:
    (`"[mock:TIER:MODEL] response to: ..."`) for every single request, so
    deterministic scores mostly reflect the mock's canned text, not what a
    real model would produce for these prompts.
-2. **`apex-auto` will show ~100% routing to the capable target, and the
-   gateway's own telemetry cannot see this at all.** Switchyard's
-   `llm_classifier` routing treats an invalid, inconsistent, or unparseable
-   classifier verdict as a fail-open condition and routes to `strong_target`
-   (see `docs/routing_algorithms/llm_classifier_routing.md` at the pinned
-   Switchyard commit, and `gateway/tests/integration/test_switchyard_auto_routing.py`).
-   Because the mock's canned response is never a parseable classifier
-   verdict, every `apex-auto` call in mock mode deterministically fails open
-   to `capable` -- confirmed empirically in this repo's own smoke runs by
-   parsing the mock's echoed response text, not just asserted. This is
-   correct behavior of the real routing logic under a mock upstream, not a
-   bug -- but it means this run cannot demonstrate real auto-routing
-   distribution or cost savings. Only `--mode real` with genuinely
-   differentiated efficient/capable models can show that. Separately, and in
-   every mode (mock or real): the gateway's own `/admin/requests` telemetry
-   records `selected_target` and `selected_model` as the fixed literals
-   `"switchyard"`/`"apex-auto"` for any classifier-routed call -- it never
-   records which backend Switchyard actually picked, because the gateway
-   only resolves to the switchyard HTTP target itself and never inspects
-   what happens behind that boundary (`routing/service.py`,
-   `api/openai_chat.py`). The "observed backend" line below recovers the
-   real choice only in mock mode, only because the mock server happens to
-   echo the model string it received back into its response content; there
-   is currently no equivalent way to recover this from a real deployment's
-   telemetry alone (see `HANDOFF.md`).
+2. **`apex-auto` routing in mock mode follows a word-count heuristic, not
+   a judge model's opinion.** The mock server recognises Switchyard's
+   classifier call (a `response_format` JSON schema plus the capability
+   card in the system prompt) and answers with a schema-valid verdict
+   derived from the prompt's length: at most `MOCK_JUDGE_WORD_LIMIT` words
+   (default 40) is "supported" and routes to the efficient target,
+   anything longer is "unsupported" and routes to the capable target (see
+   `gateway/src/apex_ai_router/mocks/mock_model_server.py`). So the real
+   `llm_classifier` policy inside the `switchyard-server` sidecar
+   genuinely runs and genuinely splits traffic in this run, but the split
+   reflects prompt length, not task difficulty. Only `--mode real` with a
+   real judge model can demonstrate a meaningful auto-routing distribution
+   or cost savings. The gateway records the backend Switchyard actually
+   called in the `upstream_model` telemetry column (taken from the
+   upstream response's own `model` field, which the sidecar passes
+   through); `selected_target`/`selected_model` stay the fixed literals
+   `"switchyard"`/`"apex-auto"` for a classifier-routed call because they
+   describe the gateway-level target, not the backend behind it. The
+   "observed backend" line below is a mock-only cross-check of the same
+   decision, parsed from the mock's echoed response content, and must
+   agree with the `upstream_model` line.
 3. **$0.00 costs are the mock models' genuinely accurate price, not a
    placeholder.** `gateway/config/pricing.yaml` documents `$0.00` for
    `mock-efficient-v1`/`mock-capable-v1`/`mock-judge-v1` because the local
@@ -119,30 +115,23 @@ def _mode_stats(entries: list[dict]) -> dict:
     input_tokens = [e["record"]["input_tokens"] for e in entries]
     output_tokens = [e["record"]["output_tokens"] for e in entries]
 
-    # For a `fixed` route, `selected_target`/`selected_model` are informative
-    # ("efficient"/"capable", "mock-efficient-v1"/"mock-capable-v1"). For the
-    # `llm_classifier` route (`apex-auto`), BOTH fields from the gateway's own
-    # telemetry are fixed literals, not the backend Switchyard actually chose:
-    # `selected_target` is always "switchyard" (the name of the gateway-level
-    # HTTP target), and `selected_model` is always "apex-auto" (`openai_chat.py`
-    # sets `selected_model = resolved.config.model`, and for a switchyard-routed
-    # call `resolved.config` is the *switchyard* target's own TargetConfig,
-    # whose `model` field is the fixed virtual model name "apex-auto" in both
-    # `gateway/config/routing.yaml` and this harness's generated routing.yaml --
-    # confirmed by reading `routing/service.py` and `api/openai_chat.py` in
-    # full). The real efficient/capable pick made *inside* the switchyard-server
-    # sidecar is architecturally invisible to the gateway's own telemetry in
-    # every mode, mock or real -- grouping by `selected_model` here still
-    # produces a real, correct distribution (it just always collapses to
-    # `{"apex-auto": n}` for the Auto mode); the mock-mode-only diagnostic in
-    # `_mock_observed_backend_distribution()` below is what recovers the true
-    # backend choice, and only because the mock server happens to echo the
-    # model string it actually received into its response content.
+    # For a `fixed` route, `selected_model` is the configured backend
+    # ("mock-efficient-v1"/"mock-capable-v1"). For the `llm_classifier`
+    # route (`apex-auto`) it is the fixed virtual model name "apex-auto" --
+    # the gateway-level switchyard target -- so `selected_model_distribution`
+    # always collapses to `{"apex-auto": n}` for the Auto mode. The backend
+    # Switchyard actually picked is the `upstream_model` telemetry column
+    # (the upstream response's own `model` field, passed through by the
+    # sidecar), aggregated separately as `upstream_model_distribution`.
     models: dict[str, int] = {}
+    upstream_models: dict[str, int] = {}
     for e in entries:
         model = e["record"]["selected_model"]
         if model is not None:
             models[model] = models.get(model, 0) + 1
+        upstream = e["record"].get("upstream_model")
+        if upstream is not None:
+            upstream_models[upstream] = upstream_models.get(upstream, 0) + 1
 
     return {
         "n": n,
@@ -155,20 +144,21 @@ def _mode_stats(entries: list[dict]) -> dict:
         "avg_input_tokens": _mean(input_tokens),
         "avg_output_tokens": _mean(output_tokens),
         "selected_model_distribution": models,
+        "upstream_model_distribution": upstream_models,
     }
 
 
-# Mock-mode-only diagnostic. `mocks/mock_model_server.py` echoes whatever
+# Mock-mode-only cross-check. `mocks/mock_model_server.py` echoes whatever
 # `model` string was actually in the HTTP request it received back into the
 # response content: `f"[mock:{TIER}:{model}] response to: {behavior}"`. For
 # a switchyard-routed (`apex-auto`) call, that `model` is whatever backend
 # id the switchyard-server sidecar put in the request it forwarded to the
-# target it internally chose (e.g. "mock-capable-v1") -- this is the ONLY
-# place that choice is observable, since neither `selected_target` nor
-# `selected_model` in the gateway's own telemetry can see past the
-# switchyard boundary (see the comment in `_mode_stats()`). This does not
-# generalize to `--mode real`: a real model's response text will not echo
-# an internal routing decision like this, so the diagnostic is mock-only by
+# target it internally chose (e.g. "mock-capable-v1"). The gateway's own
+# `upstream_model` telemetry column records the same decision from the
+# response's `model` field; parsing the echo gives a second, independent
+# reading that must agree with it. This does not generalize to
+# `--mode real`: a real model's response text will not echo an internal
+# routing decision like this, so the cross-check is mock-only by
 # construction, not just by current usage.
 _MOCK_ECHO_RE = re.compile(r"^\[mock:[^:]+:([^\]]+)\]")
 
@@ -262,22 +252,22 @@ def _auto_vs_capable_block(
     else:
         lines.append("- **Latency difference (auto vs capable):** n/a")
 
-    total_auto = sum(auto["selected_model_distribution"].values())
-    if total_auto:
+    upstream = auto["upstream_model_distribution"]
+    total_upstream = sum(upstream.values())
+    if total_upstream:
         dist_text = ", ".join(
-            f"{model}: {count}/{total_auto} ({count / total_auto:.0%})"
-            for model, count in sorted(auto["selected_model_distribution"].items())
+            f"{model}: {count}/{total_upstream} ({count / total_upstream:.0%})"
+            for model, count in sorted(upstream.items())
         )
         lines.append(
-            f"- **`apex-auto` gateway-telemetry model field (measured, this run):** {dist_text} "
-            "-- for a classifier-routed call this field is always the fixed virtual model "
-            'name "apex-auto" itself, not the backend Switchyard actually picked; see '
-            "the next line for the real backend choice in this mock run."
+            "- **`apex-auto` backend actually called (gateway telemetry `upstream_model`, "
+            f"measured, this run):** {dist_text}"
         )
     else:
         lines.append(
-            "- **`apex-auto` gateway-telemetry model field:** no reconciled `/admin/requests` "
-            "rows were found for auto calls -- routing target unknown for this run."
+            "- **`apex-auto` backend actually called (gateway telemetry `upstream_model`):** "
+            "no reconciled `/admin/requests` rows with an `upstream_model` were found for "
+            "auto calls -- routing target unknown for this run."
         )
 
     if run_mode == "mock":
@@ -289,12 +279,13 @@ def _auto_vs_capable_block(
                 for model, count in sorted(observed.items())
             )
             lines.append(
-                f"- **`apex-auto` observed backend, mock-mode diagnostic (parsed from the "
-                f"mock's echoed response content, not from gateway telemetry):** {observed_text}"
+                f"- **`apex-auto` observed backend, mock-mode cross-check (parsed from the "
+                f"mock's echoed response content; must agree with the `upstream_model` line "
+                f"above):** {observed_text}"
             )
         else:
             lines.append(
-                "- **`apex-auto` observed backend, mock-mode diagnostic:** could not parse "
+                "- **`apex-auto` observed backend, mock-mode cross-check:** could not parse "
                 "the mock's echoed model from any auto-mode response content."
             )
 

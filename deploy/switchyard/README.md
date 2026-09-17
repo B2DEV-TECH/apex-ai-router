@@ -47,6 +47,44 @@ Point `SWITCHYARD_BASE_URL` (see `.env.example`) at this address —
 `http://localhost:4000` by default. Validate a config without binding a
 socket with `--dry-run`.
 
+## 4. Run it locally against the mock models (helper scripts)
+
+`scripts/run_switchyard_local.sh` (Linux/macOS/Git Bash) and
+`scripts/run_switchyard_local.ps1` (Windows PowerShell) wrap steps 2 and 3
+for the local Docker setup. They point the three `*_MODEL_BASE_URL`
+variables at the mock model ports `docker-compose.yml` publishes (`9001`
+for the efficient model, `9002` for the capable model and the judge), set a
+placeholder for any unset `*_MODEL_API_KEY` (the server refuses to start
+when the env var named in `api_key_env` is missing, and the mocks ignore
+the value), render the config, validate it with `--dry-run`, and then run
+the sidecar in the foreground on `127.0.0.1:4000` with
+`--routing-log-file` pointing at `.tools/switchyard/routing.jsonl`.
+
+```sh
+scripts/run_switchyard_local.sh            # run
+scripts/run_switchyard_local.sh --dry-run  # validate the config only
+```
+
+```powershell
+scripts\run_switchyard_local.ps1           # run
+scripts\run_switchyard_local.ps1 -DryRun   # validate the config only
+```
+
+Two things to keep straight:
+
+- **Which side of Docker each URL is seen from.** The sidecar runs on the
+  host, so it reaches the mocks through their *published* host ports. The
+  gateway container reaches the sidecar through `SWITCHYARD_BASE_URL`,
+  which under docker-compose must be `http://host.docker.internal:4000`
+  rather than `http://localhost:4000` (inside the container, `localhost`
+  is the container itself). Set it in `.env` before `docker compose up`.
+- **The routing log is the sidecar's own evidence.** Every decision is
+  appended as JSON lines: the classifier call to the judge followed by the
+  call to the backend it picked. `docs/live-validation-walkthrough.md`
+  uses it to show that the efficient/capable split recorded in the
+  gateway's `upstream_model` telemetry came from Switchyard, not from the
+  gateway.
+
 ## Notes
 
 - All three `[llm_clients]` entries render with `format = "openai_chat"`.

@@ -1,56 +1,41 @@
 # Handoff notes
 
-## Active checkpoint — resume here
+## Validation record — 2026-09-17 (branch `feat/live-apex-validation`)
 
-Branch: `feat/live-apex-validation`. Worktree used for this validation:
-`C:\Users\geefa\Documents\B2DEVTECH\apex-ai-router-live-validation`.
+The live validation is complete and written up in
+`docs/live-validation-walkthrough.md` (steps, expected results per page,
+screenshots in `docs/images/`, and a results table). What was done, in
+order:
 
-The latest clean APEX build is application **1213**. It includes the fixes
-from the final code review: Dashboard charts, `n/a` handling for empty
-telemetry, paged/filterable/downloadable Request History, dynamic
-`AIR_CONFIG.GATEWAY_BASE_URL`, a real native-setup link, readable proxy
-errors, exact “Estimated cost” wording, spinner-off coverage, and plug-in
-success/error event coverage. Its expanded browser QA passed once with 47
-history rows and no console errors. The mock telemetry store was then
-filled to 107 requests so pagination past 100 could be tested.
+1. `upstream_model` telemetry (the backend Switchyard reports having
+   called) was added to the gateway, `/admin/requests`, a new
+   `/admin/metrics/backends`, and the benchmark report; the mock judge was
+   made deterministic (word count). Python suite: 106 passed, `ruff` and
+   `mypy` clean.
+2. `switchyard-server` was built at the pinned commit and run against the
+   mock model ports with `scripts/run_switchyard_local.ps1`; the routing
+   log confirmed judge + backend calls per Auto request.
+3. The demo application (**1213**) was rebuilt around native components —
+   Interactive Report and four JET charts as `json_table` over the gateway
+   JSON, a Playground decision card with route/target/upstream model — and
+   passed the headless browser QA three times (0 failed expectations, 0
+   console errors; Auto short → efficient, Auto long → capable; plug-in
+   3/3; both tiers badged in Request History).
+4. `apex-plugin/tests/apex_ai_router_generate.test.mjs` (10 Node tests)
+   covers the plug-in client script: `this` context, Ajax identifier,
+   spinner Y/N, success/error items and events.
+5. Application 1213 was exported, sanitized with the new
+   `scripts/sanitize_apex_export.py` (workspace id, owner, exporter and
+   audit user names neutralized) into `apex-demo/f1213.sql`, reimported as
+   a throwaway application id, and passed the same QA; the throwaway app
+   was then removed. `apex-demo/f1207.sql` was deleted.
+6. The QA script was committed as `apex-demo/qa/browser_qa.mjs` (reads the
+   user, password and application id from the environment) and run once
+   more from its tracked location.
 
-**The exact next action is to rerun:**
-
-```powershell
-$env:APEX_PASSWORD='<local ignored value>'
-$env:APP_ID='1213'
-node .tools\qa_demo_runtime.mjs
-```
-
-That run was interrupted by the user after 6.7 seconds. The script now
-clicks Next when more than 100 history rows exist and expects a “Rows 101”
-label. Confirm the output includes `secondPageRows` and no console errors.
-
-After that run:
-
-1. Add a focused Node regression test for
-   `apex-plugin/static/apex_ai_router_generate.js`, covering the native
-   Dynamic Action context through `this`, Ajax identifier forwarding,
-   spinner Y/N, and success/error events. This was the remaining Important
-   code-review finding.
-2. Decide/document the deliberate implementation choice: the validated app
-   uses allowlisted APEX Ajax callbacks plus custom charts and a paged table,
-   rather than native APEX REST Data Sources and an Interactive Report. The
-   functional gaps (charts, pagination, filters, CSV) are now covered, but
-   the original implementation plan still names native components.
-3. Update the page QA checklists to reflect the paths actually exercised.
-4. Export application 1213 over the current `apex-demo/f1207.sql` artifact
-   (rename consistently if desired), sanitize workspace/schema/instance
-   defaults again, reimport it under a fresh application ID, and rerun the
-   browser QA. The currently committed/exported `f1207.sql` predates the
-   final review fixes and must not be presented as the final artifact.
-5. Re-export the plug-in only if its metadata/static file changes. Its
-   current sanitized export already reimported successfully with eight
-   attributes.
-6. Run the final Oracle compile/smoke script, the Python 3.12 container
-   suite (98 passed, 1 optional Switchyard test skipped, Ruff/mypy clean),
-   secret scan, and `git diff --check`; then replace this checkpoint with a
-   completed validation record.
+Not done, on purpose: no real model provider was involved, and no
+cost/quality number is claimed. See "What this proves, and what it does
+not" in the walkthrough.
 
 Local credentials and helper scripts remain ignored under `.env` and
 `.tools/`. Do not copy them into tracked files or command output committed
@@ -75,11 +60,11 @@ APEX 26.1 against the local gateway and mock providers:
 - The Dynamic Action plug-in was built and exported. Its sanitized export
   under `apex-plugin/dist/` reimported into a clean application with all
   eight attributes.
-- The four-page demo was built and exported as `apex-demo/f1207.sql`. That
-  file reimported under a different application ID, and Playground,
-  Efficient/Capable plug-in actions, controlled Auto failure, Dashboard,
-  Request History, and Configuration Help passed in a browser without
-console errors.
+- The four-page demo was built and exported as `apex-demo/f1213.sql`. That
+  file reimported under a different application ID, and Playground (Auto
+  through Switchyard, fixed routes, all three plug-in prompt sources),
+  Dashboard, Request History, and Configuration Help passed in a browser
+  without console errors (`docs/live-validation-walkthrough.md`).
 
 The live work exposed and fixed real compatibility issues: portable SQL
 includes, SQL*Plus substitution in URL strings, APEX 26.1 plug-in API
@@ -88,30 +73,31 @@ Action context through JavaScript `this`, button static-ID metadata, admin
 endpoint derivation, and numeric HTML escaping. The committed exports have
 local workspace, schema, and instance defaults neutralized.
 
-This validation used mock providers. Fixed routing passed; `apex-auto`
-could only verify controlled failure because the Switchyard sidecar was not
-running. Real-provider quality and cost remain unmeasured.
+This validation used mock providers. Fixed routing passed, and `apex-auto`
+passed through a running Switchyard sidecar (short prompt → efficient,
+long prompt → capable, per the mock judge's word-count rule). The
+controlled-failure path (sidecar stopped) was exercised earlier the same
+day. Real-provider quality and cost remain unmeasured.
 
-## 2. Switchyard telemetry can't see past its own boundary
+## 2. Resolved: which backend `apex-auto` called is now recorded
 
-Documented in detail in `benchmark/README.md`'s ["An important limitation:
-telemetry can't see past the Switchyard
-boundary"](benchmark/README.md#an-important-limitation-telemetry-cant-see-past-the-switchyard-boundary)
-section. Short version: for `apex-auto`, the gateway's telemetry records
-`selected_target="switchyard"` and `selected_model="apex-auto"` literally —
-it genuinely does not know which of efficient/capable Switchyard picked,
-because that decision happens inside the sidecar over a plain HTTP call.
-The benchmark's mock-mode workaround (parsing the mock model's own echoed
-response text) only works in `--mode mock` and does not generalize to real
-providers.
+Previously the gateway's telemetry stopped at `selected_target="switchyard"`
+and could not say which of efficient/capable the sidecar picked. Switchyard
+returns the backend's model id in the `model` field of its
+OpenAI-compatible response; the gateway now stores that verbatim as
+`upstream_model` (also populated for fixed routes, from the provider's
+response), exposes it in `/admin/requests` and aggregates it in
+`GET /admin/metrics/backends`. The benchmark report's "backend actually
+called" line reads it, and the mock-mode echo-text parsing is kept only as
+a cross-check that must agree with it. Details:
+`benchmark/README.md`, ["Which backend did `apex-auto` actually
+call?"](benchmark/README.md#which-backend-did-apex-auto-actually-call-upstream_model).
 
-**Suggested fix**: have `switchyard-server` (or the gateway's
-`SwitchyardProvider`) surface which backend it actually called — either a
-response header/field Switchyard already exposes (check its current
-version's API before assuming one needs to be added upstream) or, failing
-that, a small patch that echoes the selected target name. Until this is
-fixed, nobody can honestly report what fraction of `apex-auto` traffic
-went to which tier, in production or in a real-provider benchmark.
+What is still not visible from the gateway: the classifier's score and
+threshold, and the judge call itself. Switchyard's `--routing-log-file`
+(JSON lines; `scripts/run_switchyard_local.*` enable it) is the record for
+that, and `docs/live-validation-walkthrough.md` shows how to reconcile the
+two. Exposing the score would need a Switchyard-side change.
 
 ## 3. SQLite telemetry is single-process by design, not by accident
 

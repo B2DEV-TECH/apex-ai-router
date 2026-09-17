@@ -1,4 +1,4 @@
-.PHONY: install lint test test-integration run docker-up docker-down benchmark-mock benchmark-real
+.PHONY: install lint test test-integration test-plugin run docker-up docker-down benchmark-mock benchmark-real
 
 install:
 	cd gateway && uv sync --all-extras
@@ -11,6 +11,11 @@ test:
 
 test-integration:
 	cd gateway && uv run pytest tests/integration
+
+# Node's built-in test runner (Node 22+), no install step: exercises the
+# plug-in's client script with fakes for the four apex.* APIs it uses.
+test-plugin:
+	node --test "apex-plugin/tests/*.test.mjs"
 
 run:
 	cd gateway && uv run uvicorn apex_ai_router.main:app --reload --port 8080

@@ -5,10 +5,21 @@ gateway's admin API — no direct SQLite access from APEX (the telemetry
 database is the gateway process's own file, not something APEX should
 reach into directly).
 
-> The validated `f1207.sql` export renders cards and tables through
-> allowlisted APEX Ajax Callback processes backed by
-> `apex_ai_router_demo.ajax_proxy`. The REST Data Source design below is a
-> declarative alternative for teams that prefer native chart regions.
+> **What the exported app (`f1213.sql`) actually does.** The KPI tiles are
+> a PL/SQL region (`apex_ai_router_demo.render_kpis`, over
+> `/admin/metrics/summary` and `/admin/metrics/backends`): Requests,
+> Success rate, Estimated cost, Estimated capable-model baseline, Estimated
+> savings, and *Auto requests answered by the efficient model*. The four
+> charts are native JET chart regions whose SQL is `json_table(...)` over
+> `apex_ai_router_demo.gateway_json('/admin/metrics/backends')` and
+> `gateway_json('/admin/metrics/daily')`: *Backend that answered, per
+> route*, *Requests by route*, *Requests per day (UTC)* and *Tokens per
+> backend* — the routing-distribution question below is answered directly
+> by `upstream_model`, no model-id join needed. A backends table
+> (`render_backends_table`) repeats the breakdown as numbers, and two pills
+> show `/health` and `/ready`. The latency card is omitted (option 2 in the
+> gap note below). The REST Data Source design that follows is the
+> original plan and remains a declarative alternative.
 
 ## REST Data Sources (Shared Components > REST Data Sources)
 
@@ -91,12 +102,16 @@ baseline" / "Estimated savings" everywhere. Never "Money saved" or
 `config/pricing.yaml`-based estimation (see `gateway/README.md`'s cost
 section).
 
-## Manual QA (requires a live gateway + APEX instance — not run in this repository)
+## QA (run 2026-09-17 against the exported app, live gateway, mock providers and the Switchyard sidecar — `apex-demo/qa/browser_qa.mjs`)
 
-- [ ] All three REST Data Sources return data after at least one
-      Playground request has been made.
-- [ ] Cards render `n/a` rather than erroring when the telemetry database
-      is empty (`requests = 0` — `success_rate` is `null` in that case,
-      confirmed in `store.py`'s `summary()`).
-- [ ] Charts re-render after a page refresh with new data from additional
-      Playground requests.
+- [x] All six KPI tiles show a value (none `n/a`) after the Playground
+      requests, and the health/readiness pills read `ok` / `ready`.
+- [x] All four JET charts render an SVG with data from the gateway
+      (`json_table` over `gateway_json`), with no gateway error region on
+      the page.
+- [x] Reloading the Dashboard after further Playground requests reflects
+      the new counts (the screenshots in `docs/images/04-dashboard.png` were
+      taken after the Playground run of the same session).
+- [ ] Empty-telemetry rendering (`requests = 0` → `n/a`, `success_rate`
+      `null`): handled in `render_kpis`, but **not exercised** — the
+      telemetry store was never empty during the validation.
