@@ -31,8 +31,9 @@ uv run ruff check .
 
 New functionality should come with tests. Gateway tests live in
 `gateway/tests/` (`unit/`, `integration/`, `contract/`). Integration tests
-should exercise the mock upstream model servers in `gateway/mocks/`, not
-real paid providers — CI never has live provider credentials.
+should exercise the mock upstream model servers in
+`gateway/src/apex_ai_router/mocks/`, not real paid providers — CI never
+has live provider credentials.
 
 ## Commit messages
 

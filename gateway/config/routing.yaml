@@ -1,0 +1,42 @@
+# Non-secret routing policy (spec section 8). Safe to commit: targets only
+# reference credentials by environment variable name, never inline values.
+#
+# apex-auto uses the `llm_classifier` strategy, which is real
+# Switchyard-backed routing and is not implemented until Phase 3 — calling
+# it today returns a clear `routing_failed` error rather than faking a
+# routing decision.
+
+routes:
+  apex-auto:
+    strategy: llm_classifier
+    efficient_target: efficient
+    capable_target: capable
+    judge_target: judge
+    threshold: 0.5
+
+  apex-efficient:
+    strategy: fixed
+    target: efficient
+
+  apex-capable:
+    strategy: fixed
+    target: capable
+
+targets:
+  efficient:
+    provider: openai_compatible
+    model: ${EFFICIENT_MODEL_ID}
+    base_url: ${EFFICIENT_MODEL_BASE_URL}
+    api_key_env: EFFICIENT_MODEL_API_KEY
+
+  capable:
+    provider: openai_compatible
+    model: ${CAPABLE_MODEL_ID}
+    base_url: ${CAPABLE_MODEL_BASE_URL}
+    api_key_env: CAPABLE_MODEL_API_KEY
+
+  judge:
+    provider: openai_compatible
+    model: ${JUDGE_MODEL_ID}
+    base_url: ${JUDGE_MODEL_BASE_URL}
+    api_key_env: JUDGE_MODEL_API_KEY
