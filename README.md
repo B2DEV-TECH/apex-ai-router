@@ -1,25 +1,55 @@
 # APEX AI Router
 
+**Smart model routing for Oracle APEX.**
+
 APEX AI Router is an open-source model-routing gateway for Oracle APEX
-applications. Instead of sending every AI request to the same model
-regardless of how simple or complex it is, the gateway uses
-[NVIDIA NeMo Switchyard](https://github.com/NVIDIA-NeMo/Switchyard) — an
-open-source routing engine — to select between configured model tiers based
-on the request. Oracle APEX can connect through its native OpenAI-compatible
-Generative AI Service support, or developers can use the included APEX
-plug-in and PL/SQL API.
+applications. Instead of sending every AI request to the same expensive
+model, it uses [NVIDIA NeMo Switchyard](https://github.com/NVIDIA-NeMo/Switchyard)
+— an open-source routing engine — to select between configured model tiers
+based on the request. Oracle APEX can connect through its native
+OpenAI-compatible Generative AI Service (`APEX_AI`) support with zero code
+changes, or developers can use the included `APEX_AI_ROUTER` PL/SQL package
+or the optional APEX Dynamic Action plug-in.
+
+```text
+Smart Routing   ·   Cost Visibility   ·   Model Agnostic   ·   APEX Native
+```
+
+> **Status: 0.1.0, pre-release.** Phases 1-9 of the project's implementation
+> plan are complete: the gateway, Switchyard-based `apex-auto` routing,
+> telemetry/cost estimation, the Oracle/PL-SQL integration layer, the APEX
+> plug-in, a demo application, and a synthetic benchmark harness all exist
+> and are exercised by an automated test suite (93 tests) plus a real
+> clean-install boot. What has **not** happened: no Oracle Database or APEX
+> Builder instance was available while building this project, so
+> `database/`, `apex-plugin/`, and `apex-demo/` are implemented and
+> hand-verified against documented Oracle/APEX APIs but not yet compiled or
+> clicked through in a live workspace — see [Limitations](#limitations) and
+> `HANDOFF.md` before depending on this in production. No cost-reduction,
+> quality-preservation, or performance claim appears anywhere in this
+> repository unless it is backed by a real, committed benchmark run.
 
 The router is deliberately **vendor-neutral**: it never hard-codes which
 provider or model is "the cheap one" or "the smart one." Operators configure
 an `efficient` target and a `capable` target — each can be any
-OpenAI-compatible model from any provider — and the router picks between
-them per request.
+OpenAI-compatible model from any provider — and Switchyard picks between
+them per request when a page asks for `apex-auto`.
 
-> **Status: early development.** This repository is being built in phases
-> (see [Roadmap](#roadmap)). Sections below describe the target design;
-> anything not yet implemented is marked as such. Nothing in this README is
-> a performance, cost-savings, or compatibility claim until it has been
-> measured — see [Limitations](#limitations).
+## Table of contents
+
+1. [What it is](#apex-ai-router) / [Why](#why)
+2. [Architecture](#architecture)
+3. [Quick start](#quick-start)
+4. [Native `APEX_AI` setup](#native-apex_ai-integration)
+5. [Plug-in installation](#apex-plug-in)
+6. [Routing modes](#routing-modes)
+7. [Provider configuration](#provider-configuration)
+8. [Telemetry](#telemetry)
+9. [Benchmark](#benchmark)
+10. [Security model](#security-model)
+11. [Limitations](#limitations)
+12. [Roadmap](#roadmap)
+13. [License](#license)
 
 ## Why
 
@@ -52,28 +82,29 @@ Responsibilities are kept separate on purpose:
 - **The gateway** (`gateway/`) owns provider credentials, HTTP calls,
   retries, timeouts, request validation, cost estimation, and telemetry. It
   is the only component that knows about real provider endpoints and keys.
-- **NeMo Switchyard** owns the routing decision only — efficient vs.
-  capable — nothing else. It never sees provider credentials.
+- **NeMo Switchyard** owns the `apex-auto` routing decision only —
+  efficient vs. capable — nothing else. It never sees provider credentials
+  and is reached only through the gateway, over an internal sidecar HTTP
+  call (`deploy/switchyard/`).
 
-## Repository layout
+### Repository layout
 
 ```
 apex-ai-router/
-├── gateway/        OpenAI-compatible FastAPI gateway (Python)
-├── database/       Oracle DB objects + PL/SQL API (AIR_ prefix)
-├── apex-plugin/    Optional APEX Dynamic Action plug-in
-├── apex-demo/      Demo APEX application (playground, dashboard, history)
-├── benchmark/      Synthetic APEX-workload benchmark harness
-├── docs/           Setup guides, architecture notes, security model
+├── gateway/        OpenAI-compatible FastAPI gateway (Python) -- routing, telemetry, cost estimation
+├── database/       Oracle DB objects + APEX_AI_ROUTER PL/SQL package (AIR_ prefix)
+├── apex-plugin/    Optional "APEX AI Router - Generate" Dynamic Action plug-in
+├── apex-demo/      Reference APEX application (playground, dashboard, request history)
+├── benchmark/      Synthetic, Oracle/APEX-flavored benchmark harness (fixed vs. apex-auto)
+├── deploy/         Switchyard sidecar build/run instructions
+├── docs/           Setup guides
 └── .github/        CI workflows
 ```
 
 ## Quick start
 
-Only the gateway skeleton exists today — structured logging, settings
-loading, and health/readiness endpoints, plus local mock upstream model
-servers. There is no routing, no `/v1/chat/completions`, and no real
-provider traffic yet.
+Requires Python 3.12+ and [`uv`](https://docs.astral.sh/uv/) (or plain
+`pip`, which also works against `gateway/pyproject.toml`).
 
 ```sh
 cd gateway
@@ -83,89 +114,210 @@ curl http://localhost:8080/health
 curl http://localhost:8080/ready
 ```
 
-Or via Docker Compose from the repository root (starts the gateway plus two
-mock upstream model servers used for local development — no paid provider
-credentials required):
+`/ready` reports `not_ready` with a specific, sanitized reason (e.g. an
+unresolved `${VAR}` in `routing.yaml`) until `APEX_AI_ROUTER_API_KEYS` and
+real model targets are configured — see `.env.example` for every variable.
+Without a real model provider configured, use the included mock upstream to
+exercise the full request path locally:
 
 ```sh
 cp .env.example .env
 docker compose up --build
 curl http://localhost:8080/health
+curl -X POST http://localhost:8080/v1/chat/completions \
+  -H "Authorization: Bearer $(grep APEX_AI_ROUTER_API_KEYS .env | cut -d= -f2)" \
+  -H "Content-Type: application/json" \
+  -d '{"model": "apex-efficient", "messages": [{"role": "user", "content": "hello"}]}'
 ```
 
-## Native APEX_AI integration
+Common tasks are also wrapped in the `Makefile` (`make install`, `make
+test`, `make test-integration`, `make run`, `make docker-up`, `make
+benchmark-mock`) — see it for the exact commands each target runs.
 
-Documentation for configuring an Oracle APEX Generative AI Service to point
-at this gateway will live in `docs/apex-ai-setup.md` once the
-`/v1/chat/completions` endpoint exists (Phase 2). Not yet written.
+## Native `APEX_AI` integration
+
+The lowest-friction adoption path: **no plug-in, no PL/SQL package, no
+application changes beyond configuration.** Point your APEX application's
+existing Generative AI Service at the gateway (`apex-auto`,
+`apex-efficient`, or `apex-capable` as the model) and it gets routing and
+cost visibility for free. Full walkthrough, including the exact prerequisites
+and how to verify it worked: [`docs/apex-ai-setup.md`](docs/apex-ai-setup.md).
+
+```text
+Generative AI Service
+Provider:    OpenAI Compatible
+Endpoint:    https://router.example.com/v1
+Model:       apex-auto
+```
 
 ## APEX plug-in
 
-The optional "APEX AI Router - Generate" Dynamic Action plug-in
-(`apex-plugin/`) is planned for a later phase. The router's core promise —
-one OpenAI-compatible endpoint, routed automatically — does not require it;
-existing `APEX_AI` usage will keep working by pointing at the gateway
-directly.
+An optional **"APEX AI Router - Generate"** Dynamic Action plug-in
+(`apex-plugin/`) for low-code usage — declarative route/temperature/result-item
+attributes, no PL/SQL or JavaScript required for basic use:
+
+```text
+Dynamic Action:  APEX AI Router - Generate
+Prompt Source:   P10_PROMPT
+Route:           Auto
+Result:          P10_RESULT
+```
+
+Or call the `APEX_AI_ROUTER` PL/SQL package directly (`database/`), for
+page processes and batch jobs outside of a Dynamic Action:
+
+```plsql
+declare
+    l_result clob;
+begin
+    l_result := apex_ai_router.generate(
+        p_prompt => :P10_PROMPT,
+        p_route  => apex_ai_router.c_route_auto
+    );
+    :P10_RESULT := l_result;
+end;
+/
+```
+
+Both the plug-in and the package are optional conveniences on top of the
+native `APEX_AI` path above, not a second way to reach a model provider —
+see [`apex-plugin/README.md`](apex-plugin/README.md) and
+[`database/README.md`](database/README.md) for installation, and note the
+"not yet run against a live APEX Builder/database" caveat in
+[Limitations](#limitations).
 
 ## Routing modes
 
-Planned virtual models, exposed via `/v1/models` once implemented:
+Virtual models, exposed via `GET /v1/models`:
 
-| Virtual model    | Policy      | Behavior                                   |
-|------------------|-------------|---------------------------------------------|
-| `apex-auto`      | `AUTO`      | NeMo Switchyard chooses efficient vs. capable |
-| `apex-efficient` | `EFFICIENT` | Always routes to the configured efficient target |
-| `apex-capable`   | `CAPABLE`   | Always routes to the configured capable target |
+| Virtual model    | Strategy         | Behavior                                       |
+|------------------|-------------------|-------------------------------------------------|
+| `apex-auto`      | `llm_classifier`  | NeMo Switchyard classifies the request and chooses efficient vs. capable |
+| `apex-efficient` | `fixed`           | Always routes to the configured efficient target |
+| `apex-capable`   | `fixed`           | Always routes to the configured capable target |
 
 `apex-efficient` and `apex-capable` exist specifically so `apex-auto` can be
-benchmarked against fixed baselines instead of being taken on faith.
+benchmarked against fixed baselines instead of being taken on faith (see
+[Benchmark](#benchmark)). Routing policy lives entirely in
+`gateway/config/routing.yaml` — non-secret, safe to commit, and referencing
+credentials only by environment variable name.
 
 ## Provider configuration
 
-Providers are configured through environment variables and a routing config
-file — never hard-coded. See `.env.example` for the exact variables once
-routing is implemented (Phase 3).
+Providers are configured through environment variables (`.env`, see
+[`.env.example`](.env.example)) plus the non-secret
+`gateway/config/routing.yaml`:
+
+```yaml
+targets:
+  efficient:
+    provider: openai_compatible
+    model: ${EFFICIENT_MODEL_ID}
+    base_url: ${EFFICIENT_MODEL_BASE_URL}
+    api_key_env: EFFICIENT_MODEL_API_KEY
+```
+
+Any OpenAI-compatible provider can fill an `efficient`/`capable`/`judge`
+slot — the router never hard-codes a vendor. `apex-auto` additionally
+requires the [NeMo Switchyard sidecar](deploy/switchyard/README.md)
+running alongside the gateway; see that doc for the exact pinned build
+commit and how to render its config from `routing.yaml`.
 
 ## Telemetry
 
 By default, the gateway does not store prompt or response content — only
-request metadata (route, selected target, token counts, latency, estimated
-cost). See `docs/telemetry.md` (planned) for the exact schema.
+request metadata (route, selected target/provider/model, token counts,
+latency, estimated cost, retry count), written to a local SQLite store
+(`gateway/src/apex_ai_router/telemetry/`). A dev-only opt-in
+(`APEX_AI_ROUTER_TELEMETRY_LOG_CONTENT=true`) additionally persists
+prompt/response content for local debugging; the `/admin/*` API never
+returns it either way. See [`SECURITY.md`](SECURITY.md) for exactly what is
+and isn't logged, and `database/README.md` for the separate, non-overlapping
+`AIR_REQUEST_LOG` (APEX application/page/session context only).
+
+Read access is via a distinct admin API key
+(`/admin/metrics/summary`, `/admin/metrics/models`, `/admin/metrics/daily`,
+`/admin/requests`, `/admin/routes`) — an inference key cannot read
+telemetry, by design.
 
 ## Benchmark
 
-A synthetic, Oracle/APEX-flavored benchmark suite (`benchmark/`) will
-compare fixed-efficient, fixed-capable, and `apex-auto` routing on cost,
-latency, and task success — using deterministic scoring wherever possible.
-No results exist yet; none will be published without an actual measured
-run.
+A synthetic, Oracle/APEX-flavored benchmark harness (`benchmark/`, 34
+tasks across 14 categories — SQL/PL-SQL generation and explanation, JSON
+extraction, business-rule reasoning, and more) compares fixed-efficient,
+fixed-capable, and `apex-auto` routing on cost, latency, and deterministic
+(plus optional LLM-judge) task scoring:
+
+```sh
+make benchmark-mock
+```
+
+`benchmark/results/mock-example/` is a real, committed run against the
+local mock upstream — useful to see the report's shape, but explicitly
+**not** representative of real model quality or real cost savings (the mock
+always returns a fixed string at $0.00; see
+[`benchmark/README.md`](benchmark/README.md) for the four specific reasons
+why, and its documented gap in observing which backend `apex-auto` actually
+picked). No `apex-auto` cost-savings number is published anywhere in this
+repository — running `make benchmark-real` against your own providers is
+the only way to get one that means anything for your workload.
 
 ## Security model
 
-See [SECURITY.md](SECURITY.md).
+See [`SECURITY.md`](SECURITY.md) for the full threat model and status
+table (TLS, credential isolation, log/telemetry content, request limits,
+CORS, dependency pinning, concurrency safety — several of these are backed
+by an automated test, not just a claim, per that file).
 
 ## Limitations
 
+- **Not validated against a live Oracle Database or APEX workspace.** No
+  Oracle/APEX instance was available while building this project.
+  `database/`, `apex-plugin/`, and `apex-demo/` are implemented and
+  hand-verified against documented Oracle/APEX APIs, but running
+  `database/install.sql`, building the plug-in in Builder, and clicking
+  through the demo app's four pages have not happened here — see each
+  module's own README and `HANDOFF.md` before production use.
 - NeMo Switchyard is, by NVIDIA's own description, experimental / pre-alpha
-  and not recommended for production use. This project is honest about
-  that and will document exactly which commit was tested.
-- No cost-reduction, quality-preservation, or "production ready" claims are
+  and not recommended for production use. This project uses it anyway,
+  pinned to a specific commit (`deploy/switchyard/README.md`), and is
+  explicit about that trade-off rather than hiding it.
+- The gateway's own telemetry cannot see which concrete model `apex-auto`
+  picked for a given request past the Switchyard boundary — it only knows
+  it called the `switchyard` HTTP target. See
+  [`benchmark/README.md`](benchmark/README.md#an-important-limitation-telemetry-cant-see-past-the-switchyard-boundary)
+  and `HANDOFF.md` for the suggested fix.
+- No cost-reduction, quality-preservation, or "production ready" claim is
   made anywhere in this repository unless backed by a benchmark run
-  recorded in `benchmark/results/`.
-- Streaming, multiple provider adapters, and advanced routing strategies
-  (stage/escalation/composite) are roadmap items, not present in 0.1.
+  recorded in `benchmark/results/` against real providers.
+- Streaming responses, additional provider-format adapters (only
+  OpenAI-compatible and Switchyard exist today), and advanced routing
+  strategies (stage/escalation/composite) are roadmap items, not present in
+  0.1.
+- SQLite telemetry is a single-process design (verified safe under this
+  project's own single-event-loop execution model) — not built for
+  multi-process horizontal scaling of the gateway against one database
+  file.
+
+See [`HANDOFF.md`](HANDOFF.md) for the complete list, with suggested next
+steps for each.
 
 ## Roadmap
 
-- **0.1** — OpenAI-compatible gateway, Switchyard LLM-classifier routing,
-  efficient/capable tiers, telemetry, estimated costs, native `APEX_AI`
-  docs, APEX Dynamic Action plug-in, benchmark harness.
-- **0.2** — Streaming, more provider adapters, route-level budgets, routing
-  presets, improved APEX dashboard.
+- **0.1** (this release) — OpenAI-compatible gateway, Switchyard
+  `llm_classifier` routing, efficient/capable/auto tiers, telemetry,
+  estimated costs, native `APEX_AI` docs, `APEX_AI_ROUTER` PL/SQL package,
+  APEX Dynamic Action plug-in, demo application design, benchmark harness.
+- **0.2** — Live Oracle/APEX validation of `database/`, `apex-plugin/`, and
+  `apex-demo/`; streaming; more provider adapters; route-level budgets;
+  Switchyard backend-selection telemetry.
 - **0.3** — Stage/escalation/composite routing, workspace policies,
   configurable model pools, OpenTelemetry.
 - **Future** — PII/data-masking integration, semantic caching, enterprise
   deployment, custom-trained router, OCI-native deployment templates.
+
+See [`CHANGELOG.md`](CHANGELOG.md) for what has actually shipped, phase by
+phase, including every caveat and fix discovered along the way.
 
 ## License
 

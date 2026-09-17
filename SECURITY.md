@@ -42,5 +42,5 @@ AI model providers. Its security responsibilities and their current status:
 The routing engine dependency, [NVIDIA NeMo Switchyard](https://github.com/NVIDIA-NeMo/Switchyard),
 describes itself as experimental and not recommended for production use.
 This project uses it anyway, pinned to a specific commit, and documents that
-choice honestly rather than hiding it. See `docs/routing.md` for the exact
-pinned version once written.
+choice honestly rather than hiding it. See `deploy/switchyard/README.md` for
+the exact pinned commit.
