@@ -6,7 +6,7 @@ Thanks for considering a contribution to APEX AI Router.
 
 ```sh
 cd gateway
-uv sync
+uv sync --all-extras
 uv run pytest
 uv run ruff check .
 ```

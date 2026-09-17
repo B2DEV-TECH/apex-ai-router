@@ -1,7 +1,13 @@
+import os
+
 from apex_ai_router.config import Settings
 
 
-def test_defaults():
+def test_defaults(monkeypatch):
+    for name in tuple(os.environ):
+        if name.startswith("APEX_AI_ROUTER_"):
+            monkeypatch.delenv(name)
+
     settings = Settings(_env_file=None)
     assert settings.environment == "development"
     assert settings.port == 8080

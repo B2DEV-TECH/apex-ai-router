@@ -84,7 +84,7 @@ docker run --rm `
   -v "${PWD}:/workspace" `
   -w /workspace/gateway `
   python:3.12-slim `
-  sh -lc "pip install --no-cache-dir uv && uv sync --frozen && uv run pytest && uv run ruff check . && uv run mypy src"
+  sh -lc "pip install --no-cache-dir uv && uv sync --frozen --all-extras && uv run pytest && uv run ruff check . && uv run mypy src"
 ```
 
 Expected: all existing tests pass (the repository currently documents 99), Ruff reports no errors, and mypy reports success. If dependency download is blocked, rerun with approved network access rather than changing the lock file.

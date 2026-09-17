@@ -1,7 +1,7 @@
 .PHONY: install lint test test-integration run docker-up docker-down benchmark-mock benchmark-real
 
 install:
-	cd gateway && uv sync
+	cd gateway && uv sync --all-extras
 
 lint:
 	cd gateway && uv run ruff check .
