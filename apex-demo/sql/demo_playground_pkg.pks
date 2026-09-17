@@ -33,8 +33,8 @@ create or replace package apex_ai_router_demo authid definer as
     justification (most production pages have no reason to hold an admin
     credential at all). See apex-demo/README.md.
 
-    Untested against a live Oracle/APEX instance in this repository, same
-    caveat as database/ and apex-plugin/ -- see HANDOFF.md.
+    Validated on Oracle Database 23ai Free and APEX 26.1 against the local
+    mock gateway; see HANDOFF.md for the remaining production limitations.
 */
 
     type t_playground_result is record (
@@ -63,6 +63,20 @@ create or replace package apex_ai_router_demo authid definer as
     -- apex-plugin/src/apex_ai_router_da.pkb's ajax(), so a gateway or
     -- config failure never reaches the browser as a raw error page.
     procedure ajax_run;
+
+    -- Server-side proxy used by the Dashboard, Request History, and
+    -- Configuration Help pages. Only the documented read-only gateway
+    -- endpoints are allowed; credentials never leave the APEX session.
+    procedure ajax_proxy(
+        p_path  in varchar2,
+        p_admin in boolean default true
+    );
+
+    -- Page callback wrappers. Request history validates and normalizes the
+    -- requested offset before constructing the allowlisted gateway path;
+    -- config returns only the non-secret gateway base URL.
+    procedure ajax_requests;
+    procedure ajax_config;
 
 end apex_ai_router_demo;
 /

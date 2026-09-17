@@ -1,83 +1,96 @@
 # Handoff notes
 
-This project was built end-to-end (all 10 implementation phases) without
-access to a live Oracle Database, an APEX Builder workspace, or any real
-model provider credentials. Everything below is what a follow-up
-contributor — human or a more capable model — should look at before
-treating this as production-ready. Nothing here is a "known bug that was
-shipped anyway silently": every item is also disclosed in the relevant
-module's own README or in `README.md`'s Limitations section. This file
-exists to collect them in one prioritized place, and to record a few
-design decisions made under uncertainty so a reviewer doesn't have to
-rediscover the reasoning from scratch.
+## Active checkpoint — resume here
+
+Branch: `feat/live-apex-validation`. Worktree used for this validation:
+`C:\Users\geefa\Documents\B2DEVTECH\apex-ai-router-live-validation`.
+
+The latest clean APEX build is application **1213**. It includes the fixes
+from the final code review: Dashboard charts, `n/a` handling for empty
+telemetry, paged/filterable/downloadable Request History, dynamic
+`AIR_CONFIG.GATEWAY_BASE_URL`, a real native-setup link, readable proxy
+errors, exact “Estimated cost” wording, spinner-off coverage, and plug-in
+success/error event coverage. Its expanded browser QA passed once with 47
+history rows and no console errors. The mock telemetry store was then
+filled to 107 requests so pagination past 100 could be tested.
+
+**The exact next action is to rerun:**
+
+```powershell
+$env:APEX_PASSWORD='<local ignored value>'
+$env:APP_ID='1213'
+node .tools\qa_demo_runtime.mjs
+```
+
+That run was interrupted by the user after 6.7 seconds. The script now
+clicks Next when more than 100 history rows exist and expects a “Rows 101”
+label. Confirm the output includes `secondPageRows` and no console errors.
+
+After that run:
+
+1. Add a focused Node regression test for
+   `apex-plugin/static/apex_ai_router_generate.js`, covering the native
+   Dynamic Action context through `this`, Ajax identifier forwarding,
+   spinner Y/N, and success/error events. This was the remaining Important
+   code-review finding.
+2. Decide/document the deliberate implementation choice: the validated app
+   uses allowlisted APEX Ajax callbacks plus custom charts and a paged table,
+   rather than native APEX REST Data Sources and an Interactive Report. The
+   functional gaps (charts, pagination, filters, CSV) are now covered, but
+   the original implementation plan still names native components.
+3. Update the page QA checklists to reflect the paths actually exercised.
+4. Export application 1213 over the current `apex-demo/f1207.sql` artifact
+   (rename consistently if desired), sanitize workspace/schema/instance
+   defaults again, reimport it under a fresh application ID, and rerun the
+   browser QA. The currently committed/exported `f1207.sql` predates the
+   final review fixes and must not be presented as the final artifact.
+5. Re-export the plug-in only if its metadata/static file changes. Its
+   current sanitized export already reimported successfully with eight
+   attributes.
+6. Run the final Oracle compile/smoke script, the Python 3.12 container
+   suite (98 passed, 1 optional Switchyard test skipped, Ruff/mypy clean),
+   secret scan, and `git diff --check`; then replace this checkpoint with a
+   completed validation record.
+
+Local credentials and helper scripts remain ignored under `.env` and
+`.tools/`. Do not copy them into tracked files or command output committed
+to Git.
+
+This project has now been exercised end to end with Oracle Database 23ai
+Free, APEX 26.1, and the local mock gateway stack. Everything below is what
+a follow-up contributor should still look at before treating it as
+production-ready. Remaining limits are also disclosed in the relevant
+module README or in `README.md`.
 
 Priority order below is: things that block calling this "validated" at
 all, then real design/architecture gaps, then smaller polish items.
 
-## 1. Top priority for whoever picks this up: actually build the APEX UI — this is very likely unblockable now, not a permanent gap
+## 1. Resolved: live Oracle/APEX build and export
 
-The single biggest gap left in this project. Everything in `database/`,
-`apex-plugin/`, and `apex-demo/` was written against documented Oracle/APEX
-behavior (`JSON_OBJECT_T`/`JSON_ARRAY_T` since 12.2, `APEX_WEB_SERVICE`, Web
-Credentials since APEX 20.1, Dynamic Action plug-in APIs) and reviewed
-carefully, but **none of it has been run**, purely because no live
-Oracle/APEX instance was reachable from the shell used to write the code —
-not because Geraldo lacks access to one.
+On 2026-09-17, the project was validated on Oracle Database 23ai Free and
+APEX 26.1 against the local gateway and mock providers:
 
-**Do this first, before treating "no Oracle instance" as a blocker:** ask
-Geraldo for access to a local Oracle Database + APEX 26.1 dev/test
-environment. He maintains one on his own machine (Docker-based) and has
-already used it successfully, this same month, to install schema objects,
-build a plug-in and a multi-page application in APEX Builder, and export
-both — a proven, repeatable workflow, not a one-off. Ask him specifically
-for:
+- `database/install.sql`, `database/tests/smoke_test.sql`, and the manual
+  PL/SQL gateway round trip passed.
+- The Dynamic Action plug-in was built and exported. Its sanitized export
+  under `apex-plugin/dist/` reimported into a clean application with all
+  eight attributes.
+- The four-page demo was built and exported as `apex-demo/f1207.sql`. That
+  file reimported under a different application ID, and Playground,
+  Efficient/Capable plug-in actions, controlled Auto failure, Dashboard,
+  Request History, and Configuration Help passed in a browser without
+console errors.
 
-- A **new, dedicated** workspace/schema for this project — he consistently
-  provisions one fresh, isolated workspace per project rather than reusing
-  one, so request the same treatment rather than asking to reuse whatever
-  he already has open.
-- Connection details and a throwaway schema password, given to you
-  out-of-band (chat), never as a file. **Do not commit any password,
-  workspace ID, container name, port, or schema name from that
-  conversation into this repo** — it's public
-  (`github.com/B2DEV-TECH/apex-ai-router`). Every credential mentioned in
-  `database/README.md` / `apex-plugin/README.md` / `apex-demo/README.md`
-  is a placeholder by design; keep it that way, and keep any real
-  values Geraldo gives you confined to your own local `.env`/Web
-  Credential setup, never in a commit.
+The live work exposed and fixed real compatibility issues: portable SQL
+includes, SQL*Plus substitution in URL strings, APEX 26.1 plug-in API
+version and attribute serialization, Ajax identifier propagation, Dynamic
+Action context through JavaScript `this`, button static-ID metadata, admin
+endpoint derivation, and numeric HTML escaping. The committed exports have
+local workspace, schema, and instance defaults neutralized.
 
-With that access, the actual work is exactly what was already planned —
-now genuinely executable instead of theoretical, in this order (nothing
-downstream works without the step before it):
-
-1. `database/install.sql` in the fresh schema, then `database/tests/
-   smoke_test.sql` (self-contained) and `manual_gateway_test.sql` (needs a
-   real Web Credential pointed at a running gateway — bring the gateway up
-   locally first via `docs/smoke-test.md` Part A; its `/docs` Swagger UI is
-   also the fastest way to sanity-check the API shape before wiring APEX to
-   it).
-2. Build the plug-in per `apex-plugin/README.md`'s "Building the plug-in in
-   APEX Builder" section (attributes table included), run its manual QA
-   checklist, then **export it and commit `apex-plugin/dist/*.sql`** — see
-   `apex-plugin/dist/README.md`.
-3. Build the actual demo **UI** — the part most worth having click-through
-   proof of — from `apex-demo/README.md` and its four page docs
-   (`pages/01-playground.md` .. `pages/04-configuration-help.md`):
-   Playground, Dashboard, Request History, Configuration Help. Field names,
-   REST Data Source shapes, and wording are already fully specified and
-   verified against the gateway's real source code, so this should be
-   closer to data entry in Builder than design work. Click through all four
-   pages against the real gateway, then **export the finished app
-   (`f<app_id>.sql`) and commit it under `apex-demo/`** — this file has
-   never existed in this repo, and is the single most convincing proof this
-   project works end-to-end, more than any test count or mock benchmark.
-
-Once built, update this item, `README.md`'s Limitations section,
-`RELEASE_NOTES.md`, and `docs/smoke-test.md`'s Part B sign-off to record
-what you actually validated (and what you had to change to get working —
-that diff is exactly the kind of gap `docs/smoke-test.md` asks you to
-close). Don't leave the exports un-exported once built — a plug-in or app
-that only exists inside one Builder session isn't done.
+This validation used mock providers. Fixed routing passed; `apex-auto`
+could only verify controlled failure because the Switchyard sidecar was not
+running. Real-provider quality and cost remain unmeasured.
 
 ## 2. Switchyard telemetry can't see past its own boundary
 
@@ -218,16 +231,12 @@ could raise. A reviewer with more time should treat "sanitized errors
 everywhere" as a property to keep re-verifying via smoke testing, not as
 fully proven by these two fixes.
 
-## 10. Process note: this was built without `uv`/`make` in the build shell
+## 10. Resolved: `uv` / `make` workflow
 
-The implementation and test runs in this repository's history were
-executed with `gateway/.venv/Scripts/python.exe -m {pytest,ruff,mypy}`
-directly, because neither `uv` nor `make` was available in the shell used
-to build this. The `Makefile` and `uv.lock`-based `uv sync` workflow
-documented in every README are the intended path and were not
-contradicted by anything found this way, but a fresh contributor's first
-step should be confirming `make install && make test` works verbatim in
-their own environment, since it was never exercised end-to-end here.
+`make install && make test` now runs with development dependencies included
+and passed end to end. The direct gateway checks also passed: 98 tests, one
+optional Switchyard integration test skipped, plus clean `ruff` and `mypy`
+runs.
 
 ## 11. No standalone deployment/troubleshooting guide yet
 

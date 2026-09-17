@@ -17,7 +17,7 @@ set define on
 set serveroutput on size unlimited
 
 prompt == AIR_CONFIG ==
-@tables/air_config.sql
+@@tables/air_config.sql
 
 prompt == Seeding AIR_CONFIG placeholders (edit these before real use) ==
 insert into air_config (config_key, config_value, description) values
@@ -32,16 +32,16 @@ insert into air_config (config_key, config_value, description) values
 commit;
 
 prompt == AIR_REQUEST_LOG ==
-@tables/air_request_log.sql
+@@tables/air_request_log.sql
 
 prompt == Views ==
-@views/air_model_usage_v.sql
-@views/air_daily_usage_v.sql
+@@views/air_model_usage_v.sql
+@@views/air_daily_usage_v.sql
 
 prompt == Package: APEX_AI_ROUTER ==
-@packages/apex_ai_router.pks
+@@packages/apex_ai_router.pks
 show errors package apex_ai_router
-@packages/apex_ai_router.pkb
+@@packages/apex_ai_router.pkb
 show errors package body apex_ai_router
 
 prompt == Install complete ==

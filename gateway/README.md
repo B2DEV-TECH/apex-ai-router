@@ -28,7 +28,7 @@ README](../README.md) for the overall architecture and product context.
 ## Development
 
 ```sh
-uv sync
+uv sync --all-extras
 uv run pytest
 uv run pytest tests/integration    # spawns real mock servers + switchyard-server if built
 uv run ruff check .

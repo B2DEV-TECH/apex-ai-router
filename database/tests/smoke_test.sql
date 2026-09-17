@@ -7,8 +7,8 @@
 --
 -- This does NOT exercise generate()/chat() against a real gateway -- that
 -- requires a reachable gateway, a Web Credential, and a real AIR_CONFIG
--- row (see manual_gateway_test.sql). It has not been run against a live
--- Oracle Database in this repository; see database/README.md.
+-- row (see manual_gateway_test.sql). It passed on Oracle Database 23ai
+-- Free; see database/README.md.
 
 set serveroutput on size unlimited
 

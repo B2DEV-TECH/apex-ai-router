@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Live Oracle Database 23ai Free and APEX 26.1 validation for the database
+  install, PL/SQL gateway call, Dynamic Action plug-in, and four-page demo.
+- Reimport-tested APEX exports:
+  `apex-plugin/dist/dynamic_action_plugin_air_dynamic_action_generate.sql`
+  and `apex-demo/f1207.sql`. Environment-specific workspace, schema, and
+  instance defaults are neutralized in both artifacts.
+
+### Fixed
+
+- Made nested SQL installers resolve includes relative to their scripts and
+  disabled SQL*Plus substitution where URL query strings contain `&`.
+- Corrected the demo admin URL derivation and added an allowlisted,
+  server-side Ajax proxy for dashboard, history, routes, health, and
+  readiness data.
+- Updated the APEX 26.1 Dynamic Action integration to use API version 1,
+  propagate all component attributes, emit an Ajax identifier, accept the
+  native action context through JavaScript `this`, and use the supported
+  button static-ID metadata field.
+- Converted numeric and boolean admin response values to strings before
+  HTML escaping in the demo tables.
+- Included development dependencies in the documented gateway install and
+  copied the package README before the container build step that needs it.
+
 ## [0.1.0] - 2026-09-17
 
 Initial pre-release. Implements the full 10-phase plan: gateway,
@@ -103,12 +128,9 @@ follow-up items a reviewer should look at before a production release.
   test that exercises `generate()` against a real reachable gateway, for
   operators to run by hand once a gateway and Web Credential are in place.
 
-**Caveat:** the Phase 5 SQL/PL/SQL above has not been compiled or run
-against a live Oracle Database or APEX workspace in this repository (no
-Oracle instance was available in the environment it was built in). It is
-hand-verified against documented Oracle/APEX APIs
-(`JSON_OBJECT_T`/`JSON_ARRAY_T`, `APEX_WEB_SERVICE.MAKE_REST_REQUEST` with
-`p_credential_static_id`). See `database/README.md` and `HANDOFF.md`.
+**Validation update:** this SQL/PL/SQL was compiled on Oracle Database 23ai
+Free with APEX 26.1. The offline smoke test and a live HTTP round trip to
+the local mock gateway passed.
 
 - APEX Dynamic Action plug-in, "APEX AI Router - Generate" (spec sections
   18-19, `apex-plugin/`): `apex_ai_router_da.render()`/`.ajax()` PL/SQL
@@ -125,16 +147,10 @@ hand-verified against documented Oracle/APEX APIs
   custom jQuery events (`apexairouter:success`/`apexairouter:error`) for
   declarative chaining.
 
-**Caveat:** the plug-in has not been built or exported from a live APEX
-Builder in this repository — no Oracle/APEX instance was available. Its
-PL/SQL and JS source is written against the stable, documented APEX plug-in
-framework, but `apex-plugin/dist/` has no machine-generated export SQL yet
-(APEX's plug-in export format embeds internal sequence IDs and encoded file
-content that only APEX Builder's own Export can produce correctly — see
-`apex-plugin/dist/README.md`), and the exact client-side contract for a
-Dynamic Action plug-in's `javascript_function` callback should be confirmed
-against the APEX Plug-In Developer's Guide for the reader's installed
-version. See `apex-plugin/README.md` and `HANDOFF.md`.
+**Validation update:** the plug-in was built and exported from APEX 26.1,
+then reimported into a clean application. Browser tests passed for Page
+Item/Efficient and JavaScript Expression/Capable success paths plus a
+controlled Auto-route error path.
 
 - Demo APEX application (spec section 20, `apex-demo/`): a reference app
   with four pages, fully specified in `apex-demo/pages/*.md` --
@@ -161,9 +177,9 @@ version. See `apex-plugin/README.md` and `HANDOFF.md`.
   idempotently seeds the demo-only `ADMIN_CREDENTIAL_STATIC_ID` config key
   without touching `database/install.sql`'s own seed rows.
 
-**Caveat:** as with Phases 5-6, none of `apex-demo/` has been built or run
-against a live Oracle/APEX instance in this repository. Additionally, this
-phase surfaced two real, previously-undocumented gaps rather than papering
+**Validation update:** `apex-demo/f1207.sql` was exported from APEX 26.1,
+reimported under another application ID, and tested across all four pages.
+This phase also surfaced two real, previously-undocumented gaps rather than papering
 over them: (1) the gateway's internal `request_id` (`X-Request-Id` header)
 and the OpenAI-shaped chat-completion response's own `id` field are two
 unrelated identifiers -- `AIR_REQUEST_LOG.gateway_response_id` (Phase 5)

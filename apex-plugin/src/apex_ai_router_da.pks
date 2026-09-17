@@ -9,8 +9,8 @@ create or replace package apex_ai_router_da authid definer as
     Callback" function. It is not, itself, the plug-in -- the plug-in
     metadata (name, category, attributes, events) must still be created in
     APEX Builder; see apex-plugin/README.md for the exact steps and
-    attribute mapping, and why the machine-generated export SQL under
-    apex-plugin/dist/ cannot be produced without a live APEX Builder.
+    attribute mapping and the machine-generated export SQL under
+    apex-plugin/dist/.
 
     Flow (browser never calls an upstream AI provider directly):
       browser (apex.server.plugin) -> ajax() below -> apex_ai_router.generate()

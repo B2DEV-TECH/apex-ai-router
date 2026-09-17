@@ -6,12 +6,9 @@ copy/paste it. Expected outputs are described, not guaranteed byte-for-byte
 (request IDs, timestamps, and latencies will differ every run).
 
 This checklist has two parts: **Part A** exercises the gateway on its own
-(no Oracle/APEX needed — this is the part that was actually run while
-building this project). **Part B** exercises the Oracle/APEX-side pieces
-(`database/`, `apex-plugin/`, `apex-demo/`) — these have **not** been run
-against a live instance before (see `HANDOFF.md` §1), so Part B is where
-you are doing genuinely first-time validation, not just re-confirming
-something already checked.
+(no Oracle/APEX needed). **Part B** exercises the Oracle/APEX-side pieces
+(`database/`, `apex-plugin/`, `apex-demo/`). Both parts were run against
+the local mock stack; Part B used Oracle Database 23ai Free and APEX 26.1.
 
 ## Part A — gateway (mock stack, no real provider needed)
 
@@ -160,7 +157,7 @@ type checks clean, and a benchmark report written under
 `benchmark/results/` (compare its shape to the committed
 `benchmark/results/mock-example/report.md`).
 
-## Part B — Oracle / APEX (first real validation — not run before)
+## Part B — Oracle / APEX
 
 Needs a real Oracle Database (12.2+) and, for B3/B4, a real APEX workspace
 (20.1+) with a Web Credential pointed at a running gateway instance.
@@ -192,25 +189,25 @@ Configure a Web Credential per `database/README.md`, then:
 **Expect:** a real HTTP round trip to your gateway and back, returning
 model-generated text (not a mock string, if pointed at a real provider).
 
-### B3. Plug-in, built in APEX Builder
+### B3. Plug-in export
 
-Follow `apex-plugin/README.md`'s "Building the plug-in in APEX Builder"
-section end to end, then its manual QA checklist. Export the finished
-plug-in (Shared Components > Plug-ins > Export) and commit the result to
-`apex-plugin/dist/` — this is the first time this file will exist.
+Compile the callback package, import
+`apex-plugin/dist/dynamic_action_plugin_air_dynamic_action_generate.sql`,
+then run `apex-plugin/README.md`'s manual QA checklist. The committed APEX
+26.1 export was reimported successfully and exposes all eight attributes.
 
 ### B4. Demo application
 
-Build the four pages described in `apex-demo/README.md` (Playground,
-Dashboard, Request History, Configuration Help) against a real gateway,
-click through each, then export it (`f<app_id>.sql`) and commit it under
-`apex-demo/`.
+Import `apex-demo/f1207.sql` after installing the database, plug-in, and
+demo support packages. Click through Playground, Dashboard, Request
+History, and Configuration Help against the gateway. The committed export
+was reimported under another application ID and passed this flow against
+the local mock providers.
 
 ## Sign-off
 
-Once Part A passes clean and at least B1+B2 have been run once against a
-real Oracle instance, update `HANDOFF.md` to mark those items resolved and
-open an issue (or update `CHANGELOG.md`'s next `[Unreleased]` section) for
-whatever Part B step you had to change code to get working — that
-diff is exactly the kind of "not yet validated" gap this checklist exists
-to close.
+The 2026-09-17 sign-off covered Part A and B1-B4 on Oracle Database 23ai
+Free / APEX 26.1 with local mock providers. Efficient and Capable routes
+passed. Auto produced a controlled provider-unavailable error because the
+Switchyard sidecar was not running. Repeat the checklist with the target
+Oracle/APEX versions and real providers before production deployment.

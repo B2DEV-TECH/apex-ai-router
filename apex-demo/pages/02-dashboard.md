@@ -5,6 +5,11 @@ gateway's admin API — no direct SQLite access from APEX (the telemetry
 database is the gateway process's own file, not something APEX should
 reach into directly).
 
+> The validated `f1207.sql` export renders cards and tables through
+> allowlisted APEX Ajax Callback processes backed by
+> `apex_ai_router_demo.ajax_proxy`. The REST Data Source design below is a
+> declarative alternative for teams that prefer native chart regions.
+
 ## REST Data Sources (Shared Components > REST Data Sources)
 
 All three use the `AIR_GATEWAY_ADMIN_CREDENTIAL` Web Credential (see

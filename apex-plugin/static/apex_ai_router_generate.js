@@ -9,13 +9,9 @@
  * This file only ever talks to APEX's own Ajax Callback (apex.server.plugin)
  * -- never to a model provider directly, per spec section 18.
  *
- * Confidence note (see HANDOFF.md): the exact shape of the "pThis" object
- * APEX passes to a javascript_function action handler (pThis.action,
- * .attribute01.., .triggeringElement, .affectedElements) reflects the
- * documented APEX Dynamic Action Plug-in JavaScript API, but has not been
- * exercised against a live APEX page while building this. Confirm it
- * against the APEX Plug-In Developer's Guide for your installed version
- * before relying on this in production.
+ * APEX invokes a Dynamic Action JavaScript function with its action context
+ * as `this`. Accepting an explicit argument as well keeps the function easy
+ * to exercise in isolation and compatible with direct integrations.
  */
 (function (apex, apexAiRouter) {
     "use strict";
@@ -44,7 +40,8 @@
         return value;
     }
 
-    apexAiRouter.generate = function (pThis) {
+    apexAiRouter.generate = function (pContext) {
+        var pThis = pContext && pContext.action ? pContext : this;
         var resultItem = pThis.action.attribute04;
         var errorItem = pThis.action.attribute08;
         var showSpinner = pThis.action.attribute07 === "Y";

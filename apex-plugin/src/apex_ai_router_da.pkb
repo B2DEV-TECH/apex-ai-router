@@ -9,15 +9,9 @@ create or replace package body apex_ai_router_da as
     -- triggering element. See apex-plugin/static/apex_ai_router_generate.js
     -- for the function itself.
     --
-    -- Confidence note (see HANDOFF.md): the attribute_NN server-side
-    -- record fields and the render()/ajax() function signatures below are
-    -- the stable, decade-old APEX_PLUGIN framework contract and are used
-    -- with high confidence. The exact shape of "pThis" on the JavaScript
-    -- side is documented in the APEX Plug-In Developer's Guide's Dynamic
-    -- Action chapter for the installed APEX version -- confirm it there
-    -- before relying on this in production, since that specific JS-facing
-    -- contract is the one part of this plug-in not independently
-    -- re-verified against a live APEX instance while building it here.
+    -- This render/ajax contract and all eight attributes were exercised in
+    -- APEX 26.1. The client receives the Dynamic Action context through
+    -- JavaScript `this`; render() supplies the Ajax identifier explicitly.
     function render(
         p_dynamic_action in apex_plugin.t_dynamic_action,
         p_plugin         in apex_plugin.t_plugin
@@ -25,6 +19,15 @@ create or replace package body apex_ai_router_da as
         l_result apex_plugin.t_dynamic_action_render_result;
     begin
         l_result.javascript_function := 'apexAiRouter.generate';
+        l_result.ajax_identifier := apex_plugin.get_ajax_identifier;
+        l_result.attribute_01 := p_dynamic_action.attribute_01;
+        l_result.attribute_02 := p_dynamic_action.attribute_02;
+        l_result.attribute_03 := p_dynamic_action.attribute_03;
+        l_result.attribute_04 := p_dynamic_action.attribute_04;
+        l_result.attribute_05 := p_dynamic_action.attribute_05;
+        l_result.attribute_06 := p_dynamic_action.attribute_06;
+        l_result.attribute_07 := p_dynamic_action.attribute_07;
+        l_result.attribute_08 := p_dynamic_action.attribute_08;
         return l_result;
     end render;
 
