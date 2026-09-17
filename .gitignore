@@ -1,0 +1,33 @@
+# Environments / secrets
+.env
+*.env
+!*.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Node (apex-plugin build tooling, if any)
+node_modules/
+npm-debug.log*
+
+# SQLite dev telemetry DB
+*.db
+*.sqlite3
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Benchmark run artifacts (results are committed explicitly, not scratch runs)
+benchmark/results/*.tmp.*

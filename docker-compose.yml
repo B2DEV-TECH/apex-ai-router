@@ -1,0 +1,31 @@
+services:
+  gateway:
+    build:
+      context: ./gateway
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    depends_on:
+      - mock-efficient-model
+      - mock-capable-model
+
+  mock-efficient-model:
+    build:
+      context: ./gateway
+    command: ["uvicorn", "apex_ai_router.mocks.mock_model_server:app", "--host", "0.0.0.0", "--port", "9001"]
+    environment:
+      MOCK_MODEL_NAME: mock-efficient-v1
+      MOCK_TIER: efficient
+    ports:
+      - "9001:9001"
+
+  mock-capable-model:
+    build:
+      context: ./gateway
+    command: ["uvicorn", "apex_ai_router.mocks.mock_model_server:app", "--host", "0.0.0.0", "--port", "9002"]
+    environment:
+      MOCK_MODEL_NAME: mock-capable-v1
+      MOCK_TIER: capable
+    ports:
+      - "9002:9002"
