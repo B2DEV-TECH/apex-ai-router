@@ -165,6 +165,51 @@ Dashboard's "Average Latency" card can only be an explicitly-labeled
 approximation over the most recent requests, not a true all-time average.
 Both are recorded in `HANDOFF.md`.
 
+- Benchmark harness (spec sections 26-29, 32, 51-52, Phase 8, `benchmark/`):
+  a 34-task synthetic dataset (`tasks/tasks.yaml`) across the 14 categories
+  from spec section 26, all referencing the same small synthetic schema
+  (`T_CUSTOMERS`/`T_ORDERS`/`T_INVOICES`); `scoring.py`'s six deterministic
+  scorers (`valid_json`, `keyword_presence`, `classification_exact_match`,
+  `sql_clauses`, `plsql_structure`, `regex_match`), each an explicitly
+  documented heuristic rather than a real parser or compiler; an optional
+  `judge.py` LLM-judge pass for the 17 tasks marked `judge_eligible: true`,
+  itself a real gateway request through `apex-capable` whose cost/tokens
+  are tracked separately and never hidden (spec 27).
+- `runner.py`: runs the full dataset through all three execution modes
+  (fixed `apex-efficient`, fixed `apex-capable`, `apex-auto`) against a
+  real gateway over real HTTP, then reconciles routing/cost/timing detail
+  from a single paginated `GET /admin/requests` lookup matched by
+  `X-Request-Id` -- the same two-call correlation pattern as the demo
+  app's Playground page. `--mode mock` spawns the project's own mock
+  upstream, the real `switchyard-server` binary (if built), and the
+  gateway itself as real local subprocesses on free loopback ports, with a
+  temporary routing config and telemetry database -- no network access or
+  credentials required. `--mode real` talks to an already-running gateway
+  and, per spec section 28, writes an explicit UNMEASURED report instead
+  of inventing numbers if it is unreachable or missing credentials.
+  `report.py` writes the resulting Markdown + JSON report, including an
+  explicit mock-mode limitations section, a comparison table, an Auto vs
+  Capable delta block, a per-category breakdown, and a judge-results
+  section.
+- `make benchmark-mock` / `make benchmark-real` targets.
+- `benchmark/results/mock-example/`: a real, committed `--mode mock
+  --judge` run over all 34 tasks (not a hand-written sample), so a reader
+  can see the exact shape of a report without building and running the
+  harness first.
+
+**Caveat:** this phase surfaced a real, previously undocumented
+architectural limitation rather than papering over it: the gateway's own
+`/admin/requests` telemetry cannot see which backend `apex-auto` actually
+selected inside the `switchyard-server` sidecar -- `selected_target` and
+`selected_model` are fixed literals (`"switchyard"`/`"apex-auto"`) for any
+`llm_classifier`-routed call, in every mode, mock or real
+(`routing/service.py`, `api/openai_chat.py`). The harness recovers the
+real choice in `--mode mock` only, via a diagnostic that parses the mock
+server's own echoed response text (`response_content` contains the exact
+`model` string it received); this does not generalize to `--mode real`,
+where no equivalent telemetry field currently exists. See
+`benchmark/README.md` and `HANDOFF.md` for the suggested fix.
+
 ### Fixed
 
 - `load_routing_config`'s `${VAR}` substitution no longer uses
@@ -174,3 +219,13 @@ Both are recorded in `HANDOFF.md`.
   substitution for the rest of the file. Replaced with an explicit,
   quote-agnostic `${VAR}` regex substitution. The unresolved-placeholder
   check at load time now also covers `base_url`, not just `model`.
+- `benchmark/runner.py`'s `--mode mock` subprocess orchestration
+  (`MockEnvironment`): nothing continuously drained a spawned
+  subprocess's stdout/stderr pipe, so once a subprocess's cumulative log
+  output exceeded the OS pipe buffer (commonly 64KB) it blocked on its own
+  next write -- a real deadlock caught by live execution, not static
+  review, that surfaced as one in-flight request hanging for the full
+  request timeout while every other call in the same run completed in
+  ~200ms. Fixed with a bounded per-process background drain thread
+  (`collections.deque(maxlen=500)`); verified by a clean re-run with no
+  timeouts.

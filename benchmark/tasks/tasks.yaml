@@ -1,0 +1,632 @@
+# APEX AI Router benchmark task dataset (spec sections 26-27, 51).
+#
+# All content below is synthetic -- no proprietary or customer data. Every
+# SQL/PL-SQL task references the same small synthetic schema so tasks stay
+# self-consistent:
+#
+#   T_CUSTOMERS(CUSTOMER_ID, CUSTOMER_NAME, EMAIL, STATUS)
+#   T_ORDERS(ORDER_ID, CUSTOMER_ID, ORDER_DATE, STATUS, TOTAL_AMOUNT)
+#   T_INVOICES(INVOICE_ID, ORDER_ID, DUE_DATE, PAID_YN, AMOUNT)
+#
+# Field reference:
+#   id                     unique, stable across benchmark runs
+#   category               one of the 14 categories in spec section 26
+#   difficulty             easy | medium | hard (spec section 51)
+#   prompt                 sent verbatim as the single user message
+#   expected_characteristics  human-readable notes -- documentation and
+#                          judge context, not machine-parsed
+#   scoring_method         key into benchmark/scoring.py's registry
+#   scoring_params         arguments for that scoring method
+#   judge_eligible         whether an optional LLM judge pass (spec
+#                          section 27) may also score this task; false for
+#                          tasks with an objective, fully-deterministic
+#                          answer where a judge adds no signal
+
+- id: sum-001
+  category: simple_summarization
+  difficulty: easy
+  prompt: |
+    Summarize the following note in exactly one sentence:
+    "Customer Jane Doe called to report that order ORD-1042 arrived with
+    two damaged units out of five. She has requested a partial refund of
+    $40 and does not want a replacement shipment."
+  expected_characteristics:
+    - one sentence
+    - preserves the refund amount and the reason
+  scoring_method: keyword_presence
+  scoring_params:
+    required_keywords: ["refund", "40", "damaged"]
+    case_sensitive: false
+  judge_eligible: true
+
+- id: sum-002
+  category: simple_summarization
+  difficulty: easy
+  prompt: |
+    Summarize the following note in exactly one sentence:
+    "The nightly ETL job that loads T_ORDERS failed at 02:14 due to a
+    unique constraint violation on ORDER_ID 88831, which already existed
+    from a retried batch. No customer-facing impact; the job was rerun
+    successfully at 03:00."
+  expected_characteristics:
+    - one sentence
+    - mentions the cause (duplicate/constraint) and the outcome (resolved)
+  scoring_method: keyword_presence
+  scoring_params:
+    required_keywords: ["88831", "rerun"]
+    case_sensitive: false
+  judge_eligible: true
+
+- id: email-001
+  category: business_email_generation
+  difficulty: easy
+  prompt: |
+    Write a short business email to customer Jane Doe informing her that
+    her $40 refund for order ORD-1042 has been approved and will post to
+    her original payment method within 5-7 business days. Sign it from
+    "Accounts Support".
+  expected_characteristics:
+    - greeting naming Jane Doe
+    - states the amount and order number
+    - professional closing
+  scoring_method: keyword_presence
+  scoring_params:
+    required_keywords: ["Jane", "ORD-1042", "40", "Accounts Support"]
+    case_sensitive: false
+  judge_eligible: true
+
+- id: email-002
+  category: business_email_generation
+  difficulty: medium
+  prompt: |
+    Write a business email to a supplier informing them that invoice
+    INV-2207 for $1,250.00 is 12 days overdue, referencing purchase order
+    PO-5541, and requesting payment confirmation or an updated payment
+    date within 5 business days.
+  expected_characteristics:
+    - references INV-2207, PO-5541, amount, and the 5-business-day ask
+  scoring_method: keyword_presence
+  scoring_params:
+    required_keywords: ["INV-2207", "PO-5541", "1,250", "overdue"]
+    case_sensitive: false
+  judge_eligible: true
+
+- id: json-001
+  category: json_extraction
+  difficulty: easy
+  prompt: |
+    Extract the customer name, order id, and total amount from this text
+    as a JSON object with keys "customer_name", "order_id", and
+    "total_amount" (a number, no currency symbol):
+    "Order ORD-1042 was placed by Jane Doe for a total of $312.50."
+  expected_characteristics:
+    - valid JSON
+    - correct keys and values
+  scoring_method: valid_json
+  scoring_params:
+    required_keys: ["customer_name", "order_id", "total_amount"]
+  judge_eligible: false
+
+- id: json-002
+  category: json_extraction
+  difficulty: easy
+  prompt: |
+    Extract the ORA error code and the short description from this line
+    as a JSON object with keys "error_code" and "description":
+    "ORA-00001: unique constraint (APP.T_ORDERS_PK) violated"
+  expected_characteristics:
+    - valid JSON
+    - error_code equals "ORA-00001"
+  scoring_method: valid_json
+  scoring_params:
+    required_keys: ["error_code", "description"]
+  judge_eligible: false
+
+- id: json-003
+  category: json_extraction
+  difficulty: medium
+  prompt: |
+    Extract every invoice id and amount pair from this text into a JSON
+    array of objects, each with keys "invoice_id" and "amount":
+    "Outstanding invoices: INV-2207 for $1,250.00 and INV-2211 for
+    $87.25, both linked to purchase order PO-5541."
+  expected_characteristics:
+    - valid JSON array with two objects
+    - keys invoice_id / amount present on each
+  scoring_method: valid_json
+  scoring_params:
+    required_keys: ["invoice_id", "amount"]
+    expect_array: true
+  judge_eligible: false
+
+- id: cls-001
+  category: text_classification
+  difficulty: easy
+  prompt: |
+    Classify this invoice as exactly one of PAID, OPEN, or OVERDUE.
+    Respond with only that single word.
+    Invoice: due date 2026-01-10, today's date is 2026-02-01, PAID_YN = N.
+  expected_characteristics:
+    - single-word answer
+    - correct label OVERDUE
+  scoring_method: classification_exact_match
+  scoring_params:
+    expected_label: "OVERDUE"
+    allowed_labels: ["PAID", "OPEN", "OVERDUE"]
+  judge_eligible: false
+
+- id: cls-002
+  category: text_classification
+  difficulty: easy
+  prompt: |
+    Classify this invoice as exactly one of PAID, OPEN, or OVERDUE.
+    Respond with only that single word.
+    Invoice: due date 2026-03-15, today's date is 2026-02-01, PAID_YN = N.
+  expected_characteristics:
+    - single-word answer
+    - correct label OPEN
+  scoring_method: classification_exact_match
+  scoring_params:
+    expected_label: "OPEN"
+    allowed_labels: ["PAID", "OPEN", "OVERDUE"]
+  judge_eligible: false
+
+- id: cls-003
+  category: text_classification
+  difficulty: easy
+  prompt: |
+    Classify this invoice as exactly one of PAID, OPEN, or OVERDUE.
+    Respond with only that single word.
+    Invoice: due date 2026-01-10, today's date is 2026-02-01, PAID_YN = Y.
+  expected_characteristics:
+    - single-word answer
+    - correct label PAID
+  scoring_method: classification_exact_match
+  scoring_params:
+    expected_label: "PAID"
+    allowed_labels: ["PAID", "OPEN", "OVERDUE"]
+  judge_eligible: false
+
+- id: sqlexp-001
+  category: sql_explanation
+  difficulty: easy
+  prompt: |
+    Explain in plain language what this SQL query does:
+    SELECT c.customer_name, SUM(o.total_amount) AS total_spent
+    FROM t_customers c
+    JOIN t_orders o ON o.customer_id = c.customer_id
+    WHERE o.status = 'COMPLETE'
+    GROUP BY c.customer_name
+    ORDER BY total_spent DESC;
+  expected_characteristics:
+    - mentions grouping by customer and summing completed order totals
+    - mentions descending order
+  scoring_method: keyword_presence
+  scoring_params:
+    required_keywords: ["customer", "total", "complete"]
+    case_sensitive: false
+  judge_eligible: true
+
+- id: sqlexp-002
+  category: sql_explanation
+  difficulty: medium
+  prompt: |
+    Explain in plain language what this SQL query does, including why the
+    LEFT JOIN matters here:
+    SELECT c.customer_id, c.customer_name
+    FROM t_customers c
+    LEFT JOIN t_orders o ON o.customer_id = c.customer_id
+    WHERE o.order_id IS NULL;
+  expected_characteristics:
+    - identifies this finds customers with no orders
+    - explains the LEFT JOIN + NULL check pattern
+  scoring_method: keyword_presence
+  scoring_params:
+    required_keywords: ["no orders", "left join"]
+    case_sensitive: false
+  judge_eligible: true
+
+- id: sqlgen-001
+  category: simple_sql_generation
+  difficulty: easy
+  prompt: |
+    Write a SQL query against table T_ORDERS(ORDER_ID, CUSTOMER_ID,
+    ORDER_DATE, STATUS, TOTAL_AMOUNT) that returns ORDER_ID and
+    TOTAL_AMOUNT for all orders with STATUS = 'OPEN', ordered by
+    TOTAL_AMOUNT descending.
+  expected_characteristics:
+    - valid SELECT ... FROM ... WHERE ... ORDER BY
+  scoring_method: sql_clauses
+  scoring_params:
+    required_clauses: ["select", "from", "where", "order by"]
+    required_tokens: ["t_orders", "status", "total_amount"]
+  judge_eligible: false
+
+- id: sqlgen-002
+  category: simple_sql_generation
+  difficulty: medium
+  prompt: |
+    Write a SQL query joining T_CUSTOMERS(CUSTOMER_ID, CUSTOMER_NAME,
+    EMAIL, STATUS) and T_ORDERS(ORDER_ID, CUSTOMER_ID, ORDER_DATE, STATUS,
+    TOTAL_AMOUNT) that returns each customer's name and the count of their
+    orders, for customers with STATUS = 'ACTIVE', grouped appropriately.
+  expected_characteristics:
+    - JOIN, GROUP BY, COUNT
+  scoring_method: sql_clauses
+  scoring_params:
+    required_clauses: ["select", "from", "join", "group by"]
+    required_tokens: ["count", "active"]
+  judge_eligible: false
+
+- id: sqlgen-003
+  category: simple_sql_generation
+  difficulty: medium
+  prompt: |
+    Write a SQL query joining T_ORDERS and T_INVOICES(INVOICE_ID,
+    ORDER_ID, DUE_DATE, PAID_YN, AMOUNT) that returns ORDER_ID, INVOICE_ID,
+    and AMOUNT for invoices where PAID_YN = 'N' and DUE_DATE is before
+    today.
+  expected_characteristics:
+    - JOIN, WHERE with PAID_YN and a date comparison
+  scoring_method: sql_clauses
+  scoring_params:
+    required_clauses: ["select", "from", "join", "where"]
+    required_tokens: ["paid_yn", "due_date"]
+  judge_eligible: false
+
+- id: plsqlexp-001
+  category: plsql_explanation
+  difficulty: easy
+  prompt: |
+    Explain in plain language what this PL/SQL trigger does:
+    CREATE OR REPLACE TRIGGER trg_orders_bi
+    BEFORE INSERT ON t_orders
+    FOR EACH ROW
+    BEGIN
+      IF :new.order_date IS NULL THEN
+        :new.order_date := SYSDATE;
+      END IF;
+    END;
+  expected_characteristics:
+    - identifies it defaults ORDER_DATE to the current date on insert
+  scoring_method: keyword_presence
+  scoring_params:
+    required_keywords: ["order_date", "insert", "default"]
+    case_sensitive: false
+  judge_eligible: true
+
+- id: plsqlexp-002
+  category: plsql_explanation
+  difficulty: medium
+  prompt: |
+    Explain what this PL/SQL block does and identify the exception it
+    handles:
+    BEGIN
+      UPDATE t_orders SET status = 'COMPLETE' WHERE order_id = 88831;
+      IF SQL%ROWCOUNT = 0 THEN
+        RAISE_APPLICATION_ERROR(-20001, 'Order not found');
+      END IF;
+    EXCEPTION
+      WHEN OTHERS THEN
+        ROLLBACK;
+        RAISE;
+    END;
+  expected_characteristics:
+    - explains the ROWCOUNT check and the raised custom error
+    - mentions WHEN OTHERS rollback/re-raise
+  scoring_method: keyword_presence
+  scoring_params:
+    required_keywords: ["rowcount", "20001", "rollback"]
+    case_sensitive: false
+  judge_eligible: true
+
+- id: plsqlgen-001
+  category: plsql_generation
+  difficulty: medium
+  prompt: |
+    Write a PL/SQL procedure named MARK_ORDER_COMPLETE that takes
+    p_order_id IN NUMBER, updates T_ORDERS.STATUS to 'COMPLETE' for that
+    order id, and raises a named exception if no row was updated.
+  expected_characteristics:
+    - CREATE OR REPLACE PROCEDURE with a parameter and an UPDATE
+    - some form of not-found handling
+  scoring_method: plsql_structure
+  scoring_params:
+    kind: procedure
+    required_tokens: ["p_order_id", "update", "t_orders", "status"]
+  judge_eligible: false
+
+- id: plsqlgen-002
+  category: plsql_generation
+  difficulty: hard
+  prompt: |
+    Generate a PL/SQL package named INVOICE_PKG with a specification and
+    body implementing a single function, IS_OVERDUE(p_invoice_id IN
+    NUMBER) RETURN BOOLEAN, that queries T_INVOICES(INVOICE_ID, ORDER_ID,
+    DUE_DATE, PAID_YN, AMOUNT) and returns TRUE if PAID_YN = 'N' and
+    DUE_DATE is before SYSDATE, FALSE otherwise, handling the case where
+    the invoice id does not exist.
+  expected_characteristics:
+    - CREATE OR REPLACE PACKAGE ... CREATE OR REPLACE PACKAGE BODY
+    - a function returning BOOLEAN
+    - a NO_DATA_FOUND (or equivalent) handler
+  scoring_method: plsql_structure
+  scoring_params:
+    kind: package
+    required_tokens: ["invoice_pkg", "is_overdue", "paid_yn", "due_date", "boolean"]
+  judge_eligible: false
+
+- id: plsqlgen-003
+  category: plsql_generation
+  difficulty: hard
+  prompt: |
+    Write a PL/SQL procedure named APPLY_BULK_DISCOUNT that accepts
+    p_customer_id IN NUMBER and p_discount_pct IN NUMBER, and applies the
+    discount to TOTAL_AMOUNT for every OPEN order belonging to that
+    customer in T_ORDERS, using BULK COLLECT and FORALL rather than a
+    row-by-row loop, and validates that p_discount_pct is between 0 and
+    100 before applying anything.
+  expected_characteristics:
+    - BULK COLLECT and FORALL used
+    - a validation check on the discount percentage
+  scoring_method: plsql_structure
+  scoring_params:
+    kind: procedure
+    required_tokens: ["bulk collect", "forall", "p_discount_pct"]
+  judge_eligible: false
+
+- id: apexval-001
+  category: apex_validation_logic
+  difficulty: medium
+  prompt: |
+    Write an Oracle APEX page item validation (a PL/SQL expression
+    returning a boolean) that checks page item P10_DISCOUNT_PCT is
+    between 0 and 100 inclusive.
+  expected_characteristics:
+    - references the page item as a bind variable
+    - a boolean expression using BETWEEN or comparable comparisons
+  scoring_method: regex_match
+  scoring_params:
+    patterns:
+      - ":P10_DISCOUNT_PCT"
+      - "(?i)between|(<=|>=)"
+  judge_eligible: false
+
+- id: apexval-002
+  category: apex_validation_logic
+  difficulty: medium
+  prompt: |
+    Write an Oracle APEX page item validation (a PL/SQL function body
+    returning a boolean) that checks page item P20_EMAIL contains an "@"
+    character and is not null.
+  expected_characteristics:
+    - references :P20_EMAIL
+    - checks for null and the "@" character
+  scoring_method: regex_match
+  scoring_params:
+    patterns:
+      - ":P20_EMAIL"
+      - "(?i)is not null|instr"
+  judge_eligible: false
+
+- id: apexval-003
+  category: apex_validation_logic
+  difficulty: hard
+  prompt: |
+    Explain why an Oracle APEX Dynamic Action on page item P30_STATUS
+    (event: Change) might not fire even though the item's value visibly
+    changes in the browser, and list the three most common causes.
+  expected_characteristics:
+    - mentions "Page Items to Submit" / session state
+    - mentions the item's Change event firing on blur, not every keystroke
+    - mentions disabled/read-only items not firing change events
+  scoring_method: keyword_presence
+  scoring_params:
+    required_keywords: ["session state", "change"]
+    case_sensitive: false
+  judge_eligible: true
+
+- id: rest-001
+  category: rest_payload_transformation
+  difficulty: medium
+  prompt: |
+    Transform this REST response JSON:
+    {"order": {"id": "ORD-1042", "amount_cents": 31250, "currency": "USD"}}
+    into a JSON object with keys "order_id" (string), "amount" (a number
+    in dollars, not cents), and "currency" (string).
+  expected_characteristics:
+    - valid JSON
+    - amount is 312.5, not 31250
+  scoring_method: valid_json
+  scoring_params:
+    required_keys: ["order_id", "amount", "currency"]
+  judge_eligible: false
+
+- id: rest-002
+  category: rest_payload_transformation
+  difficulty: hard
+  prompt: |
+    Transform this REST response JSON, which lists line items:
+    {"lines": [{"sku": "A1", "qty": 2, "unit_price": 9.5}, {"sku": "B2",
+    "qty": 1, "unit_price": 20.0}]}
+    into a JSON object with keys "line_count" (integer) and "total"
+    (number, the sum of qty * unit_price across all lines).
+  expected_characteristics:
+    - valid JSON
+    - line_count is 2, total is 39.0
+  scoring_method: valid_json
+  scoring_params:
+    required_keys: ["line_count", "total"]
+  judge_eligible: false
+
+- id: oraerr-001
+  category: oracle_error_explanation
+  difficulty: easy
+  prompt: |
+    Explain ORA-00001 in simple terms a non-DBA could understand, and
+    suggest one likely cause.
+  expected_characteristics:
+    - explains it as a unique/primary key constraint violation
+    - suggests a duplicate value cause
+  scoring_method: keyword_presence
+  scoring_params:
+    required_keywords: ["unique", "duplicate"]
+    case_sensitive: false
+  judge_eligible: true
+
+- id: oraerr-002
+  category: oracle_error_explanation
+  difficulty: easy
+  prompt: |
+    Explain ORA-01722 in simple terms and give one example of input that
+    would cause it.
+  expected_characteristics:
+    - explains it as an invalid number conversion error
+    - gives a plausible example (non-numeric text into a number column)
+  scoring_method: keyword_presence
+  scoring_params:
+    required_keywords: ["number", "convert"]
+    case_sensitive: false
+  judge_eligible: true
+
+- id: oraerr-003
+  category: oracle_error_explanation
+  difficulty: medium
+  prompt: |
+    Explain ORA-02292 in simple terms, including which kind of database
+    relationship typically causes it, and suggest one fix.
+  expected_characteristics:
+    - explains it as a child record blocking deletion of a parent row
+      (foreign key constraint violated)
+    - suggests deleting/reassigning child rows first, or a cascade option
+  scoring_method: keyword_presence
+  scoring_params:
+    required_keywords: ["foreign key", "child"]
+    case_sensitive: false
+  judge_eligible: true
+
+- id: map-001
+  category: data_mapping
+  difficulty: medium
+  prompt: |
+    Given source fields cust_nm, cust_eml, cust_stat (values ACTIVE or
+    INACTIVE) from a legacy system, and target table T_CUSTOMERS columns
+    CUSTOMER_NAME, EMAIL, STATUS, produce a JSON array of objects, each
+    with keys "source_field" and "target_column", mapping every source
+    field to its target column.
+  expected_characteristics:
+    - valid JSON array with three mapping entries
+    - correct source-to-target pairs
+  scoring_method: valid_json
+  scoring_params:
+    required_keys: ["source_field", "target_column"]
+    expect_array: true
+  judge_eligible: false
+
+- id: map-002
+  category: data_mapping
+  difficulty: hard
+  prompt: |
+    Given source fields ord_no, ord_dt (format MM/DD/YYYY), ord_stat_cd
+    (values O, C, X) and target table T_ORDERS columns ORDER_ID,
+    ORDER_DATE, STATUS (values OPEN, COMPLETE, CANCELLED), produce a JSON
+    array of objects, each with keys "source_field", "target_column", and
+    "transform" (a short description of any conversion needed, or "none").
+  expected_characteristics:
+    - valid JSON array
+    - flags the date format conversion and the status code lookup as
+      needing a transform
+  scoring_method: valid_json
+  scoring_params:
+    required_keys: ["source_field", "target_column", "transform"]
+    expect_array: true
+  judge_eligible: true
+
+- id: rule-001
+  category: multi_step_business_rule_reasoning
+  difficulty: hard
+  prompt: |
+    A discount policy states: "VIP customers get 15% off. Orders over
+    $500 get 10% off. If both apply, use the higher discount, not both
+    combined. First-time customers get an additional flat $5 off after
+    any percentage discount is applied, but the final total can never go
+    below $0."
+    A VIP, first-time customer places a $600 order. Walk through the
+    calculation step by step and state the final total.
+  expected_characteristics:
+    - applies 15% (the higher of 15%/10%), not both combined
+    - applies the $5 flat reduction after the percentage discount
+    - states a final numeric total ($505)
+  scoring_method: keyword_presence
+  scoring_params:
+    required_keywords: ["510", "505"]
+    case_sensitive: false
+  judge_eligible: true
+
+- id: rule-002
+  category: multi_step_business_rule_reasoning
+  difficulty: hard
+  prompt: |
+    A late-fee policy states: "Invoices unpaid 1-15 days late get a flat
+    $10 fee. 16-30 days late get 5% of the invoice amount. Over 30 days
+    late get 10% of the invoice amount plus the account is flagged for
+    collections."
+    Invoice AMOUNT is $200 and is 22 days late. State the fee, whether the
+    account is flagged for collections, and explain which rule applied
+    and why the others did not.
+  expected_characteristics:
+    - selects the 16-30 day bracket, 5% of $200 = $10
+    - explicitly states collections is NOT flagged
+  scoring_method: keyword_presence
+  scoring_params:
+    required_keywords: ["10", "not"]
+    case_sensitive: false
+  judge_eligible: true
+
+- id: ctx-001
+  category: longer_context_reasoning
+  difficulty: hard
+  prompt: |
+    Given the following order history for customer Jane Doe (CUSTOMER_ID
+    4471):
+    - ORD-9001, 2025-11-01, COMPLETE, $120.00
+    - ORD-9010, 2025-11-15, CANCELLED, $75.00
+    - ORD-9022, 2025-12-01, COMPLETE, $310.00
+    - ORD-9030, 2025-12-20, OPEN, $60.00
+    - ORD-9041, 2026-01-05, COMPLETE, $95.00
+    Calculate her total COMPLETE-order spend, identify her single largest
+    COMPLETE order, and state whether she qualifies for VIP status if VIP
+    requires total COMPLETE spend over $500.
+  expected_characteristics:
+    - total COMPLETE spend = $525.00 (120+310+95)
+    - largest COMPLETE order is ORD-9022 at $310
+    - concludes she qualifies for VIP (525 > 500)
+  scoring_method: keyword_presence
+  scoring_params:
+    required_keywords: ["525", "9022"]
+    case_sensitive: false
+  judge_eligible: true
+
+- id: ctx-002
+  category: longer_context_reasoning
+  difficulty: hard
+  prompt: |
+    Given this sequence of status changes for ORD-7788:
+    2026-01-01 09:00 OPEN
+    2026-01-02 14:00 ON_HOLD (reason: payment review)
+    2026-01-04 10:00 OPEN (payment cleared)
+    2026-01-06 16:00 COMPLETE
+    2026-01-09 08:00 RETURN_REQUESTED
+    2026-01-11 12:00 REFUNDED
+    Determine the total number of calendar days the order spent in an
+    OPEN or ON_HOLD state before first reaching COMPLETE, and state the
+    final status of the order today.
+  expected_characteristics:
+    - correctly sums the OPEN/ON_HOLD duration before COMPLETE (2026-01-01
+      to 2026-01-06 = 5 days)
+    - states the final status is REFUNDED
+  scoring_method: keyword_presence
+  scoring_params:
+    required_keywords: ["refunded"]
+    case_sensitive: false
+  judge_eligible: true

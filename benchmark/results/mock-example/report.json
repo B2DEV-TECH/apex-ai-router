@@ -1,0 +1,4155 @@
+{
+  "mode": "mock",
+  "generated_at": "2026-09-17T03:11:47.212811+00:00",
+  "task_count": 34,
+  "modes_run": [
+    "A_fixed_efficient",
+    "B_fixed_capable",
+    "C_apex_auto"
+  ],
+  "mode_stats": {
+    "A_fixed_efficient": {
+      "n": 34,
+      "n_errors": 0,
+      "success_rate": 1.0,
+      "pass_rate": 0.0,
+      "avg_deterministic_score": 0.0,
+      "avg_cost": 0.0,
+      "avg_latency_ms": 219.71999117650898,
+      "avg_input_tokens": 61.35294117647059,
+      "avg_output_tokens": 12,
+      "selected_model_distribution": {
+        "mock-efficient-v1": 34
+      }
+    },
+    "B_fixed_capable": {
+      "n": 34,
+      "n_errors": 0,
+      "success_rate": 1.0,
+      "pass_rate": 0.0,
+      "avg_deterministic_score": 0.0,
+      "avg_cost": 0.0,
+      "avg_latency_ms": 218.27227058811866,
+      "avg_input_tokens": 61.35294117647059,
+      "avg_output_tokens": 12,
+      "selected_model_distribution": {
+        "mock-capable-v1": 34
+      }
+    },
+    "C_apex_auto": {
+      "n": 34,
+      "n_errors": 0,
+      "success_rate": 1.0,
+      "pass_rate": 0.0,
+      "avg_deterministic_score": 0.0,
+      "avg_cost": null,
+      "avg_latency_ms": 218.72555294077543,
+      "avg_input_tokens": 61.35294117647059,
+      "avg_output_tokens": 12,
+      "selected_model_distribution": {
+        "apex-auto": 34
+      }
+    }
+  },
+  "judge_stats": {
+    "A_fixed_efficient": {
+      "n": 17,
+      "n_parse_errors": 17,
+      "avg_score": null
+    },
+    "B_fixed_capable": {
+      "n": 17,
+      "n_parse_errors": 17,
+      "avg_score": null
+    },
+    "C_apex_auto": {
+      "n": 17,
+      "n_parse_errors": 17,
+      "avg_score": null
+    }
+  },
+  "scored": [
+    {
+      "record": {
+        "kind": "task",
+        "mode": "A_fixed_efficient",
+        "task_id": "sum-001",
+        "route_requested": "apex-efficient",
+        "request_id": "c9c8f94a-60f9-4055-902c-32e7306a9788",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-efficient-v1] response to: success",
+        "client_latency_ms": 274.28089999739313,
+        "error": null,
+        "selected_target": "efficient",
+        "selected_model": "mock-efficient-v1",
+        "input_tokens": 59,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.03289999585831538,
+        "provider_duration_ms": 250.67670000134967,
+        "total_duration_ms": 252.09289999475004,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "sum-001",
+        "category": "simple_summarization",
+        "difficulty": "easy"
+      },
+      "deterministic_score": {
+        "method": "keyword_presence",
+        "passed": false,
+        "score": 0.0,
+        "detail": "found [], missing ['refund', '40', 'damaged']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "B_fixed_capable",
+        "task_id": "sum-001",
+        "route_requested": "apex-capable",
+        "request_id": "4d14f5fd-c2d8-4ffb-bf2f-8cf21465da97",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 219.72529999766266,
+        "error": null,
+        "selected_target": "capable",
+        "selected_model": "mock-capable-v1",
+        "input_tokens": 59,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.009300005331169814,
+        "provider_duration_ms": 215.12580000126036,
+        "total_duration_ms": 215.17360000143526,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "sum-001",
+        "category": "simple_summarization",
+        "difficulty": "easy"
+      },
+      "deterministic_score": {
+        "method": "keyword_presence",
+        "passed": false,
+        "score": 0.0,
+        "detail": "found [], missing ['refund', '40', 'damaged']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "C_apex_auto",
+        "task_id": "sum-001",
+        "route_requested": "apex-auto",
+        "request_id": "73d319dd-4229-474c-848f-a7f1cb6c0bf8",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 221.15170000324724,
+        "error": null,
+        "selected_target": "switchyard",
+        "selected_model": "apex-auto",
+        "input_tokens": 59,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.014999997802078724,
+        "provider_duration_ms": 216.3206999975955,
+        "total_duration_ms": 216.38260000327136,
+        "estimated_cost": null,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "sum-001",
+        "category": "simple_summarization",
+        "difficulty": "easy"
+      },
+      "deterministic_score": {
+        "method": "keyword_presence",
+        "passed": false,
+        "score": 0.0,
+        "detail": "found [], missing ['refund', '40', 'damaged']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "A_fixed_efficient",
+        "task_id": "sum-002",
+        "route_requested": "apex-efficient",
+        "request_id": "e99abea1-6677-415f-bfea-4a3cbf9e6733",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-efficient-v1] response to: success",
+        "client_latency_ms": 214.12989999953425,
+        "error": null,
+        "selected_target": "efficient",
+        "selected_model": "mock-efficient-v1",
+        "input_tokens": 70,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.00910000380827114,
+        "provider_duration_ms": 209.65849999629427,
+        "total_duration_ms": 209.70990000205347,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "sum-002",
+        "category": "simple_summarization",
+        "difficulty": "easy"
+      },
+      "deterministic_score": {
+        "method": "keyword_presence",
+        "passed": false,
+        "score": 0.0,
+        "detail": "found [], missing ['88831', 'rerun']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "B_fixed_capable",
+        "task_id": "sum-002",
+        "route_requested": "apex-capable",
+        "request_id": "b2de3d95-b2b5-4960-80ab-6e34b40dac77",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 217.5204999948619,
+        "error": null,
+        "selected_target": "capable",
+        "selected_model": "mock-capable-v1",
+        "input_tokens": 70,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.010099996870849282,
+        "provider_duration_ms": 213.22970000619534,
+        "total_duration_ms": 213.29449999757344,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "sum-002",
+        "category": "simple_summarization",
+        "difficulty": "easy"
+      },
+      "deterministic_score": {
+        "method": "keyword_presence",
+        "passed": false,
+        "score": 0.0,
+        "detail": "found [], missing ['88831', 'rerun']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "C_apex_auto",
+        "task_id": "sum-002",
+        "route_requested": "apex-auto",
+        "request_id": "122e835f-137a-4fc5-9b15-61cc56c4e451",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 218.77829999721143,
+        "error": null,
+        "selected_target": "switchyard",
+        "selected_model": "apex-auto",
+        "input_tokens": 70,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.010700001439545304,
+        "provider_duration_ms": 214.46279999508988,
+        "total_duration_ms": 214.51510000042617,
+        "estimated_cost": null,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "sum-002",
+        "category": "simple_summarization",
+        "difficulty": "easy"
+      },
+      "deterministic_score": {
+        "method": "keyword_presence",
+        "passed": false,
+        "score": 0.0,
+        "detail": "found [], missing ['88831', 'rerun']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "A_fixed_efficient",
+        "task_id": "email-001",
+        "route_requested": "apex-efficient",
+        "request_id": "26a219fa-c9a2-46fb-9312-bd89fd141e1c",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-efficient-v1] response to: success",
+        "client_latency_ms": 217.24920000269776,
+        "error": null,
+        "selected_target": "efficient",
+        "selected_model": "mock-efficient-v1",
+        "input_tokens": 56,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.009099996532313526,
+        "provider_duration_ms": 212.82679999421816,
+        "total_duration_ms": 212.87779999693157,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "email-001",
+        "category": "business_email_generation",
+        "difficulty": "easy"
+      },
+      "deterministic_score": {
+        "method": "keyword_presence",
+        "passed": false,
+        "score": 0.0,
+        "detail": "found [], missing ['Jane', 'ORD-1042', '40', 'Accounts Support']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "B_fixed_capable",
+        "task_id": "email-001",
+        "route_requested": "apex-capable",
+        "request_id": "e7751622-9bc2-41e4-9574-f3d9a9283330",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 218.1888999984949,
+        "error": null,
+        "selected_target": "capable",
+        "selected_model": "mock-capable-v1",
+        "input_tokens": 56,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.010400006431154907,
+        "provider_duration_ms": 213.87759999925038,
+        "total_duration_ms": 213.92479999485658,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "email-001",
+        "category": "business_email_generation",
+        "difficulty": "easy"
+      },
+      "deterministic_score": {
+        "method": "keyword_presence",
+        "passed": false,
+        "score": 0.0,
+        "detail": "found [], missing ['Jane', 'ORD-1042', '40', 'Accounts Support']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "C_apex_auto",
+        "task_id": "email-001",
+        "route_requested": "apex-auto",
+        "request_id": "f80e9aba-eaea-4c5e-be0a-c17636099826",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 218.79600000102073,
+        "error": null,
+        "selected_target": "switchyard",
+        "selected_model": "apex-auto",
+        "input_tokens": 56,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.009499999578110874,
+        "provider_duration_ms": 214.32520000234945,
+        "total_duration_ms": 214.40399999846704,
+        "estimated_cost": null,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "email-001",
+        "category": "business_email_generation",
+        "difficulty": "easy"
+      },
+      "deterministic_score": {
+        "method": "keyword_presence",
+        "passed": false,
+        "score": 0.0,
+        "detail": "found [], missing ['Jane', 'ORD-1042', '40', 'Accounts Support']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "A_fixed_efficient",
+        "task_id": "email-002",
+        "route_requested": "apex-efficient",
+        "request_id": "bee3fbc2-d1b9-496e-a155-9226237b4c56",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-efficient-v1] response to: success",
+        "client_latency_ms": 218.25839999655727,
+        "error": null,
+        "selected_target": "efficient",
+        "selected_model": "mock-efficient-v1",
+        "input_tokens": 57,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.011200005246791989,
+        "provider_duration_ms": 213.69899999990594,
+        "total_duration_ms": 213.7557000023662,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "email-002",
+        "category": "business_email_generation",
+        "difficulty": "medium"
+      },
+      "deterministic_score": {
+        "method": "keyword_presence",
+        "passed": false,
+        "score": 0.0,
+        "detail": "found [], missing ['INV-2207', 'PO-5541', '1,250', 'overdue']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "B_fixed_capable",
+        "task_id": "email-002",
+        "route_requested": "apex-capable",
+        "request_id": "895aa526-0df8-4e87-818d-1b050c5193d1",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 214.8931000047014,
+        "error": null,
+        "selected_target": "capable",
+        "selected_model": "mock-capable-v1",
+        "input_tokens": 57,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.009499999578110874,
+        "provider_duration_ms": 210.33729999908246,
+        "total_duration_ms": 210.3830999985803,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "email-002",
+        "category": "business_email_generation",
+        "difficulty": "medium"
+      },
+      "deterministic_score": {
+        "method": "keyword_presence",
+        "passed": false,
+        "score": 0.0,
+        "detail": "found [], missing ['INV-2207', 'PO-5541', '1,250', 'overdue']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "C_apex_auto",
+        "task_id": "email-002",
+        "route_requested": "apex-auto",
+        "request_id": "1ced24d3-3c39-44f0-b5b3-dbaa972f4bca",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 220.92739999789046,
+        "error": null,
+        "selected_target": "switchyard",
+        "selected_model": "apex-auto",
+        "input_tokens": 57,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.009700001101009548,
+        "provider_duration_ms": 216.78960000281222,
+        "total_duration_ms": 216.8392000021413,
+        "estimated_cost": null,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "email-002",
+        "category": "business_email_generation",
+        "difficulty": "medium"
+      },
+      "deterministic_score": {
+        "method": "keyword_presence",
+        "passed": false,
+        "score": 0.0,
+        "detail": "found [], missing ['INV-2207', 'PO-5541', '1,250', 'overdue']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "A_fixed_efficient",
+        "task_id": "json-001",
+        "route_requested": "apex-efficient",
+        "request_id": "15a53091-4697-4148-bbc8-071e3c81c4bc",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-efficient-v1] response to: success",
+        "client_latency_ms": 217.08410000428557,
+        "error": null,
+        "selected_target": "efficient",
+        "selected_model": "mock-efficient-v1",
+        "input_tokens": 60,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.0092999980552122,
+        "provider_duration_ms": 212.69250000477768,
+        "total_duration_ms": 212.73919999657664,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "json-001",
+        "category": "json_extraction",
+        "difficulty": "easy"
+      },
+      "deterministic_score": {
+        "method": "valid_json",
+        "passed": false,
+        "score": 0.0,
+        "detail": "not valid JSON: Expecting value: line 1 column 2 (char 1)"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "B_fixed_capable",
+        "task_id": "json-001",
+        "route_requested": "apex-capable",
+        "request_id": "80ff4747-831d-437a-bfb2-6fc540312ec7",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 219.61239999654936,
+        "error": null,
+        "selected_target": "capable",
+        "selected_model": "mock-capable-v1",
+        "input_tokens": 60,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.008900002285372466,
+        "provider_duration_ms": 215.316999994684,
+        "total_duration_ms": 215.36270000069635,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "json-001",
+        "category": "json_extraction",
+        "difficulty": "easy"
+      },
+      "deterministic_score": {
+        "method": "valid_json",
+        "passed": false,
+        "score": 0.0,
+        "detail": "not valid JSON: Expecting value: line 1 column 2 (char 1)"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "C_apex_auto",
+        "task_id": "json-001",
+        "route_requested": "apex-auto",
+        "request_id": "10c4e34a-f38d-4f8a-90f0-1759cdd209a6",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 216.9300999958068,
+        "error": null,
+        "selected_target": "switchyard",
+        "selected_model": "apex-auto",
+        "input_tokens": 60,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.009800001862458885,
+        "provider_duration_ms": 212.74760000233073,
+        "total_duration_ms": 212.79559999675257,
+        "estimated_cost": null,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "json-001",
+        "category": "json_extraction",
+        "difficulty": "easy"
+      },
+      "deterministic_score": {
+        "method": "valid_json",
+        "passed": false,
+        "score": 0.0,
+        "detail": "not valid JSON: Expecting value: line 1 column 2 (char 1)"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "A_fixed_efficient",
+        "task_id": "json-002",
+        "route_requested": "apex-efficient",
+        "request_id": "1c0e7400-f3a2-4a5b-bd91-0ecb186764bf",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-efficient-v1] response to: success",
+        "client_latency_ms": 216.75880000111647,
+        "error": null,
+        "selected_target": "efficient",
+        "selected_model": "mock-efficient-v1",
+        "input_tokens": 46,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.009399998816661537,
+        "provider_duration_ms": 212.64450000307988,
+        "total_duration_ms": 212.69139999640174,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "json-002",
+        "category": "json_extraction",
+        "difficulty": "easy"
+      },
+      "deterministic_score": {
+        "method": "valid_json",
+        "passed": false,
+        "score": 0.0,
+        "detail": "not valid JSON: Expecting value: line 1 column 2 (char 1)"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "B_fixed_capable",
+        "task_id": "json-002",
+        "route_requested": "apex-capable",
+        "request_id": "6b184a04-1678-4099-af3d-783cb3cc69ac",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 215.1192000019364,
+        "error": null,
+        "selected_target": "capable",
+        "selected_model": "mock-capable-v1",
+        "input_tokens": 46,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.008900002285372466,
+        "provider_duration_ms": 210.94219999940833,
+        "total_duration_ms": 210.98869999696035,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "json-002",
+        "category": "json_extraction",
+        "difficulty": "easy"
+      },
+      "deterministic_score": {
+        "method": "valid_json",
+        "passed": false,
+        "score": 0.0,
+        "detail": "not valid JSON: Expecting value: line 1 column 2 (char 1)"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "C_apex_auto",
+        "task_id": "json-002",
+        "route_requested": "apex-auto",
+        "request_id": "d0e7db70-ec2a-4718-ab75-0e061774454a",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 220.0760999985505,
+        "error": null,
+        "selected_target": "switchyard",
+        "selected_model": "apex-auto",
+        "input_tokens": 46,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.00960000033956021,
+        "provider_duration_ms": 215.6881999981124,
+        "total_duration_ms": 215.7359999982873,
+        "estimated_cost": null,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "json-002",
+        "category": "json_extraction",
+        "difficulty": "easy"
+      },
+      "deterministic_score": {
+        "method": "valid_json",
+        "passed": false,
+        "score": 0.0,
+        "detail": "not valid JSON: Expecting value: line 1 column 2 (char 1)"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "A_fixed_efficient",
+        "task_id": "json-003",
+        "route_requested": "apex-efficient",
+        "request_id": "890db820-9af6-46d9-a942-4cb67c5ce2a9",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-efficient-v1] response to: success",
+        "client_latency_ms": 219.98519999760902,
+        "error": null,
+        "selected_target": "efficient",
+        "selected_model": "mock-efficient-v1",
+        "input_tokens": 59,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.008999995770864189,
+        "provider_duration_ms": 216.05629999976372,
+        "total_duration_ms": 216.1026000030688,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "json-003",
+        "category": "json_extraction",
+        "difficulty": "medium"
+      },
+      "deterministic_score": {
+        "method": "valid_json",
+        "passed": false,
+        "score": 0.0,
+        "detail": "not valid JSON: Expecting value: line 1 column 2 (char 1)"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "B_fixed_capable",
+        "task_id": "json-003",
+        "route_requested": "apex-capable",
+        "request_id": "d2adab85-b646-4c7c-82ad-1674679db995",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 225.3835999945295,
+        "error": null,
+        "selected_target": "capable",
+        "selected_model": "mock-capable-v1",
+        "input_tokens": 59,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.011399999493733048,
+        "provider_duration_ms": 221.18000000045868,
+        "total_duration_ms": 221.22849999868777,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "json-003",
+        "category": "json_extraction",
+        "difficulty": "medium"
+      },
+      "deterministic_score": {
+        "method": "valid_json",
+        "passed": false,
+        "score": 0.0,
+        "detail": "not valid JSON: Expecting value: line 1 column 2 (char 1)"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "C_apex_auto",
+        "task_id": "json-003",
+        "route_requested": "apex-auto",
+        "request_id": "06a12789-3c0c-4e25-adc7-97a1e2ca4edf",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 217.61680000054184,
+        "error": null,
+        "selected_target": "switchyard",
+        "selected_model": "apex-auto",
+        "input_tokens": 59,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.0092999980552122,
+        "provider_duration_ms": 213.26759999647038,
+        "total_duration_ms": 213.3157000062056,
+        "estimated_cost": null,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "json-003",
+        "category": "json_extraction",
+        "difficulty": "medium"
+      },
+      "deterministic_score": {
+        "method": "valid_json",
+        "passed": false,
+        "score": 0.0,
+        "detail": "not valid JSON: Expecting value: line 1 column 2 (char 1)"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "A_fixed_efficient",
+        "task_id": "cls-001",
+        "route_requested": "apex-efficient",
+        "request_id": "5a0a9650-f313-41aa-befd-c02b1f0511ca",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-efficient-v1] response to: success",
+        "client_latency_ms": 218.90739999798825,
+        "error": null,
+        "selected_target": "efficient",
+        "selected_model": "mock-efficient-v1",
+        "input_tokens": 42,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.008900002285372466,
+        "provider_duration_ms": 214.5130999997491,
+        "total_duration_ms": 214.55820000119274,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "cls-001",
+        "category": "text_classification",
+        "difficulty": "easy"
+      },
+      "deterministic_score": {
+        "method": "classification_exact_match",
+        "passed": false,
+        "score": 0.0,
+        "detail": "response '[mock:shared:mock-efficient-v1] response to: success' is not the expected single-word label 'OVERDUE'"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "B_fixed_capable",
+        "task_id": "cls-001",
+        "route_requested": "apex-capable",
+        "request_id": "7f4e9225-362e-4512-8361-9962f4cb7382",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 216.38199999870267,
+        "error": null,
+        "selected_target": "capable",
+        "selected_model": "mock-capable-v1",
+        "input_tokens": 42,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.00960000033956021,
+        "provider_duration_ms": 211.9144000025699,
+        "total_duration_ms": 211.9676999936928,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "cls-001",
+        "category": "text_classification",
+        "difficulty": "easy"
+      },
+      "deterministic_score": {
+        "method": "classification_exact_match",
+        "passed": false,
+        "score": 0.0,
+        "detail": "response '[mock:shared:mock-capable-v1] response to: success' is not the expected single-word label 'OVERDUE'"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "C_apex_auto",
+        "task_id": "cls-001",
+        "route_requested": "apex-auto",
+        "request_id": "d1e342c9-06d3-4f99-9821-53cc106e94a5",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 220.71400000277208,
+        "error": null,
+        "selected_target": "switchyard",
+        "selected_model": "apex-auto",
+        "input_tokens": 42,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.011500000255182385,
+        "provider_duration_ms": 216.15860000019893,
+        "total_duration_ms": 216.21919999597594,
+        "estimated_cost": null,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "cls-001",
+        "category": "text_classification",
+        "difficulty": "easy"
+      },
+      "deterministic_score": {
+        "method": "classification_exact_match",
+        "passed": false,
+        "score": 0.0,
+        "detail": "response '[mock:shared:mock-capable-v1] response to: success' is not the expected single-word label 'OVERDUE'"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "A_fixed_efficient",
+        "task_id": "cls-002",
+        "route_requested": "apex-efficient",
+        "request_id": "4be5ac11-e518-402d-bfc2-3f9a9288d1b4",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-efficient-v1] response to: success",
+        "client_latency_ms": 217.46740000526188,
+        "error": null,
+        "selected_target": "efficient",
+        "selected_model": "mock-efficient-v1",
+        "input_tokens": 42,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.02510000194888562,
+        "provider_duration_ms": 212.69279999978608,
+        "total_duration_ms": 212.76030000444734,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "cls-002",
+        "category": "text_classification",
+        "difficulty": "easy"
+      },
+      "deterministic_score": {
+        "method": "classification_exact_match",
+        "passed": false,
+        "score": 0.0,
+        "detail": "response '[mock:shared:mock-efficient-v1] response to: success' is not the expected single-word label 'OPEN'"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "B_fixed_capable",
+        "task_id": "cls-002",
+        "route_requested": "apex-capable",
+        "request_id": "47075daf-3514-4a38-9f8d-4415edbbb9d3",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 218.79099999932805,
+        "error": null,
+        "selected_target": "capable",
+        "selected_model": "mock-capable-v1",
+        "input_tokens": 42,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.01189999602502212,
+        "provider_duration_ms": 213.5705999971833,
+        "total_duration_ms": 213.6192999969353,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "cls-002",
+        "category": "text_classification",
+        "difficulty": "easy"
+      },
+      "deterministic_score": {
+        "method": "classification_exact_match",
+        "passed": false,
+        "score": 0.0,
+        "detail": "response '[mock:shared:mock-capable-v1] response to: success' is not the expected single-word label 'OPEN'"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "C_apex_auto",
+        "task_id": "cls-002",
+        "route_requested": "apex-auto",
+        "request_id": "a5e40281-7f1d-4249-b775-7bdc8ce49399",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 215.90129999822238,
+        "error": null,
+        "selected_target": "switchyard",
+        "selected_model": "apex-auto",
+        "input_tokens": 42,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.009800001862458885,
+        "provider_duration_ms": 211.40220000233967,
+        "total_duration_ms": 211.45000000251457,
+        "estimated_cost": null,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "cls-002",
+        "category": "text_classification",
+        "difficulty": "easy"
+      },
+      "deterministic_score": {
+        "method": "classification_exact_match",
+        "passed": false,
+        "score": 0.0,
+        "detail": "response '[mock:shared:mock-capable-v1] response to: success' is not the expected single-word label 'OPEN'"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "A_fixed_efficient",
+        "task_id": "cls-003",
+        "route_requested": "apex-efficient",
+        "request_id": "5ae0350e-0f76-4d1f-8df8-d6cdb98b7246",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-efficient-v1] response to: success",
+        "client_latency_ms": 214.75759999884758,
+        "error": null,
+        "selected_target": "efficient",
+        "selected_model": "mock-efficient-v1",
+        "input_tokens": 42,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.00979999458650127,
+        "provider_duration_ms": 210.33909999823663,
+        "total_duration_ms": 210.38469999621157,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "cls-003",
+        "category": "text_classification",
+        "difficulty": "easy"
+      },
+      "deterministic_score": {
+        "method": "classification_exact_match",
+        "passed": false,
+        "score": 0.0,
+        "detail": "response '[mock:shared:mock-efficient-v1] response to: success' is not the expected single-word label 'PAID'"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "B_fixed_capable",
+        "task_id": "cls-003",
+        "route_requested": "apex-capable",
+        "request_id": "e5c670bf-cd26-4443-a532-9de38212aae5",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 216.19839999766555,
+        "error": null,
+        "selected_target": "capable",
+        "selected_model": "mock-capable-v1",
+        "input_tokens": 42,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.015300000086426735,
+        "provider_duration_ms": 211.44790000107605,
+        "total_duration_ms": 211.5096999987145,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "cls-003",
+        "category": "text_classification",
+        "difficulty": "easy"
+      },
+      "deterministic_score": {
+        "method": "classification_exact_match",
+        "passed": false,
+        "score": 0.0,
+        "detail": "response '[mock:shared:mock-capable-v1] response to: success' is not the expected single-word label 'PAID'"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "C_apex_auto",
+        "task_id": "cls-003",
+        "route_requested": "apex-auto",
+        "request_id": "e7052794-7bfb-4860-8a70-315dabe4a7c6",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 217.44130000297446,
+        "error": null,
+        "selected_target": "switchyard",
+        "selected_model": "apex-auto",
+        "input_tokens": 42,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.010100004146806896,
+        "provider_duration_ms": 213.1770999985747,
+        "total_duration_ms": 213.22650000365684,
+        "estimated_cost": null,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "cls-003",
+        "category": "text_classification",
+        "difficulty": "easy"
+      },
+      "deterministic_score": {
+        "method": "classification_exact_match",
+        "passed": false,
+        "score": 0.0,
+        "detail": "response '[mock:shared:mock-capable-v1] response to: success' is not the expected single-word label 'PAID'"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "A_fixed_efficient",
+        "task_id": "sqlexp-001",
+        "route_requested": "apex-efficient",
+        "request_id": "001795f5-a454-41b8-afcd-9ca7dbf6dc5e",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-efficient-v1] response to: success",
+        "client_latency_ms": 214.56790000229375,
+        "error": null,
+        "selected_target": "efficient",
+        "selected_model": "mock-efficient-v1",
+        "input_tokens": 64,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.009700001101009548,
+        "provider_duration_ms": 209.8203999994439,
+        "total_duration_ms": 209.86850000190316,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "sqlexp-001",
+        "category": "sql_explanation",
+        "difficulty": "easy"
+      },
+      "deterministic_score": {
+        "method": "keyword_presence",
+        "passed": false,
+        "score": 0.0,
+        "detail": "found [], missing ['customer', 'total', 'complete']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "B_fixed_capable",
+        "task_id": "sqlexp-001",
+        "route_requested": "apex-capable",
+        "request_id": "f816cd33-5cc1-488c-b03d-304e4d66da36",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 219.27039999718545,
+        "error": null,
+        "selected_target": "capable",
+        "selected_model": "mock-capable-v1",
+        "input_tokens": 64,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.011399999493733048,
+        "provider_duration_ms": 215.113600002951,
+        "total_duration_ms": 215.1633000030415,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "sqlexp-001",
+        "category": "sql_explanation",
+        "difficulty": "easy"
+      },
+      "deterministic_score": {
+        "method": "keyword_presence",
+        "passed": false,
+        "score": 0.0,
+        "detail": "found [], missing ['customer', 'total', 'complete']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "C_apex_auto",
+        "task_id": "sqlexp-001",
+        "route_requested": "apex-auto",
+        "request_id": "4f5f894f-eb7f-4eb2-b377-73e47daec81c",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 217.0960000003106,
+        "error": null,
+        "selected_target": "switchyard",
+        "selected_model": "apex-auto",
+        "input_tokens": 64,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.009800001862458885,
+        "provider_duration_ms": 212.9239999994752,
+        "total_duration_ms": 212.97279999998864,
+        "estimated_cost": null,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "sqlexp-001",
+        "category": "sql_explanation",
+        "difficulty": "easy"
+      },
+      "deterministic_score": {
+        "method": "keyword_presence",
+        "passed": false,
+        "score": 0.0,
+        "detail": "found [], missing ['customer', 'total', 'complete']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "A_fixed_efficient",
+        "task_id": "sqlexp-002",
+        "route_requested": "apex-efficient",
+        "request_id": "d4eafc2d-b37c-42ac-82ab-6188445d9b30",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-efficient-v1] response to: success",
+        "client_latency_ms": 216.0537000017939,
+        "error": null,
+        "selected_target": "efficient",
+        "selected_model": "mock-efficient-v1",
+        "input_tokens": 57,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.009200004569720477,
+        "provider_duration_ms": 211.50520000082906,
+        "total_duration_ms": 211.55829999770503,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "sqlexp-002",
+        "category": "sql_explanation",
+        "difficulty": "medium"
+      },
+      "deterministic_score": {
+        "method": "keyword_presence",
+        "passed": false,
+        "score": 0.0,
+        "detail": "found [], missing ['no orders', 'left join']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "B_fixed_capable",
+        "task_id": "sqlexp-002",
+        "route_requested": "apex-capable",
+        "request_id": "26777c16-f59f-428c-aa15-e24a373d12af",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 215.86080000270158,
+        "error": null,
+        "selected_target": "capable",
+        "selected_model": "mock-capable-v1",
+        "input_tokens": 57,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.008700000762473792,
+        "provider_duration_ms": 211.76410000043688,
+        "total_duration_ms": 211.80950000416487,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "sqlexp-002",
+        "category": "sql_explanation",
+        "difficulty": "medium"
+      },
+      "deterministic_score": {
+        "method": "keyword_presence",
+        "passed": false,
+        "score": 0.0,
+        "detail": "found [], missing ['no orders', 'left join']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "C_apex_auto",
+        "task_id": "sqlexp-002",
+        "route_requested": "apex-auto",
+        "request_id": "aed9b963-f7b4-4a23-9121-8681bbb81fef",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 218.3629999999539,
+        "error": null,
+        "selected_target": "switchyard",
+        "selected_model": "apex-auto",
+        "input_tokens": 57,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.00960000033956021,
+        "provider_duration_ms": 214.09390000189887,
+        "total_duration_ms": 214.14840000215918,
+        "estimated_cost": null,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "sqlexp-002",
+        "category": "sql_explanation",
+        "difficulty": "medium"
+      },
+      "deterministic_score": {
+        "method": "keyword_presence",
+        "passed": false,
+        "score": 0.0,
+        "detail": "found [], missing ['no orders', 'left join']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "A_fixed_efficient",
+        "task_id": "sqlgen-001",
+        "route_requested": "apex-efficient",
+        "request_id": "2f42a331-b045-4212-93ce-75200e1e7431",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-efficient-v1] response to: success",
+        "client_latency_ms": 223.1584000037401,
+        "error": null,
+        "selected_target": "efficient",
+        "selected_model": "mock-efficient-v1",
+        "input_tokens": 52,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.009199997293762863,
+        "provider_duration_ms": 218.92799999477575,
+        "total_duration_ms": 218.97449999960372,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "sqlgen-001",
+        "category": "simple_sql_generation",
+        "difficulty": "easy"
+      },
+      "deterministic_score": {
+        "method": "sql_clauses",
+        "passed": false,
+        "score": 0.0,
+        "detail": "missing clauses: ['select', 'from', 'where', 'order by'], missing tokens: ['t_orders', 'status', 'total_amount']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "B_fixed_capable",
+        "task_id": "sqlgen-001",
+        "route_requested": "apex-capable",
+        "request_id": "9182c02e-8988-4889-b292-4b1e541bcf5c",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 216.14209999825107,
+        "error": null,
+        "selected_target": "capable",
+        "selected_model": "mock-capable-v1",
+        "input_tokens": 52,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.009200004569720477,
+        "provider_duration_ms": 211.7562999992515,
+        "total_duration_ms": 211.80240000103367,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "sqlgen-001",
+        "category": "simple_sql_generation",
+        "difficulty": "easy"
+      },
+      "deterministic_score": {
+        "method": "sql_clauses",
+        "passed": false,
+        "score": 0.0,
+        "detail": "missing clauses: ['select', 'from', 'where', 'order by'], missing tokens: ['t_orders', 'status', 'total_amount']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "C_apex_auto",
+        "task_id": "sqlgen-001",
+        "route_requested": "apex-auto",
+        "request_id": "eb8e9914-4cf0-4842-b62f-89aa73ac7ca3",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 217.1126999965054,
+        "error": null,
+        "selected_target": "switchyard",
+        "selected_model": "apex-auto",
+        "input_tokens": 52,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.009399998816661537,
+        "provider_duration_ms": 212.8895999994711,
+        "total_duration_ms": 212.93670000159182,
+        "estimated_cost": null,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "sqlgen-001",
+        "category": "simple_sql_generation",
+        "difficulty": "easy"
+      },
+      "deterministic_score": {
+        "method": "sql_clauses",
+        "passed": false,
+        "score": 0.0,
+        "detail": "missing clauses: ['select', 'from', 'where', 'order by'], missing tokens: ['t_orders', 'status', 'total_amount']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "A_fixed_efficient",
+        "task_id": "sqlgen-002",
+        "route_requested": "apex-efficient",
+        "request_id": "62dc3e22-c699-43ab-bd29-5f0b09079723",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-efficient-v1] response to: success",
+        "client_latency_ms": 225.58809999463847,
+        "error": null,
+        "selected_target": "efficient",
+        "selected_model": "mock-efficient-v1",
+        "input_tokens": 69,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.008900002285372466,
+        "provider_duration_ms": 219.81780000351137,
+        "total_duration_ms": 219.88609999971231,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "sqlgen-002",
+        "category": "simple_sql_generation",
+        "difficulty": "medium"
+      },
+      "deterministic_score": {
+        "method": "sql_clauses",
+        "passed": false,
+        "score": 0.0,
+        "detail": "missing clauses: ['select', 'from', 'join', 'group by'], missing tokens: ['count', 'active']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "B_fixed_capable",
+        "task_id": "sqlgen-002",
+        "route_requested": "apex-capable",
+        "request_id": "b2a3156d-ae5f-48c7-9fbe-289428a7c969",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 224.35379999660654,
+        "error": null,
+        "selected_target": "capable",
+        "selected_model": "mock-capable-v1",
+        "input_tokens": 69,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.0109999964479357,
+        "provider_duration_ms": 219.74710000358755,
+        "total_duration_ms": 219.82520000165096,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "sqlgen-002",
+        "category": "simple_sql_generation",
+        "difficulty": "medium"
+      },
+      "deterministic_score": {
+        "method": "sql_clauses",
+        "passed": false,
+        "score": 0.0,
+        "detail": "missing clauses: ['select', 'from', 'join', 'group by'], missing tokens: ['count', 'active']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "C_apex_auto",
+        "task_id": "sqlgen-002",
+        "route_requested": "apex-auto",
+        "request_id": "6e14587e-a466-4119-8309-15380e361a8e",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 220.3771999993478,
+        "error": null,
+        "selected_target": "switchyard",
+        "selected_model": "apex-auto",
+        "input_tokens": 69,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.012399999832268804,
+        "provider_duration_ms": 215.59749999869382,
+        "total_duration_ms": 215.6505000020843,
+        "estimated_cost": null,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "sqlgen-002",
+        "category": "simple_sql_generation",
+        "difficulty": "medium"
+      },
+      "deterministic_score": {
+        "method": "sql_clauses",
+        "passed": false,
+        "score": 0.0,
+        "detail": "missing clauses: ['select', 'from', 'join', 'group by'], missing tokens: ['count', 'active']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "A_fixed_efficient",
+        "task_id": "sqlgen-003",
+        "route_requested": "apex-efficient",
+        "request_id": "b93c00f1-28ae-42d9-b9e2-0bd014ffaeaa",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-efficient-v1] response to: success",
+        "client_latency_ms": 218.0607999980566,
+        "error": null,
+        "selected_target": "efficient",
+        "selected_model": "mock-efficient-v1",
+        "input_tokens": 52,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.00979999458650127,
+        "provider_duration_ms": 213.41559999564197,
+        "total_duration_ms": 213.4661000018241,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "sqlgen-003",
+        "category": "simple_sql_generation",
+        "difficulty": "medium"
+      },
+      "deterministic_score": {
+        "method": "sql_clauses",
+        "passed": false,
+        "score": 0.0,
+        "detail": "missing clauses: ['select', 'from', 'join', 'where'], missing tokens: ['paid_yn', 'due_date']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "B_fixed_capable",
+        "task_id": "sqlgen-003",
+        "route_requested": "apex-capable",
+        "request_id": "ebaeb6b6-262a-43d2-a476-6227a3db4af9",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 217.51889999723062,
+        "error": null,
+        "selected_target": "capable",
+        "selected_model": "mock-capable-v1",
+        "input_tokens": 52,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.00910000380827114,
+        "provider_duration_ms": 213.1435999981477,
+        "total_duration_ms": 213.19490000314545,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "sqlgen-003",
+        "category": "simple_sql_generation",
+        "difficulty": "medium"
+      },
+      "deterministic_score": {
+        "method": "sql_clauses",
+        "passed": false,
+        "score": 0.0,
+        "detail": "missing clauses: ['select', 'from', 'join', 'where'], missing tokens: ['paid_yn', 'due_date']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "C_apex_auto",
+        "task_id": "sqlgen-003",
+        "route_requested": "apex-auto",
+        "request_id": "8906849c-77ac-4072-ba66-a381ed92a672",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 220.45539999817265,
+        "error": null,
+        "selected_target": "switchyard",
+        "selected_model": "apex-auto",
+        "input_tokens": 52,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.009900002623908222,
+        "provider_duration_ms": 216.00300000136485,
+        "total_duration_ms": 216.0539000033168,
+        "estimated_cost": null,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "sqlgen-003",
+        "category": "simple_sql_generation",
+        "difficulty": "medium"
+      },
+      "deterministic_score": {
+        "method": "sql_clauses",
+        "passed": false,
+        "score": 0.0,
+        "detail": "missing clauses: ['select', 'from', 'join', 'where'], missing tokens: ['paid_yn', 'due_date']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "A_fixed_efficient",
+        "task_id": "plsqlexp-001",
+        "route_requested": "apex-efficient",
+        "request_id": "3d783465-062b-4a17-a9e0-ef32894791b8",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-efficient-v1] response to: success",
+        "client_latency_ms": 221.59889999602456,
+        "error": null,
+        "selected_target": "efficient",
+        "selected_model": "mock-efficient-v1",
+        "input_tokens": 55,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.009199997293762863,
+        "provider_duration_ms": 216.99290000105975,
+        "total_duration_ms": 217.06199999607634,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "plsqlexp-001",
+        "category": "plsql_explanation",
+        "difficulty": "easy"
+      },
+      "deterministic_score": {
+        "method": "keyword_presence",
+        "passed": false,
+        "score": 0.0,
+        "detail": "found [], missing ['order_date', 'insert', 'default']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "B_fixed_capable",
+        "task_id": "plsqlexp-001",
+        "route_requested": "apex-capable",
+        "request_id": "ca01b94b-ef07-4152-94f0-a4dce1b6f51d",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 216.87070000189124,
+        "error": null,
+        "selected_target": "capable",
+        "selected_model": "mock-capable-v1",
+        "input_tokens": 55,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.009200004569720477,
+        "provider_duration_ms": 212.68920000147773,
+        "total_duration_ms": 212.73389999987558,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "plsqlexp-001",
+        "category": "plsql_explanation",
+        "difficulty": "easy"
+      },
+      "deterministic_score": {
+        "method": "keyword_presence",
+        "passed": false,
+        "score": 0.0,
+        "detail": "found [], missing ['order_date', 'insert', 'default']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "C_apex_auto",
+        "task_id": "plsqlexp-001",
+        "route_requested": "apex-auto",
+        "request_id": "cd74cf93-a253-4e8d-b002-b36fadc39c08",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 218.24449999985518,
+        "error": null,
+        "selected_target": "switchyard",
+        "selected_model": "apex-auto",
+        "input_tokens": 55,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.009900002623908222,
+        "provider_duration_ms": 214.10810000088532,
+        "total_duration_ms": 214.15870000055293,
+        "estimated_cost": null,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "plsqlexp-001",
+        "category": "plsql_explanation",
+        "difficulty": "easy"
+      },
+      "deterministic_score": {
+        "method": "keyword_presence",
+        "passed": false,
+        "score": 0.0,
+        "detail": "found [], missing ['order_date', 'insert', 'default']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "A_fixed_efficient",
+        "task_id": "plsqlexp-002",
+        "route_requested": "apex-efficient",
+        "request_id": "7d570bea-b94f-4955-8e48-be37e10f04f3",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-efficient-v1] response to: success",
+        "client_latency_ms": 215.2916000050027,
+        "error": null,
+        "selected_target": "efficient",
+        "selected_model": "mock-efficient-v1",
+        "input_tokens": 74,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.010200004908256233,
+        "provider_duration_ms": 210.91149999847403,
+        "total_duration_ms": 210.9576000002562,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "plsqlexp-002",
+        "category": "plsql_explanation",
+        "difficulty": "medium"
+      },
+      "deterministic_score": {
+        "method": "keyword_presence",
+        "passed": false,
+        "score": 0.0,
+        "detail": "found [], missing ['rowcount', '20001', 'rollback']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "B_fixed_capable",
+        "task_id": "plsqlexp-002",
+        "route_requested": "apex-capable",
+        "request_id": "6b39eca7-23c2-4c88-8bce-5d893163786b",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 222.21829999762122,
+        "error": null,
+        "selected_target": "capable",
+        "selected_model": "mock-capable-v1",
+        "input_tokens": 74,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.008800001523923129,
+        "provider_duration_ms": 217.61890000198036,
+        "total_duration_ms": 217.6681999990251,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "plsqlexp-002",
+        "category": "plsql_explanation",
+        "difficulty": "medium"
+      },
+      "deterministic_score": {
+        "method": "keyword_presence",
+        "passed": false,
+        "score": 0.0,
+        "detail": "found [], missing ['rowcount', '20001', 'rollback']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "C_apex_auto",
+        "task_id": "plsqlexp-002",
+        "route_requested": "apex-auto",
+        "request_id": "aa527173-f4bc-4acd-ad18-210542fe8788",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 217.76390000013635,
+        "error": null,
+        "selected_target": "switchyard",
+        "selected_model": "apex-auto",
+        "input_tokens": 74,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.00960000033956021,
+        "provider_duration_ms": 213.666399999056,
+        "total_duration_ms": 213.72160000464646,
+        "estimated_cost": null,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "plsqlexp-002",
+        "category": "plsql_explanation",
+        "difficulty": "medium"
+      },
+      "deterministic_score": {
+        "method": "keyword_presence",
+        "passed": false,
+        "score": 0.0,
+        "detail": "found [], missing ['rowcount', '20001', 'rollback']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "A_fixed_efficient",
+        "task_id": "plsqlgen-001",
+        "route_requested": "apex-efficient",
+        "request_id": "d5b75bb7-9602-4352-97f4-9ed6e54be2d7",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-efficient-v1] response to: success",
+        "client_latency_ms": 218.7253000010969,
+        "error": null,
+        "selected_target": "efficient",
+        "selected_model": "mock-efficient-v1",
+        "input_tokens": 48,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.008600000001024455,
+        "provider_duration_ms": 214.51349999551894,
+        "total_duration_ms": 214.56039999611676,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "plsqlgen-001",
+        "category": "plsql_generation",
+        "difficulty": "medium"
+      },
+      "deterministic_score": {
+        "method": "plsql_structure",
+        "passed": false,
+        "score": 0.0,
+        "detail": "procedure header present: False; missing tokens: ['p_order_id', 'update', 't_orders', 'status']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "B_fixed_capable",
+        "task_id": "plsqlgen-001",
+        "route_requested": "apex-capable",
+        "request_id": "0ac8c888-9e4a-4e42-9114-159446c54486",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 219.14310000283876,
+        "error": null,
+        "selected_target": "capable",
+        "selected_model": "mock-capable-v1",
+        "input_tokens": 48,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.009199997293762863,
+        "provider_duration_ms": 214.68800000002375,
+        "total_duration_ms": 214.73970000079134,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "plsqlgen-001",
+        "category": "plsql_generation",
+        "difficulty": "medium"
+      },
+      "deterministic_score": {
+        "method": "plsql_structure",
+        "passed": false,
+        "score": 0.0,
+        "detail": "procedure header present: False; missing tokens: ['p_order_id', 'update', 't_orders', 'status']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "C_apex_auto",
+        "task_id": "plsqlgen-001",
+        "route_requested": "apex-auto",
+        "request_id": "73d05703-01c9-42cd-a8c6-5cc4a0918d31",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 220.90749999915715,
+        "error": null,
+        "selected_target": "switchyard",
+        "selected_model": "apex-auto",
+        "input_tokens": 48,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.009200004569720477,
+        "provider_duration_ms": 216.29370000300696,
+        "total_duration_ms": 216.33999999903608,
+        "estimated_cost": null,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "plsqlgen-001",
+        "category": "plsql_generation",
+        "difficulty": "medium"
+      },
+      "deterministic_score": {
+        "method": "plsql_structure",
+        "passed": false,
+        "score": 0.0,
+        "detail": "procedure header present: False; missing tokens: ['p_order_id', 'update', 't_orders', 'status']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "A_fixed_efficient",
+        "task_id": "plsqlgen-002",
+        "route_requested": "apex-efficient",
+        "request_id": "ff596f28-60c5-408d-99fa-b6bad42c310d",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-efficient-v1] response to: success",
+        "client_latency_ms": 217.68770000198856,
+        "error": null,
+        "selected_target": "efficient",
+        "selected_model": "mock-efficient-v1",
+        "input_tokens": 92,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.009300005331169814,
+        "provider_duration_ms": 212.88820000336273,
+        "total_duration_ms": 212.93359999981476,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "plsqlgen-002",
+        "category": "plsql_generation",
+        "difficulty": "hard"
+      },
+      "deterministic_score": {
+        "method": "plsql_structure",
+        "passed": false,
+        "score": 0.0,
+        "detail": "package spec present: False, package body present: False; missing tokens: ['invoice_pkg', 'is_overdue', 'paid_yn', 'due_date', 'boolean']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "B_fixed_capable",
+        "task_id": "plsqlgen-002",
+        "route_requested": "apex-capable",
+        "request_id": "4604f65e-7182-4579-8a3f-0de5e08e4490",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 218.2907000023988,
+        "error": null,
+        "selected_target": "capable",
+        "selected_model": "mock-capable-v1",
+        "input_tokens": 92,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.00910000380827114,
+        "provider_duration_ms": 213.7245999983861,
+        "total_duration_ms": 213.77790000406094,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "plsqlgen-002",
+        "category": "plsql_generation",
+        "difficulty": "hard"
+      },
+      "deterministic_score": {
+        "method": "plsql_structure",
+        "passed": false,
+        "score": 0.0,
+        "detail": "package spec present: False, package body present: False; missing tokens: ['invoice_pkg', 'is_overdue', 'paid_yn', 'due_date', 'boolean']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "C_apex_auto",
+        "task_id": "plsqlgen-002",
+        "route_requested": "apex-auto",
+        "request_id": "f668c885-5284-4d7f-a530-341c259d1a0a",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 216.81309999985388,
+        "error": null,
+        "selected_target": "switchyard",
+        "selected_model": "apex-auto",
+        "input_tokens": 92,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.009800001862458885,
+        "provider_duration_ms": 212.41740000550635,
+        "total_duration_ms": 212.47500000026776,
+        "estimated_cost": null,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "plsqlgen-002",
+        "category": "plsql_generation",
+        "difficulty": "hard"
+      },
+      "deterministic_score": {
+        "method": "plsql_structure",
+        "passed": false,
+        "score": 0.0,
+        "detail": "package spec present: False, package body present: False; missing tokens: ['invoice_pkg', 'is_overdue', 'paid_yn', 'due_date', 'boolean']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "A_fixed_efficient",
+        "task_id": "plsqlgen-003",
+        "route_requested": "apex-efficient",
+        "request_id": "ad4db62e-8409-4746-a3b2-a878036bb209",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-efficient-v1] response to: success",
+        "client_latency_ms": 215.57429999666056,
+        "error": null,
+        "selected_target": "efficient",
+        "selected_model": "mock-efficient-v1",
+        "input_tokens": 90,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.008499999239575118,
+        "provider_duration_ms": 210.57370000198716,
+        "total_duration_ms": 210.6197000030079,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "plsqlgen-003",
+        "category": "plsql_generation",
+        "difficulty": "hard"
+      },
+      "deterministic_score": {
+        "method": "plsql_structure",
+        "passed": false,
+        "score": 0.0,
+        "detail": "procedure header present: False; missing tokens: ['bulk collect', 'forall', 'p_discount_pct']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "B_fixed_capable",
+        "task_id": "plsqlgen-003",
+        "route_requested": "apex-capable",
+        "request_id": "20d99d0e-903e-4b10-8559-94c2f8fadc9f",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 217.41170000314014,
+        "error": null,
+        "selected_target": "capable",
+        "selected_model": "mock-capable-v1",
+        "input_tokens": 90,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.009000003046821803,
+        "provider_duration_ms": 212.33820000634296,
+        "total_duration_ms": 212.39140000398038,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "plsqlgen-003",
+        "category": "plsql_generation",
+        "difficulty": "hard"
+      },
+      "deterministic_score": {
+        "method": "plsql_structure",
+        "passed": false,
+        "score": 0.0,
+        "detail": "procedure header present: False; missing tokens: ['bulk collect', 'forall', 'p_discount_pct']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "C_apex_auto",
+        "task_id": "plsqlgen-003",
+        "route_requested": "apex-auto",
+        "request_id": "c7803d6b-bbd2-441f-9ee8-8f43e39a722e",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 219.85090000089258,
+        "error": null,
+        "selected_target": "switchyard",
+        "selected_model": "apex-auto",
+        "input_tokens": 90,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.0092999980552122,
+        "provider_duration_ms": 215.3547999987495,
+        "total_duration_ms": 215.4041999965557,
+        "estimated_cost": null,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "plsqlgen-003",
+        "category": "plsql_generation",
+        "difficulty": "hard"
+      },
+      "deterministic_score": {
+        "method": "plsql_structure",
+        "passed": false,
+        "score": 0.0,
+        "detail": "procedure header present: False; missing tokens: ['bulk collect', 'forall', 'p_discount_pct']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "A_fixed_efficient",
+        "task_id": "apexval-001",
+        "route_requested": "apex-efficient",
+        "request_id": "35cefeff-0601-4bf0-bf1f-978872170c36",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-efficient-v1] response to: success",
+        "client_latency_ms": 216.12800000002608,
+        "error": null,
+        "selected_target": "efficient",
+        "selected_model": "mock-efficient-v1",
+        "input_tokens": 38,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.009199997293762863,
+        "provider_duration_ms": 211.50870000565192,
+        "total_duration_ms": 211.56269999482902,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "apexval-001",
+        "category": "apex_validation_logic",
+        "difficulty": "medium"
+      },
+      "deterministic_score": {
+        "method": "regex_match",
+        "passed": false,
+        "score": 0.0,
+        "detail": "unmatched patterns: [':P10_DISCOUNT_PCT', '(?i)between|(<=|>=)']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "B_fixed_capable",
+        "task_id": "apexval-001",
+        "route_requested": "apex-capable",
+        "request_id": "d492be23-019c-437b-85c3-734a41b4056d",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 218.9866000044276,
+        "error": null,
+        "selected_target": "capable",
+        "selected_model": "mock-capable-v1",
+        "input_tokens": 38,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.008999995770864189,
+        "provider_duration_ms": 214.75569999893196,
+        "total_duration_ms": 214.81009999843081,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "apexval-001",
+        "category": "apex_validation_logic",
+        "difficulty": "medium"
+      },
+      "deterministic_score": {
+        "method": "regex_match",
+        "passed": false,
+        "score": 0.0,
+        "detail": "unmatched patterns: [':P10_DISCOUNT_PCT', '(?i)between|(<=|>=)']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "C_apex_auto",
+        "task_id": "apexval-001",
+        "route_requested": "apex-auto",
+        "request_id": "4447d4e7-b627-4bcb-8e48-26defc5c477e",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 220.7840999981272,
+        "error": null,
+        "selected_target": "switchyard",
+        "selected_model": "apex-auto",
+        "input_tokens": 38,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.009000003046821803,
+        "provider_duration_ms": 216.6674000036437,
+        "total_duration_ms": 216.71369999967283,
+        "estimated_cost": null,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "apexval-001",
+        "category": "apex_validation_logic",
+        "difficulty": "medium"
+      },
+      "deterministic_score": {
+        "method": "regex_match",
+        "passed": false,
+        "score": 0.0,
+        "detail": "unmatched patterns: [':P10_DISCOUNT_PCT', '(?i)between|(<=|>=)']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "A_fixed_efficient",
+        "task_id": "apexval-002",
+        "route_requested": "apex-efficient",
+        "request_id": "923d28a5-9788-44df-bbb1-0918d5101ec5",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-efficient-v1] response to: success",
+        "client_latency_ms": 218.97419999731937,
+        "error": null,
+        "selected_target": "efficient",
+        "selected_model": "mock-efficient-v1",
+        "input_tokens": 40,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.010600000678095967,
+        "provider_duration_ms": 214.07510000426555,
+        "total_duration_ms": 214.1291000007186,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "apexval-002",
+        "category": "apex_validation_logic",
+        "difficulty": "medium"
+      },
+      "deterministic_score": {
+        "method": "regex_match",
+        "passed": false,
+        "score": 0.0,
+        "detail": "unmatched patterns: [':P20_EMAIL', '(?i)is not null|instr']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "B_fixed_capable",
+        "task_id": "apexval-002",
+        "route_requested": "apex-capable",
+        "request_id": "f0edae9a-15f5-4c4e-8a30-275e32733ce4",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 218.70009999838658,
+        "error": null,
+        "selected_target": "capable",
+        "selected_model": "mock-capable-v1",
+        "input_tokens": 40,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.009199997293762863,
+        "provider_duration_ms": 213.98480000061681,
+        "total_duration_ms": 214.0307000008761,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "apexval-002",
+        "category": "apex_validation_logic",
+        "difficulty": "medium"
+      },
+      "deterministic_score": {
+        "method": "regex_match",
+        "passed": false,
+        "score": 0.0,
+        "detail": "unmatched patterns: [':P20_EMAIL', '(?i)is not null|instr']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "C_apex_auto",
+        "task_id": "apexval-002",
+        "route_requested": "apex-auto",
+        "request_id": "cee6f934-d4f1-487a-8e5c-fe49e13b9edb",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 217.94760000193492,
+        "error": null,
+        "selected_target": "switchyard",
+        "selected_model": "apex-auto",
+        "input_tokens": 40,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.010399999155197293,
+        "provider_duration_ms": 213.25689999503084,
+        "total_duration_ms": 213.31229999486823,
+        "estimated_cost": null,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "apexval-002",
+        "category": "apex_validation_logic",
+        "difficulty": "medium"
+      },
+      "deterministic_score": {
+        "method": "regex_match",
+        "passed": false,
+        "score": 0.0,
+        "detail": "unmatched patterns: [':P20_EMAIL', '(?i)is not null|instr']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "A_fixed_efficient",
+        "task_id": "apexval-003",
+        "route_requested": "apex-efficient",
+        "request_id": "34ae9efa-4e57-4e34-8e10-1148fd07d3f6",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-efficient-v1] response to: success",
+        "client_latency_ms": 216.7055000027176,
+        "error": null,
+        "selected_target": "efficient",
+        "selected_model": "mock-efficient-v1",
+        "input_tokens": 49,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.009000003046821803,
+        "provider_duration_ms": 211.45740000065416,
+        "total_duration_ms": 211.5057999981218,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "apexval-003",
+        "category": "apex_validation_logic",
+        "difficulty": "hard"
+      },
+      "deterministic_score": {
+        "method": "keyword_presence",
+        "passed": false,
+        "score": 0.0,
+        "detail": "found [], missing ['session state', 'change']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "B_fixed_capable",
+        "task_id": "apexval-003",
+        "route_requested": "apex-capable",
+        "request_id": "ba3e77a3-7a7f-4128-8dca-a0e5ae847dce",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 218.1060000002617,
+        "error": null,
+        "selected_target": "capable",
+        "selected_model": "mock-capable-v1",
+        "input_tokens": 49,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.01049999991664663,
+        "provider_duration_ms": 213.5050999931991,
+        "total_duration_ms": 213.56279999599792,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "apexval-003",
+        "category": "apex_validation_logic",
+        "difficulty": "hard"
+      },
+      "deterministic_score": {
+        "method": "keyword_presence",
+        "passed": false,
+        "score": 0.0,
+        "detail": "found [], missing ['session state', 'change']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "C_apex_auto",
+        "task_id": "apexval-003",
+        "route_requested": "apex-auto",
+        "request_id": "9c74e8a5-32ea-43bc-8d37-aca0c53c13ab",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 217.0579000012367,
+        "error": null,
+        "selected_target": "switchyard",
+        "selected_model": "apex-auto",
+        "input_tokens": 49,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.009900002623908222,
+        "provider_duration_ms": 212.12139999988722,
+        "total_duration_ms": 212.17630000319332,
+        "estimated_cost": null,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "apexval-003",
+        "category": "apex_validation_logic",
+        "difficulty": "hard"
+      },
+      "deterministic_score": {
+        "method": "keyword_presence",
+        "passed": false,
+        "score": 0.0,
+        "detail": "found [], missing ['session state', 'change']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "A_fixed_efficient",
+        "task_id": "rest-001",
+        "route_requested": "apex-efficient",
+        "request_id": "cce73a7c-b008-4c73-be5f-a609e57402b1",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-efficient-v1] response to: success",
+        "client_latency_ms": 219.50199999992037,
+        "error": null,
+        "selected_target": "efficient",
+        "selected_model": "mock-efficient-v1",
+        "input_tokens": 56,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.010100004146806896,
+        "provider_duration_ms": 214.94660000462318,
+        "total_duration_ms": 215.00790000573033,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "rest-001",
+        "category": "rest_payload_transformation",
+        "difficulty": "medium"
+      },
+      "deterministic_score": {
+        "method": "valid_json",
+        "passed": false,
+        "score": 0.0,
+        "detail": "not valid JSON: Expecting value: line 1 column 2 (char 1)"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "B_fixed_capable",
+        "task_id": "rest-001",
+        "route_requested": "apex-capable",
+        "request_id": "863997d8-2200-43db-88c3-161c94b82f45",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 216.13909999723546,
+        "error": null,
+        "selected_target": "capable",
+        "selected_model": "mock-capable-v1",
+        "input_tokens": 56,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.00910000380827114,
+        "provider_duration_ms": 211.50720000150613,
+        "total_duration_ms": 211.5635000009206,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "rest-001",
+        "category": "rest_payload_transformation",
+        "difficulty": "medium"
+      },
+      "deterministic_score": {
+        "method": "valid_json",
+        "passed": false,
+        "score": 0.0,
+        "detail": "not valid JSON: Expecting value: line 1 column 2 (char 1)"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "C_apex_auto",
+        "task_id": "rest-001",
+        "route_requested": "apex-auto",
+        "request_id": "e9e134a1-5dfd-4763-879b-3dac6bb02ae5",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 217.06009999616072,
+        "error": null,
+        "selected_target": "switchyard",
+        "selected_model": "apex-auto",
+        "input_tokens": 56,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.009999996109399945,
+        "provider_duration_ms": 212.71329999581212,
+        "total_duration_ms": 212.76570000190986,
+        "estimated_cost": null,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "rest-001",
+        "category": "rest_payload_transformation",
+        "difficulty": "medium"
+      },
+      "deterministic_score": {
+        "method": "valid_json",
+        "passed": false,
+        "score": 0.0,
+        "detail": "not valid JSON: Expecting value: line 1 column 2 (char 1)"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "A_fixed_efficient",
+        "task_id": "rest-002",
+        "route_requested": "apex-efficient",
+        "request_id": "f156a79a-b091-4187-99e0-bde5ae81206b",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-efficient-v1] response to: success",
+        "client_latency_ms": 219.75669999665115,
+        "error": null,
+        "selected_target": "efficient",
+        "selected_model": "mock-efficient-v1",
+        "input_tokens": 70,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.0092999980552122,
+        "provider_duration_ms": 215.8216999960132,
+        "total_duration_ms": 215.86840000236407,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "rest-002",
+        "category": "rest_payload_transformation",
+        "difficulty": "hard"
+      },
+      "deterministic_score": {
+        "method": "valid_json",
+        "passed": false,
+        "score": 0.0,
+        "detail": "not valid JSON: Expecting value: line 1 column 2 (char 1)"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "B_fixed_capable",
+        "task_id": "rest-002",
+        "route_requested": "apex-capable",
+        "request_id": "0aa3af26-9f27-4ee2-80a3-0da027d83223",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 222.1642000004067,
+        "error": null,
+        "selected_target": "capable",
+        "selected_model": "mock-capable-v1",
+        "input_tokens": 70,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.008899995009414852,
+        "provider_duration_ms": 217.8570000032778,
+        "total_duration_ms": 217.9035000008298,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "rest-002",
+        "category": "rest_payload_transformation",
+        "difficulty": "hard"
+      },
+      "deterministic_score": {
+        "method": "valid_json",
+        "passed": false,
+        "score": 0.0,
+        "detail": "not valid JSON: Expecting value: line 1 column 2 (char 1)"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "C_apex_auto",
+        "task_id": "rest-002",
+        "route_requested": "apex-auto",
+        "request_id": "e9dc5a64-e7b3-441d-8c51-f7750606c3e1",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 216.79959999892162,
+        "error": null,
+        "selected_target": "switchyard",
+        "selected_model": "apex-auto",
+        "input_tokens": 70,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.009300005331169814,
+        "provider_duration_ms": 212.69010000105482,
+        "total_duration_ms": 212.7392000038526,
+        "estimated_cost": null,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "rest-002",
+        "category": "rest_payload_transformation",
+        "difficulty": "hard"
+      },
+      "deterministic_score": {
+        "method": "valid_json",
+        "passed": false,
+        "score": 0.0,
+        "detail": "not valid JSON: Expecting value: line 1 column 2 (char 1)"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "A_fixed_efficient",
+        "task_id": "oraerr-001",
+        "route_requested": "apex-efficient",
+        "request_id": "6217eccd-8198-41fd-8e3a-16d293487f6f",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-efficient-v1] response to: success",
+        "client_latency_ms": 215.007600003446,
+        "error": null,
+        "selected_target": "efficient",
+        "selected_model": "mock-efficient-v1",
+        "input_tokens": 23,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.008600000001024455,
+        "provider_duration_ms": 210.67949999996927,
+        "total_duration_ms": 210.7250999979442,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "oraerr-001",
+        "category": "oracle_error_explanation",
+        "difficulty": "easy"
+      },
+      "deterministic_score": {
+        "method": "keyword_presence",
+        "passed": false,
+        "score": 0.0,
+        "detail": "found [], missing ['unique', 'duplicate']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "B_fixed_capable",
+        "task_id": "oraerr-001",
+        "route_requested": "apex-capable",
+        "request_id": "200774c1-9c57-46dc-ade9-0a14e9d9d655",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 217.02490000461694,
+        "error": null,
+        "selected_target": "capable",
+        "selected_model": "mock-capable-v1",
+        "input_tokens": 23,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.008499999239575118,
+        "provider_duration_ms": 213.07079999678535,
+        "total_duration_ms": 213.12159999797586,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "oraerr-001",
+        "category": "oracle_error_explanation",
+        "difficulty": "easy"
+      },
+      "deterministic_score": {
+        "method": "keyword_presence",
+        "passed": false,
+        "score": 0.0,
+        "detail": "found [], missing ['unique', 'duplicate']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "C_apex_auto",
+        "task_id": "oraerr-001",
+        "route_requested": "apex-auto",
+        "request_id": "2f3177d8-20be-461e-b62f-b7a58272965f",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 215.52150000206893,
+        "error": null,
+        "selected_target": "switchyard",
+        "selected_model": "apex-auto",
+        "input_tokens": 23,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.009800001862458885,
+        "provider_duration_ms": 210.91660000092816,
+        "total_duration_ms": 210.9651999999187,
+        "estimated_cost": null,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "oraerr-001",
+        "category": "oracle_error_explanation",
+        "difficulty": "easy"
+      },
+      "deterministic_score": {
+        "method": "keyword_presence",
+        "passed": false,
+        "score": 0.0,
+        "detail": "found [], missing ['unique', 'duplicate']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "A_fixed_efficient",
+        "task_id": "oraerr-002",
+        "route_requested": "apex-efficient",
+        "request_id": "bb95317c-fd50-49de-89b7-868eaa403f31",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-efficient-v1] response to: success",
+        "client_latency_ms": 215.9460000038962,
+        "error": null,
+        "selected_target": "efficient",
+        "selected_model": "mock-efficient-v1",
+        "input_tokens": 21,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.008499999239575118,
+        "provider_duration_ms": 211.3835999989533,
+        "total_duration_ms": 211.42980000149691,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "oraerr-002",
+        "category": "oracle_error_explanation",
+        "difficulty": "easy"
+      },
+      "deterministic_score": {
+        "method": "keyword_presence",
+        "passed": false,
+        "score": 0.0,
+        "detail": "found [], missing ['number', 'convert']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "B_fixed_capable",
+        "task_id": "oraerr-002",
+        "route_requested": "apex-capable",
+        "request_id": "239c3c00-b24a-4571-bfee-b8c958256a15",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 221.65570000652224,
+        "error": null,
+        "selected_target": "capable",
+        "selected_model": "mock-capable-v1",
+        "input_tokens": 21,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.00960000033956021,
+        "provider_duration_ms": 217.15609999955632,
+        "total_duration_ms": 217.20340000319993,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "oraerr-002",
+        "category": "oracle_error_explanation",
+        "difficulty": "easy"
+      },
+      "deterministic_score": {
+        "method": "keyword_presence",
+        "passed": false,
+        "score": 0.0,
+        "detail": "found [], missing ['number', 'convert']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "C_apex_auto",
+        "task_id": "oraerr-002",
+        "route_requested": "apex-auto",
+        "request_id": "7ed6318e-ed4f-4ff0-977d-5340503e3de7",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 217.1472999980324,
+        "error": null,
+        "selected_target": "switchyard",
+        "selected_model": "apex-auto",
+        "input_tokens": 21,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.009499999578110874,
+        "provider_duration_ms": 212.7041999992798,
+        "total_duration_ms": 212.75259999674745,
+        "estimated_cost": null,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "oraerr-002",
+        "category": "oracle_error_explanation",
+        "difficulty": "easy"
+      },
+      "deterministic_score": {
+        "method": "keyword_presence",
+        "passed": false,
+        "score": 0.0,
+        "detail": "found [], missing ['number', 'convert']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "A_fixed_efficient",
+        "task_id": "oraerr-003",
+        "route_requested": "apex-efficient",
+        "request_id": "98b2c1e3-ea9d-445b-8667-e673051d12bc",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-efficient-v1] response to: success",
+        "client_latency_ms": 226.12329999537906,
+        "error": null,
+        "selected_target": "efficient",
+        "selected_model": "mock-efficient-v1",
+        "input_tokens": 30,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.014400000509340316,
+        "provider_duration_ms": 221.08360000129323,
+        "total_duration_ms": 221.1433999982546,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "oraerr-003",
+        "category": "oracle_error_explanation",
+        "difficulty": "medium"
+      },
+      "deterministic_score": {
+        "method": "keyword_presence",
+        "passed": false,
+        "score": 0.0,
+        "detail": "found [], missing ['foreign key', 'child']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "B_fixed_capable",
+        "task_id": "oraerr-003",
+        "route_requested": "apex-capable",
+        "request_id": "b63c4125-81f1-4df4-a33c-763d7c3ddcb9",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 216.18280000257073,
+        "error": null,
+        "selected_target": "capable",
+        "selected_model": "mock-capable-v1",
+        "input_tokens": 30,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.009400006092619151,
+        "provider_duration_ms": 211.3342000011471,
+        "total_duration_ms": 211.38019999489188,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "oraerr-003",
+        "category": "oracle_error_explanation",
+        "difficulty": "medium"
+      },
+      "deterministic_score": {
+        "method": "keyword_presence",
+        "passed": false,
+        "score": 0.0,
+        "detail": "found [], missing ['foreign key', 'child']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "C_apex_auto",
+        "task_id": "oraerr-003",
+        "route_requested": "apex-auto",
+        "request_id": "c663c0c3-42fc-4ff1-839c-a5cbbaf86762",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 217.2690999941551,
+        "error": null,
+        "selected_target": "switchyard",
+        "selected_model": "apex-auto",
+        "input_tokens": 30,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.009899995347950608,
+        "provider_duration_ms": 212.27409999846714,
+        "total_duration_ms": 212.32339999551186,
+        "estimated_cost": null,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "oraerr-003",
+        "category": "oracle_error_explanation",
+        "difficulty": "medium"
+      },
+      "deterministic_score": {
+        "method": "keyword_presence",
+        "passed": false,
+        "score": 0.0,
+        "detail": "found [], missing ['foreign key', 'child']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "A_fixed_efficient",
+        "task_id": "map-001",
+        "route_requested": "apex-efficient",
+        "request_id": "6d814b84-66ec-4541-bb05-c9044134a0c3",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-efficient-v1] response to: success",
+        "client_latency_ms": 215.56699999928242,
+        "error": null,
+        "selected_target": "efficient",
+        "selected_model": "mock-efficient-v1",
+        "input_tokens": 74,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.009099996532313526,
+        "provider_duration_ms": 210.75779999955557,
+        "total_duration_ms": 210.8033999975305,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "map-001",
+        "category": "data_mapping",
+        "difficulty": "medium"
+      },
+      "deterministic_score": {
+        "method": "valid_json",
+        "passed": false,
+        "score": 0.0,
+        "detail": "not valid JSON: Expecting value: line 1 column 2 (char 1)"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "B_fixed_capable",
+        "task_id": "map-001",
+        "route_requested": "apex-capable",
+        "request_id": "bfe00a76-3568-4483-9d86-1abc2feae581",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 215.188299996953,
+        "error": null,
+        "selected_target": "capable",
+        "selected_model": "mock-capable-v1",
+        "input_tokens": 74,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.009000003046821803,
+        "provider_duration_ms": 210.5165000029956,
+        "total_duration_ms": 210.57699999801116,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "map-001",
+        "category": "data_mapping",
+        "difficulty": "medium"
+      },
+      "deterministic_score": {
+        "method": "valid_json",
+        "passed": false,
+        "score": 0.0,
+        "detail": "not valid JSON: Expecting value: line 1 column 2 (char 1)"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "C_apex_auto",
+        "task_id": "map-001",
+        "route_requested": "apex-auto",
+        "request_id": "b7add647-2469-4148-acae-7830a47c1963",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 220.43670000130078,
+        "error": null,
+        "selected_target": "switchyard",
+        "selected_model": "apex-auto",
+        "input_tokens": 74,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.010200004908256233,
+        "provider_duration_ms": 215.37499999976717,
+        "total_duration_ms": 215.43430000019725,
+        "estimated_cost": null,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "map-001",
+        "category": "data_mapping",
+        "difficulty": "medium"
+      },
+      "deterministic_score": {
+        "method": "valid_json",
+        "passed": false,
+        "score": 0.0,
+        "detail": "not valid JSON: Expecting value: line 1 column 2 (char 1)"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "A_fixed_efficient",
+        "task_id": "map-002",
+        "route_requested": "apex-efficient",
+        "request_id": "ba7daa52-a1f3-4be5-9aa0-a21cefe480d5",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-efficient-v1] response to: success",
+        "client_latency_ms": 217.01540000503883,
+        "error": null,
+        "selected_target": "efficient",
+        "selected_model": "mock-efficient-v1",
+        "input_tokens": 85,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.008900002285372466,
+        "provider_duration_ms": 212.51860000484157,
+        "total_duration_ms": 212.57210000476334,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "map-002",
+        "category": "data_mapping",
+        "difficulty": "hard"
+      },
+      "deterministic_score": {
+        "method": "valid_json",
+        "passed": false,
+        "score": 0.0,
+        "detail": "not valid JSON: Expecting value: line 1 column 2 (char 1)"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "B_fixed_capable",
+        "task_id": "map-002",
+        "route_requested": "apex-capable",
+        "request_id": "fc421b15-42fd-4bd4-b8cc-cd8eea8b9cc6",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 215.7082999983686,
+        "error": null,
+        "selected_target": "capable",
+        "selected_model": "mock-capable-v1",
+        "input_tokens": 85,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.008800001523923129,
+        "provider_duration_ms": 210.8410000000731,
+        "total_duration_ms": 210.88700000109384,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "map-002",
+        "category": "data_mapping",
+        "difficulty": "hard"
+      },
+      "deterministic_score": {
+        "method": "valid_json",
+        "passed": false,
+        "score": 0.0,
+        "detail": "not valid JSON: Expecting value: line 1 column 2 (char 1)"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "C_apex_auto",
+        "task_id": "map-002",
+        "route_requested": "apex-auto",
+        "request_id": "0786da34-7d33-4d59-bddf-de45c3c396ec",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 222.93360000185203,
+        "error": null,
+        "selected_target": "switchyard",
+        "selected_model": "apex-auto",
+        "input_tokens": 85,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.024700006179045886,
+        "provider_duration_ms": 218.00549999898067,
+        "total_duration_ms": 218.07680000347318,
+        "estimated_cost": null,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "map-002",
+        "category": "data_mapping",
+        "difficulty": "hard"
+      },
+      "deterministic_score": {
+        "method": "valid_json",
+        "passed": false,
+        "score": 0.0,
+        "detail": "not valid JSON: Expecting value: line 1 column 2 (char 1)"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "A_fixed_efficient",
+        "task_id": "rule-001",
+        "route_requested": "apex-efficient",
+        "request_id": "070281ee-7551-495e-97e2-3c799ca31776",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-efficient-v1] response to: success",
+        "client_latency_ms": 217.24089999770513,
+        "error": null,
+        "selected_target": "efficient",
+        "selected_model": "mock-efficient-v1",
+        "input_tokens": 99,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.008900002285372466,
+        "provider_duration_ms": 212.58259999740403,
+        "total_duration_ms": 212.63490000274032,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "rule-001",
+        "category": "multi_step_business_rule_reasoning",
+        "difficulty": "hard"
+      },
+      "deterministic_score": {
+        "method": "keyword_presence",
+        "passed": false,
+        "score": 0.0,
+        "detail": "found [], missing ['510', '505']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "B_fixed_capable",
+        "task_id": "rule-001",
+        "route_requested": "apex-capable",
+        "request_id": "41955b56-5c5a-4d4f-b480-430d2e20412f",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 216.37780000310158,
+        "error": null,
+        "selected_target": "capable",
+        "selected_model": "mock-capable-v1",
+        "input_tokens": 99,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.009399998816661537,
+        "provider_duration_ms": 211.89510000112932,
+        "total_duration_ms": 211.9483999995282,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "rule-001",
+        "category": "multi_step_business_rule_reasoning",
+        "difficulty": "hard"
+      },
+      "deterministic_score": {
+        "method": "keyword_presence",
+        "passed": false,
+        "score": 0.0,
+        "detail": "found [], missing ['510', '505']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "C_apex_auto",
+        "task_id": "rule-001",
+        "route_requested": "apex-auto",
+        "request_id": "6cd4723c-2761-4969-8847-97aad0a641d4",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 218.79949999856763,
+        "error": null,
+        "selected_target": "switchyard",
+        "selected_model": "apex-auto",
+        "input_tokens": 99,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.010299998393747956,
+        "provider_duration_ms": 214.12499999860302,
+        "total_duration_ms": 214.1836000009789,
+        "estimated_cost": null,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "rule-001",
+        "category": "multi_step_business_rule_reasoning",
+        "difficulty": "hard"
+      },
+      "deterministic_score": {
+        "method": "keyword_presence",
+        "passed": false,
+        "score": 0.0,
+        "detail": "found [], missing ['510', '505']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "A_fixed_efficient",
+        "task_id": "rule-002",
+        "route_requested": "apex-efficient",
+        "request_id": "d5ee7376-72f8-46c1-b94f-03cbe97ed8ae",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-efficient-v1] response to: success",
+        "client_latency_ms": 215.48940000502625,
+        "error": null,
+        "selected_target": "efficient",
+        "selected_model": "mock-efficient-v1",
+        "input_tokens": 96,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.008600000001024455,
+        "provider_duration_ms": 211.26050000020768,
+        "total_duration_ms": 211.31160000368254,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "rule-002",
+        "category": "multi_step_business_rule_reasoning",
+        "difficulty": "hard"
+      },
+      "deterministic_score": {
+        "method": "keyword_presence",
+        "passed": false,
+        "score": 0.0,
+        "detail": "found [], missing ['10', 'not']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "B_fixed_capable",
+        "task_id": "rule-002",
+        "route_requested": "apex-capable",
+        "request_id": "2fc74687-3d67-4ca6-aa92-3f17ae45174d",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 218.06700000161072,
+        "error": null,
+        "selected_target": "capable",
+        "selected_model": "mock-capable-v1",
+        "input_tokens": 96,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.008799994247965515,
+        "provider_duration_ms": 213.69440000125905,
+        "total_duration_ms": 213.74379999906523,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "rule-002",
+        "category": "multi_step_business_rule_reasoning",
+        "difficulty": "hard"
+      },
+      "deterministic_score": {
+        "method": "keyword_presence",
+        "passed": false,
+        "score": 0.0,
+        "detail": "found [], missing ['10', 'not']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "C_apex_auto",
+        "task_id": "rule-002",
+        "route_requested": "apex-auto",
+        "request_id": "02e20898-eb98-4ba9-9255-a8299aa47052",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 222.66940000554314,
+        "error": null,
+        "selected_target": "switchyard",
+        "selected_model": "apex-auto",
+        "input_tokens": 96,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.010000003385357559,
+        "provider_duration_ms": 218.0473999978858,
+        "total_duration_ms": 218.09740000026068,
+        "estimated_cost": null,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "rule-002",
+        "category": "multi_step_business_rule_reasoning",
+        "difficulty": "hard"
+      },
+      "deterministic_score": {
+        "method": "keyword_presence",
+        "passed": false,
+        "score": 0.0,
+        "detail": "found [], missing ['10', 'not']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "A_fixed_efficient",
+        "task_id": "ctx-001",
+        "route_requested": "apex-efficient",
+        "request_id": "7896044c-3464-4dbd-a285-7da61ea38457",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-efficient-v1] response to: success",
+        "client_latency_ms": 224.00789999664994,
+        "error": null,
+        "selected_target": "efficient",
+        "selected_model": "mock-efficient-v1",
+        "input_tokens": 115,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.02359999780310318,
+        "provider_duration_ms": 218.89979999832576,
+        "total_duration_ms": 218.97790000366513,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "ctx-001",
+        "category": "longer_context_reasoning",
+        "difficulty": "hard"
+      },
+      "deterministic_score": {
+        "method": "keyword_presence",
+        "passed": false,
+        "score": 0.0,
+        "detail": "found [], missing ['525', '9022']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "B_fixed_capable",
+        "task_id": "ctx-001",
+        "route_requested": "apex-capable",
+        "request_id": "18788b32-9957-425d-b232-c194f474f08a",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 223.34089999640128,
+        "error": null,
+        "selected_target": "capable",
+        "selected_model": "mock-capable-v1",
+        "input_tokens": 115,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.009400006092619151,
+        "provider_duration_ms": 218.9647999985027,
+        "total_duration_ms": 219.0169000023161,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "ctx-001",
+        "category": "longer_context_reasoning",
+        "difficulty": "hard"
+      },
+      "deterministic_score": {
+        "method": "keyword_presence",
+        "passed": false,
+        "score": 0.0,
+        "detail": "found [], missing ['525', '9022']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "C_apex_auto",
+        "task_id": "ctx-001",
+        "route_requested": "apex-auto",
+        "request_id": "57397c5c-b0cb-4e00-ae64-431417882706",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 216.34529999573715,
+        "error": null,
+        "selected_target": "switchyard",
+        "selected_model": "apex-auto",
+        "input_tokens": 115,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.009399998816661537,
+        "provider_duration_ms": 211.73029999772552,
+        "total_duration_ms": 211.77950000128476,
+        "estimated_cost": null,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "ctx-001",
+        "category": "longer_context_reasoning",
+        "difficulty": "hard"
+      },
+      "deterministic_score": {
+        "method": "keyword_presence",
+        "passed": false,
+        "score": 0.0,
+        "detail": "found [], missing ['525', '9022']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "A_fixed_efficient",
+        "task_id": "ctx-002",
+        "route_requested": "apex-efficient",
+        "request_id": "56b421eb-0b01-453e-a192-52892496b2b5",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-efficient-v1] response to: success",
+        "client_latency_ms": 217.83019999566022,
+        "error": null,
+        "selected_target": "efficient",
+        "selected_model": "mock-efficient-v1",
+        "input_tokens": 104,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.00910000380827114,
+        "provider_duration_ms": 213.25709999655373,
+        "total_duration_ms": 213.30999999918276,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "ctx-002",
+        "category": "longer_context_reasoning",
+        "difficulty": "hard"
+      },
+      "deterministic_score": {
+        "method": "keyword_presence",
+        "passed": false,
+        "score": 0.0,
+        "detail": "found [], missing ['refunded']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "B_fixed_capable",
+        "task_id": "ctx-002",
+        "route_requested": "apex-capable",
+        "request_id": "0f691dc4-ac81-43cf-b8b2-ec6539be572d",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 214.72060000087367,
+        "error": null,
+        "selected_target": "capable",
+        "selected_model": "mock-capable-v1",
+        "input_tokens": 104,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.008700000762473792,
+        "provider_duration_ms": 210.4265999951167,
+        "total_duration_ms": 210.47209999960614,
+        "estimated_cost": 0.0,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "ctx-002",
+        "category": "longer_context_reasoning",
+        "difficulty": "hard"
+      },
+      "deterministic_score": {
+        "method": "keyword_presence",
+        "passed": false,
+        "score": 0.0,
+        "detail": "found [], missing ['refunded']"
+      }
+    },
+    {
+      "record": {
+        "kind": "task",
+        "mode": "C_apex_auto",
+        "task_id": "ctx-002",
+        "route_requested": "apex-auto",
+        "request_id": "f4abad2a-bea9-43d2-bc20-22f936dec3c4",
+        "http_status": 200,
+        "response_text": "[mock:shared:mock-capable-v1] response to: success",
+        "client_latency_ms": 220.5799000003026,
+        "error": null,
+        "selected_target": "switchyard",
+        "selected_model": "apex-auto",
+        "input_tokens": 104,
+        "output_tokens": 12,
+        "routing_duration_ms": 0.009899995347950608,
+        "provider_duration_ms": 215.92190000228584,
+        "total_duration_ms": 215.97049999400042,
+        "estimated_cost": null,
+        "estimated_baseline_cost": null,
+        "estimated_savings": null
+      },
+      "task": {
+        "id": "ctx-002",
+        "category": "longer_context_reasoning",
+        "difficulty": "hard"
+      },
+      "deterministic_score": {
+        "method": "keyword_presence",
+        "passed": false,
+        "score": 0.0,
+        "detail": "found [], missing ['refunded']"
+      }
+    }
+  ],
+  "judge_results": [
+    {
+      "task_id": "sum-001",
+      "mode": "A_fixed_efficient",
+      "request_id": "313e81ad-b0e3-4376-a790-83df40e1eb13",
+      "score": null,
+      "rationale": null,
+      "parse_error": "judge response not in the expected JSON shape: Expecting value: line 1 column 2 (char 1) (raw: '[mock:shared:mock-capable-v1] response to: success')",
+      "input_tokens": 226,
+      "output_tokens": 12,
+      "latency_ms": 217.4894999989192,
+      "http_status": 200
+    },
+    {
+      "task_id": "sum-001",
+      "mode": "B_fixed_capable",
+      "request_id": "3a4780ea-3066-4773-a956-59af2ece82ea",
+      "score": null,
+      "rationale": null,
+      "parse_error": "judge response not in the expected JSON shape: Expecting value: line 1 column 2 (char 1) (raw: '[mock:shared:mock-capable-v1] response to: success')",
+      "input_tokens": 226,
+      "output_tokens": 12,
+      "latency_ms": 220.20879999763565,
+      "http_status": 200
+    },
+    {
+      "task_id": "sum-001",
+      "mode": "C_apex_auto",
+      "request_id": "e3f30c88-7d31-4f33-be98-c6fcc24dedf3",
+      "score": null,
+      "rationale": null,
+      "parse_error": "judge response not in the expected JSON shape: Expecting value: line 1 column 2 (char 1) (raw: '[mock:shared:mock-capable-v1] response to: success')",
+      "input_tokens": 226,
+      "output_tokens": 12,
+      "latency_ms": 219.9172999971779,
+      "http_status": 200
+    },
+    {
+      "task_id": "sum-002",
+      "mode": "A_fixed_efficient",
+      "request_id": "fbb55823-fb29-401f-87c1-6f7a8239b05d",
+      "score": null,
+      "rationale": null,
+      "parse_error": "judge response not in the expected JSON shape: Expecting value: line 1 column 2 (char 1) (raw: '[mock:shared:mock-capable-v1] response to: success')",
+      "input_tokens": 243,
+      "output_tokens": 12,
+      "latency_ms": 215.92360000067856,
+      "http_status": 200
+    },
+    {
+      "task_id": "sum-002",
+      "mode": "B_fixed_capable",
+      "request_id": "8ae39125-f47a-4f0f-a86a-35aefe2558ba",
+      "score": null,
+      "rationale": null,
+      "parse_error": "judge response not in the expected JSON shape: Expecting value: line 1 column 2 (char 1) (raw: '[mock:shared:mock-capable-v1] response to: success')",
+      "input_tokens": 243,
+      "output_tokens": 12,
+      "latency_ms": 217.65980000054697,
+      "http_status": 200
+    },
+    {
+      "task_id": "sum-002",
+      "mode": "C_apex_auto",
+      "request_id": "ef2feb9f-f8cd-48a8-ac63-05f7ce28a278",
+      "score": null,
+      "rationale": null,
+      "parse_error": "judge response not in the expected JSON shape: Expecting value: line 1 column 2 (char 1) (raw: '[mock:shared:mock-capable-v1] response to: success')",
+      "input_tokens": 243,
+      "output_tokens": 12,
+      "latency_ms": 216.3626999972621,
+      "http_status": 200
+    },
+    {
+      "task_id": "email-001",
+      "mode": "A_fixed_efficient",
+      "request_id": "0f72b2b4-ffd2-4ff8-bba4-9e0d02772435",
+      "score": null,
+      "rationale": null,
+      "parse_error": "judge response not in the expected JSON shape: Expecting value: line 1 column 2 (char 1) (raw: '[mock:shared:mock-capable-v1] response to: success')",
+      "input_tokens": 230,
+      "output_tokens": 12,
+      "latency_ms": 219.52179999789223,
+      "http_status": 200
+    },
+    {
+      "task_id": "email-001",
+      "mode": "B_fixed_capable",
+      "request_id": "178c5183-8086-4ff1-b12e-ac4ba4694f10",
+      "score": null,
+      "rationale": null,
+      "parse_error": "judge response not in the expected JSON shape: Expecting value: line 1 column 2 (char 1) (raw: '[mock:shared:mock-capable-v1] response to: success')",
+      "input_tokens": 229,
+      "output_tokens": 12,
+      "latency_ms": 216.3933000047109,
+      "http_status": 200
+    },
+    {
+      "task_id": "email-001",
+      "mode": "C_apex_auto",
+      "request_id": "96cda0d4-d06e-4e83-9ffd-2008bdd4ad27",
+      "score": null,
+      "rationale": null,
+      "parse_error": "judge response not in the expected JSON shape: Expecting value: line 1 column 2 (char 1) (raw: '[mock:shared:mock-capable-v1] response to: success')",
+      "input_tokens": 229,
+      "output_tokens": 12,
+      "latency_ms": 223.4221000035177,
+      "http_status": 200
+    },
+    {
+      "task_id": "email-002",
+      "mode": "A_fixed_efficient",
+      "request_id": "ea1b6911-55f0-4f1b-a300-79307f59361c",
+      "score": null,
+      "rationale": null,
+      "parse_error": "judge response not in the expected JSON shape: Expecting value: line 1 column 2 (char 1) (raw: '[mock:shared:mock-capable-v1] response to: success')",
+      "input_tokens": 226,
+      "output_tokens": 12,
+      "latency_ms": 215.57259999826783,
+      "http_status": 200
+    },
+    {
+      "task_id": "email-002",
+      "mode": "B_fixed_capable",
+      "request_id": "893edeea-68c9-4e5e-93b2-1a4f86fa7b58",
+      "score": null,
+      "rationale": null,
+      "parse_error": "judge response not in the expected JSON shape: Expecting value: line 1 column 2 (char 1) (raw: '[mock:shared:mock-capable-v1] response to: success')",
+      "input_tokens": 226,
+      "output_tokens": 12,
+      "latency_ms": 217.63600000122096,
+      "http_status": 200
+    },
+    {
+      "task_id": "email-002",
+      "mode": "C_apex_auto",
+      "request_id": "bd312a15-90a1-46f6-9c82-d9448f1d6359",
+      "score": null,
+      "rationale": null,
+      "parse_error": "judge response not in the expected JSON shape: Expecting value: line 1 column 2 (char 1) (raw: '[mock:shared:mock-capable-v1] response to: success')",
+      "input_tokens": 226,
+      "output_tokens": 12,
+      "latency_ms": 216.6170999989845,
+      "http_status": 200
+    },
+    {
+      "task_id": "sqlexp-001",
+      "mode": "A_fixed_efficient",
+      "request_id": "cafc53ca-3f8d-4117-adab-2ff2e19b5bcb",
+      "score": null,
+      "rationale": null,
+      "parse_error": "judge response not in the expected JSON shape: Expecting value: line 1 column 2 (char 1) (raw: '[mock:shared:mock-capable-v1] response to: success')",
+      "input_tokens": 240,
+      "output_tokens": 12,
+      "latency_ms": 215.79470000142464,
+      "http_status": 200
+    },
+    {
+      "task_id": "sqlexp-001",
+      "mode": "B_fixed_capable",
+      "request_id": "7c7f6423-9cda-4193-83e1-4b049b9af596",
+      "score": null,
+      "rationale": null,
+      "parse_error": "judge response not in the expected JSON shape: Expecting value: line 1 column 2 (char 1) (raw: '[mock:shared:mock-capable-v1] response to: success')",
+      "input_tokens": 240,
+      "output_tokens": 12,
+      "latency_ms": 223.9091000010376,
+      "http_status": 200
+    },
+    {
+      "task_id": "sqlexp-001",
+      "mode": "C_apex_auto",
+      "request_id": "93ee0a18-6268-4d72-831c-a78b537f1754",
+      "score": null,
+      "rationale": null,
+      "parse_error": "judge response not in the expected JSON shape: Expecting value: line 1 column 2 (char 1) (raw: '[mock:shared:mock-capable-v1] response to: success')",
+      "input_tokens": 240,
+      "output_tokens": 12,
+      "latency_ms": 215.88480000355048,
+      "http_status": 200
+    },
+    {
+      "task_id": "sqlexp-002",
+      "mode": "A_fixed_efficient",
+      "request_id": "863ee19c-f398-443f-8da8-5b736d8605e5",
+      "score": null,
+      "rationale": null,
+      "parse_error": "judge response not in the expected JSON shape: Expecting value: line 1 column 2 (char 1) (raw: '[mock:shared:mock-capable-v1] response to: success')",
+      "input_tokens": 233,
+      "output_tokens": 12,
+      "latency_ms": 219.44649999932153,
+      "http_status": 200
+    },
+    {
+      "task_id": "sqlexp-002",
+      "mode": "B_fixed_capable",
+      "request_id": "138d245d-1667-428f-8ef7-b079a29738eb",
+      "score": null,
+      "rationale": null,
+      "parse_error": "judge response not in the expected JSON shape: Expecting value: line 1 column 2 (char 1) (raw: '[mock:shared:mock-capable-v1] response to: success')",
+      "input_tokens": 233,
+      "output_tokens": 12,
+      "latency_ms": 216.27820000139764,
+      "http_status": 200
+    },
+    {
+      "task_id": "sqlexp-002",
+      "mode": "C_apex_auto",
+      "request_id": "952a9edc-a5e1-4bcb-ad61-7abe15a50865",
+      "score": null,
+      "rationale": null,
+      "parse_error": "judge response not in the expected JSON shape: Expecting value: line 1 column 2 (char 1) (raw: '[mock:shared:mock-capable-v1] response to: success')",
+      "input_tokens": 233,
+      "output_tokens": 12,
+      "latency_ms": 214.77890000096522,
+      "http_status": 200
+    },
+    {
+      "task_id": "plsqlexp-001",
+      "mode": "A_fixed_efficient",
+      "request_id": "81ed561e-1583-42dd-89c7-be379ec6255e",
+      "score": null,
+      "rationale": null,
+      "parse_error": "judge response not in the expected JSON shape: Expecting value: line 1 column 2 (char 1) (raw: '[mock:shared:mock-capable-v1] response to: success')",
+      "input_tokens": 224,
+      "output_tokens": 12,
+      "latency_ms": 217.60599999834085,
+      "http_status": 200
+    },
+    {
+      "task_id": "plsqlexp-001",
+      "mode": "B_fixed_capable",
+      "request_id": "ed097146-f360-42f3-98ea-ebbf17c58ab8",
+      "score": null,
+      "rationale": null,
+      "parse_error": "judge response not in the expected JSON shape: Expecting value: line 1 column 2 (char 1) (raw: '[mock:shared:mock-capable-v1] response to: success')",
+      "input_tokens": 223,
+      "output_tokens": 12,
+      "latency_ms": 217.15389999735635,
+      "http_status": 200
+    },
+    {
+      "task_id": "plsqlexp-001",
+      "mode": "C_apex_auto",
+      "request_id": "948f562c-174b-46e8-8226-c4d63e95719b",
+      "score": null,
+      "rationale": null,
+      "parse_error": "judge response not in the expected JSON shape: Expecting value: line 1 column 2 (char 1) (raw: '[mock:shared:mock-capable-v1] response to: success')",
+      "input_tokens": 223,
+      "output_tokens": 12,
+      "latency_ms": 217.75440000055823,
+      "http_status": 200
+    },
+    {
+      "task_id": "plsqlexp-002",
+      "mode": "A_fixed_efficient",
+      "request_id": "881602e8-1c26-4011-893a-1b1ee9d893dc",
+      "score": null,
+      "rationale": null,
+      "parse_error": "judge response not in the expected JSON shape: Expecting value: line 1 column 2 (char 1) (raw: '[mock:shared:mock-capable-v1] response to: success')",
+      "input_tokens": 251,
+      "output_tokens": 12,
+      "latency_ms": 216.277400002582,
+      "http_status": 200
+    },
+    {
+      "task_id": "plsqlexp-002",
+      "mode": "B_fixed_capable",
+      "request_id": "4e3d3826-5978-47b4-9204-d2c481842044",
+      "score": null,
+      "rationale": null,
+      "parse_error": "judge response not in the expected JSON shape: Expecting value: line 1 column 2 (char 1) (raw: '[mock:shared:mock-capable-v1] response to: success')",
+      "input_tokens": 251,
+      "output_tokens": 12,
+      "latency_ms": 222.3918000017875,
+      "http_status": 200
+    },
+    {
+      "task_id": "plsqlexp-002",
+      "mode": "C_apex_auto",
+      "request_id": "ff7c5a4b-0cce-4759-abd1-8dc580a4ed2a",
+      "score": null,
+      "rationale": null,
+      "parse_error": "judge response not in the expected JSON shape: Expecting value: line 1 column 2 (char 1) (raw: '[mock:shared:mock-capable-v1] response to: success')",
+      "input_tokens": 251,
+      "output_tokens": 12,
+      "latency_ms": 215.7597999976133,
+      "http_status": 200
+    },
+    {
+      "task_id": "apexval-003",
+      "mode": "A_fixed_efficient",
+      "request_id": "e2664c3d-cbde-4049-a552-ef7c75aabfa0",
+      "score": null,
+      "rationale": null,
+      "parse_error": "judge response not in the expected JSON shape: Expecting value: line 1 column 2 (char 1) (raw: '[mock:shared:mock-capable-v1] response to: success')",
+      "input_tokens": 246,
+      "output_tokens": 12,
+      "latency_ms": 216.35970000352245,
+      "http_status": 200
+    },
+    {
+      "task_id": "apexval-003",
+      "mode": "B_fixed_capable",
+      "request_id": "8bb35783-f853-439f-b759-07fc4f37a2b3",
+      "score": null,
+      "rationale": null,
+      "parse_error": "judge response not in the expected JSON shape: Expecting value: line 1 column 2 (char 1) (raw: '[mock:shared:mock-capable-v1] response to: success')",
+      "input_tokens": 246,
+      "output_tokens": 12,
+      "latency_ms": 214.36240000184625,
+      "http_status": 200
+    },
+    {
+      "task_id": "apexval-003",
+      "mode": "C_apex_auto",
+      "request_id": "7f97007b-30bf-4c18-aad3-9fd48d6b1f2a",
+      "score": null,
+      "rationale": null,
+      "parse_error": "judge response not in the expected JSON shape: Expecting value: line 1 column 2 (char 1) (raw: '[mock:shared:mock-capable-v1] response to: success')",
+      "input_tokens": 246,
+      "output_tokens": 12,
+      "latency_ms": 217.85019999515498,
+      "http_status": 200
+    },
+    {
+      "task_id": "oraerr-001",
+      "mode": "A_fixed_efficient",
+      "request_id": "0b4f8c0a-4dbe-44ff-9978-58d45b430029",
+      "score": null,
+      "rationale": null,
+      "parse_error": "judge response not in the expected JSON shape: Expecting value: line 1 column 2 (char 1) (raw: '[mock:shared:mock-capable-v1] response to: success')",
+      "input_tokens": 198,
+      "output_tokens": 12,
+      "latency_ms": 216.50800000497838,
+      "http_status": 200
+    },
+    {
+      "task_id": "oraerr-001",
+      "mode": "B_fixed_capable",
+      "request_id": "86c89af7-2348-40d2-8ba8-75d2e7f274bf",
+      "score": null,
+      "rationale": null,
+      "parse_error": "judge response not in the expected JSON shape: Expecting value: line 1 column 2 (char 1) (raw: '[mock:shared:mock-capable-v1] response to: success')",
+      "input_tokens": 198,
+      "output_tokens": 12,
+      "latency_ms": 224.49589999450836,
+      "http_status": 200
+    },
+    {
+      "task_id": "oraerr-001",
+      "mode": "C_apex_auto",
+      "request_id": "8b3091cb-8b16-452d-8819-dccbb8917ab3",
+      "score": null,
+      "rationale": null,
+      "parse_error": "judge response not in the expected JSON shape: Expecting value: line 1 column 2 (char 1) (raw: '[mock:shared:mock-capable-v1] response to: success')",
+      "input_tokens": 198,
+      "output_tokens": 12,
+      "latency_ms": 216.03920000052312,
+      "http_status": 200
+    },
+    {
+      "task_id": "oraerr-002",
+      "mode": "A_fixed_efficient",
+      "request_id": "a86b3297-f309-4b84-881f-7b91b5bed25b",
+      "score": null,
+      "rationale": null,
+      "parse_error": "judge response not in the expected JSON shape: Expecting value: line 1 column 2 (char 1) (raw: '[mock:shared:mock-capable-v1] response to: success')",
+      "input_tokens": 203,
+      "output_tokens": 12,
+      "latency_ms": 224.77490000164835,
+      "http_status": 200
+    },
+    {
+      "task_id": "oraerr-002",
+      "mode": "B_fixed_capable",
+      "request_id": "1c44bb83-7f14-4205-af05-3dd72fcf0c73",
+      "score": null,
+      "rationale": null,
+      "parse_error": "judge response not in the expected JSON shape: Expecting value: line 1 column 2 (char 1) (raw: '[mock:shared:mock-capable-v1] response to: success')",
+      "input_tokens": 202,
+      "output_tokens": 12,
+      "latency_ms": 217.26289999787696,
+      "http_status": 200
+    },
+    {
+      "task_id": "oraerr-002",
+      "mode": "C_apex_auto",
+      "request_id": "c5b3e61f-e934-4595-8ca1-bbf2bc7060fd",
+      "score": null,
+      "rationale": null,
+      "parse_error": "judge response not in the expected JSON shape: Expecting value: line 1 column 2 (char 1) (raw: '[mock:shared:mock-capable-v1] response to: success')",
+      "input_tokens": 202,
+      "output_tokens": 12,
+      "latency_ms": 225.45490000629798,
+      "http_status": 200
+    },
+    {
+      "task_id": "oraerr-003",
+      "mode": "A_fixed_efficient",
+      "request_id": "7fd1595f-a667-44ec-8282-8805f578bab1",
+      "score": null,
+      "rationale": null,
+      "parse_error": "judge response not in the expected JSON shape: Expecting value: line 1 column 2 (char 1) (raw: '[mock:shared:mock-capable-v1] response to: success')",
+      "input_tokens": 225,
+      "output_tokens": 12,
+      "latency_ms": 217.0951000007335,
+      "http_status": 200
+    },
+    {
+      "task_id": "oraerr-003",
+      "mode": "B_fixed_capable",
+      "request_id": "5037273e-1853-4fc0-9d30-97022d02189e",
+      "score": null,
+      "rationale": null,
+      "parse_error": "judge response not in the expected JSON shape: Expecting value: line 1 column 2 (char 1) (raw: '[mock:shared:mock-capable-v1] response to: success')",
+      "input_tokens": 224,
+      "output_tokens": 12,
+      "latency_ms": 217.78250000352273,
+      "http_status": 200
+    },
+    {
+      "task_id": "oraerr-003",
+      "mode": "C_apex_auto",
+      "request_id": "b2efddc2-db6f-4c60-b5f9-31b7a2de818d",
+      "score": null,
+      "rationale": null,
+      "parse_error": "judge response not in the expected JSON shape: Expecting value: line 1 column 2 (char 1) (raw: '[mock:shared:mock-capable-v1] response to: success')",
+      "input_tokens": 224,
+      "output_tokens": 12,
+      "latency_ms": 216.7492000007769,
+      "http_status": 200
+    },
+    {
+      "task_id": "map-002",
+      "mode": "A_fixed_efficient",
+      "request_id": "f1ebbb9c-6408-4134-a1df-aeb4317b06c5",
+      "score": null,
+      "rationale": null,
+      "parse_error": "judge response not in the expected JSON shape: Expecting value: line 1 column 2 (char 1) (raw: '[mock:shared:mock-capable-v1] response to: success')",
+      "input_tokens": 263,
+      "output_tokens": 12,
+      "latency_ms": 216.3046000059694,
+      "http_status": 200
+    },
+    {
+      "task_id": "map-002",
+      "mode": "B_fixed_capable",
+      "request_id": "6efb76b2-58c7-4545-974a-d2ab4a69278d",
+      "score": null,
+      "rationale": null,
+      "parse_error": "judge response not in the expected JSON shape: Expecting value: line 1 column 2 (char 1) (raw: '[mock:shared:mock-capable-v1] response to: success')",
+      "input_tokens": 262,
+      "output_tokens": 12,
+      "latency_ms": 220.45889999571955,
+      "http_status": 200
+    },
+    {
+      "task_id": "map-002",
+      "mode": "C_apex_auto",
+      "request_id": "bebe61ee-131c-45aa-9eef-dd2a8dfb976b",
+      "score": null,
+      "rationale": null,
+      "parse_error": "judge response not in the expected JSON shape: Expecting value: line 1 column 2 (char 1) (raw: '[mock:shared:mock-capable-v1] response to: success')",
+      "input_tokens": 262,
+      "output_tokens": 12,
+      "latency_ms": 218.00470000016503,
+      "http_status": 200
+    },
+    {
+      "task_id": "rule-001",
+      "mode": "A_fixed_efficient",
+      "request_id": "b181cf36-30db-4f8b-9708-fa7f5c3fce6c",
+      "score": null,
+      "rationale": null,
+      "parse_error": "judge response not in the expected JSON shape: Expecting value: line 1 column 2 (char 1) (raw: '[mock:shared:mock-capable-v1] response to: success')",
+      "input_tokens": 290,
+      "output_tokens": 12,
+      "latency_ms": 219.03539999766508,
+      "http_status": 200
+    },
+    {
+      "task_id": "rule-001",
+      "mode": "B_fixed_capable",
+      "request_id": "c48c1c75-1698-41bf-b273-00cb086b9e50",
+      "score": null,
+      "rationale": null,
+      "parse_error": "judge response not in the expected JSON shape: Expecting value: line 1 column 2 (char 1) (raw: '[mock:shared:mock-capable-v1] response to: success')",
+      "input_tokens": 290,
+      "output_tokens": 12,
+      "latency_ms": 218.8908000025549,
+      "http_status": 200
+    },
+    {
+      "task_id": "rule-001",
+      "mode": "C_apex_auto",
+      "request_id": "c0e8e2b1-ab70-4675-ab7c-bdf923dd27e9",
+      "score": null,
+      "rationale": null,
+      "parse_error": "judge response not in the expected JSON shape: Expecting value: line 1 column 2 (char 1) (raw: '[mock:shared:mock-capable-v1] response to: success')",
+      "input_tokens": 290,
+      "output_tokens": 12,
+      "latency_ms": 217.9353000028641,
+      "http_status": 200
+    },
+    {
+      "task_id": "rule-002",
+      "mode": "A_fixed_efficient",
+      "request_id": "8e195491-318b-41ea-b4ec-82c07a3747f3",
+      "score": null,
+      "rationale": null,
+      "parse_error": "judge response not in the expected JSON shape: Expecting value: line 1 column 2 (char 1) (raw: '[mock:shared:mock-capable-v1] response to: success')",
+      "input_tokens": 272,
+      "output_tokens": 12,
+      "latency_ms": 217.38360000017565,
+      "http_status": 200
+    },
+    {
+      "task_id": "rule-002",
+      "mode": "B_fixed_capable",
+      "request_id": "50d344da-c5dd-4a86-98b5-81aeb7570d1d",
+      "score": null,
+      "rationale": null,
+      "parse_error": "judge response not in the expected JSON shape: Expecting value: line 1 column 2 (char 1) (raw: '[mock:shared:mock-capable-v1] response to: success')",
+      "input_tokens": 271,
+      "output_tokens": 12,
+      "latency_ms": 216.93659999436932,
+      "http_status": 200
+    },
+    {
+      "task_id": "rule-002",
+      "mode": "C_apex_auto",
+      "request_id": "2d686ac1-22ff-4ccd-be10-c684cec80ad6",
+      "score": null,
+      "rationale": null,
+      "parse_error": "judge response not in the expected JSON shape: Expecting value: line 1 column 2 (char 1) (raw: '[mock:shared:mock-capable-v1] response to: success')",
+      "input_tokens": 271,
+      "output_tokens": 12,
+      "latency_ms": 219.6544999969774,
+      "http_status": 200
+    },
+    {
+      "task_id": "ctx-001",
+      "mode": "A_fixed_efficient",
+      "request_id": "ef2567e9-c393-4c36-b630-f08dc073c984",
+      "score": null,
+      "rationale": null,
+      "parse_error": "judge response not in the expected JSON shape: Expecting value: line 1 column 2 (char 1) (raw: '[mock:shared:mock-capable-v1] response to: success')",
+      "input_tokens": 301,
+      "output_tokens": 12,
+      "latency_ms": 216.7602999979863,
+      "http_status": 200
+    },
+    {
+      "task_id": "ctx-001",
+      "mode": "B_fixed_capable",
+      "request_id": "7b84c708-7a2e-4cbe-a336-35299bec6b8c",
+      "score": null,
+      "rationale": null,
+      "parse_error": "judge response not in the expected JSON shape: Expecting value: line 1 column 2 (char 1) (raw: '[mock:shared:mock-capable-v1] response to: success')",
+      "input_tokens": 301,
+      "output_tokens": 12,
+      "latency_ms": 214.1115999984322,
+      "http_status": 200
+    },
+    {
+      "task_id": "ctx-001",
+      "mode": "C_apex_auto",
+      "request_id": "800f6cb7-2d33-4f12-904f-33dd9f533cfc",
+      "score": null,
+      "rationale": null,
+      "parse_error": "judge response not in the expected JSON shape: Expecting value: line 1 column 2 (char 1) (raw: '[mock:shared:mock-capable-v1] response to: success')",
+      "input_tokens": 301,
+      "output_tokens": 12,
+      "latency_ms": 217.54800000053365,
+      "http_status": 200
+    },
+    {
+      "task_id": "ctx-002",
+      "mode": "A_fixed_efficient",
+      "request_id": "1ef35e06-edc5-470e-a3f9-90c4c9fd0a44",
+      "score": null,
+      "rationale": null,
+      "parse_error": "judge response not in the expected JSON shape: Expecting value: line 1 column 2 (char 1) (raw: '[mock:shared:mock-capable-v1] response to: success')",
+      "input_tokens": 289,
+      "output_tokens": 12,
+      "latency_ms": 215.00150000065332,
+      "http_status": 200
+    },
+    {
+      "task_id": "ctx-002",
+      "mode": "B_fixed_capable",
+      "request_id": "93bb1983-ce7f-4aec-92b0-92e518dcb38a",
+      "score": null,
+      "rationale": null,
+      "parse_error": "judge response not in the expected JSON shape: Expecting value: line 1 column 2 (char 1) (raw: '[mock:shared:mock-capable-v1] response to: success')",
+      "input_tokens": 289,
+      "output_tokens": 12,
+      "latency_ms": 215.91859999898588,
+      "http_status": 200
+    },
+    {
+      "task_id": "ctx-002",
+      "mode": "C_apex_auto",
+      "request_id": "d393d032-1adb-47cb-a7bc-236670ef82ab",
+      "score": null,
+      "rationale": null,
+      "parse_error": "judge response not in the expected JSON shape: Expecting value: line 1 column 2 (char 1) (raw: '[mock:shared:mock-capable-v1] response to: success')",
+      "input_tokens": 289,
+      "output_tokens": 12,
+      "latency_ms": 215.69720000115922,
+      "http_status": 200
+    }
+  ]
+}
