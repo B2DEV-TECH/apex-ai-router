@@ -31,6 +31,14 @@ create or replace package body apex_ai_router_demo as
         return null;
     end f_response_header;
 
+    -- GATEWAY_BASE_URL intentionally includes /v1 for the OpenAI-compatible
+    -- endpoints. Administrative endpoints live at the server root, so derive
+    -- that root without introducing a second hostname configuration value.
+    function f_gateway_root return varchar2 is
+    begin
+        return regexp_replace(f_config('GATEWAY_BASE_URL'), '/v1/?$', '');
+    end f_gateway_root;
+
     function run_playground(
         p_prompt in clob,
         p_route  in varchar2 default apex_ai_router.c_route_auto
@@ -98,7 +106,7 @@ create or replace package body apex_ai_router_demo as
         -- comment for why this is the only correct correlation).
         apex_web_service.g_request_headers.delete;
         v_admin_response := apex_web_service.make_rest_request(
-            p_url                  => f_config('GATEWAY_BASE_URL') || '/admin/requests?limit=20&offset=0',
+            p_url                  => f_gateway_root || '/admin/requests?limit=20&offset=0',
             p_http_method          => 'GET',
             p_credential_static_id => f_config('ADMIN_CREDENTIAL_STATIC_ID'),
             p_transfer_timeout     => to_number(f_config('HTTP_TIMEOUT_SECONDS'))

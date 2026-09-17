@@ -12,9 +12,9 @@ set define off
 set serveroutput on size unlimited
 
 prompt == Package: APEX_AI_ROUTER_DA ==
-@../src/apex_ai_router_da.pks
+@@../src/apex_ai_router_da.pks
 show errors package apex_ai_router_da
-@../src/apex_ai_router_da.pkb
+@@../src/apex_ai_router_da.pkb
 show errors package body apex_ai_router_da
 
 prompt == Done. Next: create the plug-in in APEX Builder -- see apex-plugin/README.md ==

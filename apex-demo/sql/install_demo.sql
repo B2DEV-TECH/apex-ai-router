@@ -7,7 +7,7 @@
 --   sqlplus <user>/<password>@<connect_string> @install_demo.sql
 
 whenever sqlerror exit sql.sqlcode
-set define on
+set define off
 set serveroutput on size unlimited
 
 prompt == Seeding the demo-only ADMIN_CREDENTIAL_STATIC_ID config key ==
@@ -27,9 +27,9 @@ when not matched then
 commit;
 
 prompt == Package: APEX_AI_ROUTER_DEMO ==
-@demo_playground_pkg.pks
+@@demo_playground_pkg.pks
 show errors package apex_ai_router_demo
-@demo_playground_pkg.pkb
+@@demo_playground_pkg.pkb
 show errors package body apex_ai_router_demo
 
 prompt == Install complete ==
