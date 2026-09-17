@@ -14,6 +14,7 @@ from pathlib import Path
 
 import yaml
 from dotenv import load_dotenv
+from pydantic import ValidationError
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from apex_ai_router.domain.model_target import RoutingConfig
@@ -81,7 +82,15 @@ def _expand_env_vars(text: str) -> str:
     """
 
     def _substitute(match: re.Match[str]) -> str:
-        return os.environ.get(match.group(1), match.group(0))
+        # A variable that is *set but empty* (`FOO=` in `.env`) is treated the
+        # same as unset: substituting it would silently turn `model: ${FOO}`
+        # into `model:` (YAML null), which fails Pydantic validation with a
+        # cryptic "input should be a valid string" error instead of the clear
+        # "unresolved placeholder" message the check below produces. Leaving
+        # the placeholder untouched here means every empty-or-unset variable
+        # is reported the same, useful way.
+        value = os.environ.get(match.group(1))
+        return value if value else match.group(0)
 
     return _ENV_VAR_PATTERN.sub(_substitute, text)
 
@@ -93,7 +102,17 @@ def load_routing_config(path: str | Path) -> RoutingConfig:
 
     expanded = _expand_env_vars(file_path.read_text(encoding="utf-8"))
     data = yaml.safe_load(expanded) or {}
-    config = RoutingConfig.model_validate(data)
+    try:
+        config = RoutingConfig.model_validate(data)
+    except ValidationError as exc:
+        # `RoutingConfig.model_validate` raises a plain `pydantic.ValidationError`
+        # for anything else wrong with routing.yaml's shape (a typo'd field, a
+        # wrong type, an unknown provider). Re-raised as `RoutingConfigError` so
+        # it reaches the same sanitized-error handling as every other config
+        # problem, instead of escaping as an unhandled 500. Pydantic's own
+        # message only ever names field paths and the (non-secret) YAML file's
+        # structure, never a secret value, so it is safe to expose as-is.
+        raise RoutingConfigError(f"Invalid routing config at {file_path}: {exc}") from exc
 
     for name, target in config.targets.items():
         for field in ("model", "base_url"):
@@ -123,7 +142,10 @@ def load_pricing_config(path: str | Path) -> PricingConfig:
         raise PricingConfigError(f"Pricing config file not found: {file_path}")
 
     data = yaml.safe_load(file_path.read_text(encoding="utf-8")) or {}
-    return PricingConfig.model_validate(data)
+    try:
+        return PricingConfig.model_validate(data)
+    except ValidationError as exc:
+        raise PricingConfigError(f"Invalid pricing config at {file_path}: {exc}") from exc
 
 
 @lru_cache

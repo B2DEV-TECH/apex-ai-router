@@ -50,3 +50,43 @@ def test_load_routing_config_unresolved_placeholder_raises(tmp_path, monkeypatch
 
     with pytest.raises(RoutingConfigError, match="unresolved placeholder"):
         load_routing_config(path)
+
+
+def test_load_routing_config_empty_env_var_raises_unresolved_placeholder(tmp_path, monkeypatch):
+    """A variable that is *set but empty* (`FOO=` in `.env`) used to substitute
+    to an empty string, turning `model: ${FOO}` into YAML `null` and crashing
+    with a raw, uncaught `pydantic.ValidationError` (found via a live smoke
+    test with an unfilled `JUDGE_MODEL_ID`). It must be treated exactly like
+    an unset variable instead."""
+    monkeypatch.setenv("TEST_EMPTY_MODEL_ID", "")
+    path = tmp_path / "routing.yaml"
+    path.write_text(_VALID_TEMPLATE.format(model="${TEST_EMPTY_MODEL_ID}"), encoding="utf-8")
+
+    with pytest.raises(RoutingConfigError, match="unresolved placeholder"):
+        load_routing_config(path)
+
+
+def test_load_routing_config_malformed_shape_raises_routing_config_error(tmp_path):
+    """A `routing.yaml` that is malformed independent of any `${VAR}`
+    substitution (here: a target missing its required `model` field) used to
+    raise a bare `pydantic.ValidationError` straight out of `model_validate`,
+    with no try/except anywhere in `load_routing_config` -- bypassing the
+    sanitized `RoutingConfigError` handling entirely. It must be re-raised as
+    `RoutingConfigError` instead."""
+    path = tmp_path / "routing.yaml"
+    path.write_text(
+        """
+routes:
+  apex-efficient:
+    strategy: fixed
+    target: efficient
+targets:
+  efficient:
+    provider: openai_compatible
+    base_url: http://example.test
+""",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(RoutingConfigError, match="Invalid routing config"):
+        load_routing_config(path)
