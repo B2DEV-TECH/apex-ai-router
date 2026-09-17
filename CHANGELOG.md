@@ -64,6 +64,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the admin API, including an end-to-end test that makes a real chat
   completion request and confirms it is both recorded and visible through
   the admin API.
+- Oracle database integration (spec sections 16-17, `database/`):
+  `AIR_CONFIG` (non-secret gateway config) and `AIR_REQUEST_LOG` (APEX
+  application-context log — app id, page id, session id, route, HTTP
+  status, duration; never prompt/response content, never gateway
+  cost/token telemetry, which stays exclusively in the gateway's own
+  `TelemetryStore`) tables, plus `AIR_MODEL_USAGE_V` and
+  `AIR_DAILY_USAGE_V` reporting views.
+- `APEX_AI_ROUTER` PL/SQL package (`database/packages/`): `generate(p_prompt,
+  p_route, p_session_id, p_temperature)` and `chat(p_messages_json, p_route,
+  p_session_id)`, both calling the gateway's `POST /v1/chat/completions` via
+  `APEX_WEB_SERVICE.MAKE_REST_REQUEST` with an APEX Web Credential (the
+  package never reads or stores the gateway API key itself), and returning
+  the parsed assistant response text. Named exceptions
+  (`e_unknown_route`/`e_gateway_error`/`e_missing_config`, ORA-20050..52)
+  for callers to handle specific failure modes. `p_session_id` is threaded
+  through to logging in preference to the ambient APEX session.
+- `database/install.sql` / `uninstall.sql`, optional cross-schema
+  `database/grants/*.sql`, and `database/tests/smoke_test.sql` (a
+  network-free check of object validity, required config, and unknown-route
+  handling).
+- `docs/apex-ai-setup.md`: guide for pointing an APEX `APEX_AI` Generative
+  AI Service directly at the gateway (`model=apex-auto`) — the
+  lowest-friction adoption path, requiring neither the PL/SQL package nor
+  the plug-in (spec section 45). Exact Builder field names are explicitly
+  flagged as unverified against a live APEX instance, per spec section 17's
+  own instruction not to invent them.
+- `database/tests/manual_gateway_test.sql`: a documented, non-automated
+  test that exercises `generate()` against a real reachable gateway, for
+  operators to run by hand once a gateway and Web Credential are in place.
+
+**Caveat:** the Phase 5 SQL/PL/SQL above has not been compiled or run
+against a live Oracle Database or APEX workspace in this repository (no
+Oracle instance was available in the environment it was built in). It is
+hand-verified against documented Oracle/APEX APIs
+(`JSON_OBJECT_T`/`JSON_ARRAY_T`, `APEX_WEB_SERVICE.MAKE_REST_REQUEST` with
+`p_credential_static_id`). See `database/README.md` and `HANDOFF.md`.
 
 ### Fixed
 
