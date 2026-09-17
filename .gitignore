@@ -39,3 +39,7 @@ benchmark/results/*.tmp.*
 # Switchyard sidecar build output and generated (env-resolved) deploy config
 .tools/
 deploy/switchyard/routes.generated.toml
+
+# GitHub release staging output (built by scripts/build_release_artifacts.py,
+# attached to a GitHub Release, not committed to the repo)
+/dist/release/

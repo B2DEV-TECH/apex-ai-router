@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-09-17
+
+Initial pre-release. Implements the full 10-phase plan: gateway,
+Switchyard-backed `apex-auto` routing, telemetry and cost estimation, the
+Oracle/PL-SQL integration layer, the APEX plug-in, a reference demo
+application, and a synthetic benchmark harness. See `README.md` for current
+scope and honestly-disclosed limitations, and `HANDOFF.md` for the specific
+follow-up items a reviewer should look at before a production release.
+
 ### Added
 
 - Repository foundation: monorepo layout, Apache-2.0 license, README,
@@ -284,3 +293,30 @@ where no equivalent telemetry field currently exists. See
   `tests/contract/test_routing_config_error_sanitization.py` covering all
   three endpoints and by re-running the exact `curl` sequence that
   originally surfaced the crash.
+- A second, broader instance of the same "unsanitized 500" bug class,
+  found the same way (walking `docs/smoke-test.md` against a real booted
+  server) immediately after the fix above: `${VAR}` substitution treated a
+  target env var that is *set but empty* (e.g. `JUDGE_MODEL_ID=`, left
+  blank in `.env`) the same as a real value, silently turning
+  `model: ${JUDGE_MODEL_ID}` into YAML `null`. `TargetConfig.model` is a
+  required `str`, so `RoutingConfig.model_validate(...)` raised a bare
+  `pydantic.ValidationError` -- not a `RoutingConfigError`, so it slipped
+  past the exception handler added for the bug above and reached
+  `GET /ready` (and every other routing-config call site) as another raw,
+  unsanitized 500. `load_routing_config`/`load_pricing_config` also had no
+  try/except around their `model_validate()` calls at all, so *any*
+  malformed `routing.yaml`/`pricing.yaml` shape (a typo'd field, a wrong
+  type) could crash the same way, independent of environment variables.
+  Fixed by (1) treating a set-but-empty env var as unresolved during
+  substitution, so it is reported by the existing, clear
+  "unresolved placeholder" check instead of becoming YAML `null`, and (2)
+  wrapping both `model_validate()` calls in `try/except ValidationError`,
+  re-raising as `RoutingConfigError`/`PricingConfigError` (pydantic's own
+  message only ever names field paths and type mismatches from the
+  non-secret YAML file, never a secret value, so it is safe to expose
+  as-is). Verified by six new tests
+  (`tests/unit/test_config_routing.py`, the new
+  `tests/unit/test_config_pricing.py`, and `tests/unit/test_health.py`)
+  and by restarting a live gateway with the exact originally-broken
+  `JUDGE_MODEL_ID`-empty `.env` and re-`curl`ing `/ready` and
+  `/v1/models`, confirming both now return the sanitized shape.

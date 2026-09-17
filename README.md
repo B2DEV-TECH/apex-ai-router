@@ -19,7 +19,7 @@ Smart Routing   ·   Cost Visibility   ·   Model Agnostic   ·   APEX Native
 > plan are complete: the gateway, Switchyard-based `apex-auto` routing,
 > telemetry/cost estimation, the Oracle/PL-SQL integration layer, the APEX
 > plug-in, a demo application, and a synthetic benchmark harness all exist
-> and are exercised by an automated test suite (93 tests) plus a real
+> and are exercised by an automated test suite (99 tests) plus a real
 > clean-install boot. What has **not** happened: no Oracle Database or APEX
 > Builder instance was available while building this project, so
 > `database/`, `apex-plugin/`, and `apex-demo/` are implemented and
@@ -132,7 +132,10 @@ curl -X POST http://localhost:8080/v1/chat/completions \
 
 Common tasks are also wrapped in the `Makefile` (`make install`, `make
 test`, `make test-integration`, `make run`, `make docker-up`, `make
-benchmark-mock`) — see it for the exact commands each target runs.
+benchmark-mock`) — see it for the exact commands each target runs. Before
+trusting any deployment, walk through
+[`docs/smoke-test.md`](docs/smoke-test.md) — a copy/paste `curl` checklist,
+including the checks that have and haven't actually been run before.
 
 ## Native `APEX_AI` integration
 
